@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cfn7a8myk88o3" path="res://scripts/kive.gd" id="1_afs1t"]
 [ext_resource type="Texture2D" uid="uid://c2x14v1sgfy7u" path="res://assets/VAGON1_BACK.png" id="1_ch0r7"]
+[ext_resource type="Script" uid="uid://briwgdytg3epd" path="res://scripts/vagon1.gd" id="1_dc6um"]
 [ext_resource type="Script" uid="uid://cyckb7xvxkac4" path="res://scripts/train_scroll.gd" id="1_erejh"]
 [ext_resource type="Shader" uid="uid://c8lkc1djmj4y0" path="res://resources/shaders/horizontal_motion_blur.gdshader" id="2_5ovka"]
 [ext_resource type="Texture2D" uid="uid://c564q6pl7cns" path="res://assets/VAGON1_MID.png" id="2_do3pn"]
@@ -15,6 +16,7 @@
 [ext_resource type="Shader" uid="uid://r175oycwmxqs" path="res://resources/shaders/vignette.gdshader" id="11_6xjfw"]
 [ext_resource type="Shader" uid="uid://doqpxvii7j57i" path="res://resources/shaders/color_grading.gdshader" id="13_6xjfw"]
 [ext_resource type="Shader" uid="uid://cqigcb24padsd" path="res://resources/shaders/alarm_pulse.gdshader" id="14_alarm"]
+[ext_resource type="PackedScene" uid="uid://h66ayfw7ve44" path="res://scenes/Guardia.tscn" id="17_v7voo"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7c2j4"]
 shader = ExtResource("2_5ovka")
@@ -78,7 +80,29 @@ shader_parameter/contrast = 1.1
 shader_parameter/saturation = 0.9
 shader_parameter/lift = 0.02
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_crngu"]
+size = Vector2(80, 1080)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hz1"]
+size = Vector2(160, 300)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v7voo"]
+size = Vector2(80, 1080)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hz2"]
+size = Vector2(160, 300)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1moek"]
+size = Vector2(80, 1080)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hz3"]
+size = Vector2(160, 300)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t3ec0"]
+size = Vector2(100, 200)
+
 [node name="Vagon1" type="Node2D" unique_id=84667739]
+script = ExtResource("1_dc6um")
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="." unique_id=886412380]
 
@@ -106,24 +130,32 @@ texture = ExtResource("2_do3pn")
 centered = false
 
 [node name="Suelo" type="StaticBody2D" parent="." unique_id=871323720]
+collision_layer = 8
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Suelo" unique_id=1404799271]
 position = Vector2(3840, 800)
 shape = SubResource("RectangleShape2D_uglov")
 
 [node name="ParedIzquierda" type="StaticBody2D" parent="." unique_id=2123886249]
+collision_layer = 8
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ParedIzquierda" unique_id=1373084270]
 position = Vector2(0, 540)
 shape = SubResource("RectangleShape2D_wall1")
 
 [node name="ParedDerecha" type="StaticBody2D" parent="." unique_id=1713967303]
+collision_layer = 8
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ParedDerecha" unique_id=1720274728]
 position = Vector2(7680, 540)
 shape = SubResource("RectangleShape2D_wall1")
 
 [node name="Escaleras" type="StaticBody2D" parent="." unique_id=2056787868]
+collision_layer = 8
+collision_mask = 0
 
 [node name="Escalon1" type="CollisionShape2D" parent="Escaleras" unique_id=1704911996]
 position = Vector2(4768, 728)
@@ -140,6 +172,7 @@ shape = SubResource("RectangleShape2D_elev1")
 [node name="Kive" type="CharacterBody2D" parent="." unique_id=1676538727]
 z_index = 5
 position = Vector2(200, 700)
+collision_mask = 8
 script = ExtResource("1_afs1t")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Kive" unique_id=1667616364]
@@ -215,3 +248,112 @@ grow_horizontal = 2
 grow_vertical = 2
 rotation = 0.0019749552
 mouse_filter = 2
+
+[node name="ColumnCollisions" type="Node2D" parent="." unique_id=45518763]
+
+[node name="Column1" type="StaticBody2D" parent="ColumnCollisions" unique_id=1050714578]
+position = Vector2(2112, 544)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape" type="CollisionShape2D" parent="ColumnCollisions/Column1" unique_id=2113456363]
+scale = Vector2(3.3078837, 1)
+shape = SubResource("RectangleShape2D_crngu")
+
+[node name="HideZone" type="Area2D" parent="ColumnCollisions/Column1" unique_id=74868782 groups=["hide_zone"]]
+collision_layer = 0
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnCollisions/Column1/HideZone" unique_id=1513184805]
+shape = SubResource("RectangleShape2D_hz1")
+
+[node name="Column2" type="StaticBody2D" parent="ColumnCollisions" unique_id=1133992637]
+position = Vector2(2808, 544)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape" type="CollisionShape2D" parent="ColumnCollisions/Column2" unique_id=1091567669]
+scale = Vector2(3.4370263, 1)
+shape = SubResource("RectangleShape2D_v7voo")
+
+[node name="HideZone" type="Area2D" parent="ColumnCollisions/Column2" unique_id=56733053 groups=["hide_zone"]]
+collision_layer = 0
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnCollisions/Column2/HideZone" unique_id=1184763869]
+shape = SubResource("RectangleShape2D_hz2")
+
+[node name="Column3" type="StaticBody2D" parent="ColumnCollisions" unique_id=1527280850]
+position = Vector2(3520, 544)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape" type="CollisionShape2D" parent="ColumnCollisions/Column3" unique_id=2115181429]
+scale = Vector2(3.570238, 1)
+shape = SubResource("RectangleShape2D_1moek")
+
+[node name="HideZone" type="Area2D" parent="ColumnCollisions/Column3" unique_id=1563204018 groups=["hide_zone"]]
+collision_layer = 0
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnCollisions/Column3/HideZone" unique_id=453920922]
+shape = SubResource("RectangleShape2D_hz3")
+
+[node name="RespawnFade" type="CanvasLayer" parent="." unique_id=416370828]
+layer = 11
+
+[node name="FadeRect" type="ColorRect" parent="RespawnFade" unique_id=1316859696]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="PatrolMarkerA" type="Marker2D" parent="." unique_id=675129029]
+position = Vector2(2500, 800)
+
+[node name="PatrolMarkerB" type="Marker2D" parent="." unique_id=10102193]
+position = Vector2(3500, 800)
+
+[node name="Guardia" parent="." unique_id=307818346 instance=ExtResource("17_v7voo")]
+position = Vector2(3000, 800)
+patrol_marker_a = NodePath("../PatrolMarkerA")
+patrol_marker_b = NodePath("../PatrolMarkerB")
+
+[node name="Body2" type="Polygon2D" parent="Guardia" unique_id=430258336]
+color = Color(0.2, 0.2, 0.2, 1)
+polygon = PackedVector2Array(-60, -220, 60, -220, 60, 0, -60, 0)
+
+[node name="Head2" type="Polygon2D" parent="Guardia" unique_id=1738395102]
+color = Color(0.23, 0.66, 0.77, 1)
+polygon = PackedVector2Array(-20, -260, 20, -260, 20, -220, -20, -220)
+
+[node name="StateIndicator2" type="Label" parent="Guardia" unique_id=719558096]
+offset_left = -20.0
+offset_top = -290.0
+offset_right = 20.0
+offset_bottom = -260.0
+horizontal_alignment = 1
+
+[node name="VisionCone2" type="Area2D" parent="Guardia" unique_id=1026631542]
+collision_layer = 16
+
+[node name="LineOfSightRay2" type="RayCast2D" parent="Guardia" unique_id=875277902]
+collision_mask = 3
+
+[node name="HearingRange2" type="Area2D" parent="Guardia" unique_id=301957574]
+collision_layer = 16
+
+[node name="DebugLabel2" type="Label" parent="Guardia" unique_id=663917147 groups=["debug_visual"]]
+offset_left = -80.0
+offset_top = -310.0
+offset_right = 80.0
+offset_bottom = -287.0
+
+[node name="RayLine2" type="Line2D" parent="Guardia" unique_id=1178042697 groups=["debug_visual"]]
+width = 2.0
+default_color = Color(0, 1, 0, 0.6)
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Guardia" unique_id=634833179]
+position = Vector2(0, -100)
+shape = SubResource("RectangleShape2D_t3ec0")

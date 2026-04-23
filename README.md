@@ -1,6 +1,6 @@
 # Kive en el Tren — Prototipo Vagón 1
 
-Primer prototipo jugable del juego "Kive en el Tren". Solo movimiento del personaje en el escenario del Vagón 1, sin enemigos, combate ni audio.
+Primer prototipo jugable del juego "Kive en el Tren". Movimiento del personaje (salto cargado, doble salto, dive, step climbing), primer enemigo (Guardia con IA de 3 estados), mecánica de sigilo (crouch + auto-hide + oído) y sistema de respawn.
 
 ## Estructura de carpetas
 
@@ -12,8 +12,7 @@ Primer prototipo jugable del juego "Kive en el Tren". Solo movimiento del person
 │   ├── VAGON1_TOP.png   # Capa frente — columnas que ocultan a Kive (7680x1080)
 │   ├── VAGON1_ATMO.png  # Capa atmosférica encima de todo (7680x1080)
 │   ├── Kive_Sprite.png           # Idle (256x256)
-│   ├── Kive_WalkingCycle_Sprite.png  # Walk spritesheet (1280x256, 5 frames)
-│   └── Kive_Jump_Sprite.png         # Jump spritesheet (1280x256, 5 frames)
+│   └── Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png  # Spritesheet principal
 ├── resources/
 │   ├── kive_frames.tres  # SpriteFrames con todas las animaciones
 │   └── shaders/
@@ -23,13 +22,313 @@ Primer prototipo jugable del juego "Kive en el Tren". Solo movimiento del person
 │       ├── color_grading.gdshader          # Tinte atmosférico (AtmosphereGrade)
 │       └── alarm_pulse.gdshader           # Alarma roja pulsante periférica (PostProcess)
 ├── scenes/
-│   └── Vagon1.tscn       # Escena principal del vagón
+│   ├── Vagon1.tscn       # Escena principal del vagón
+│   └── Guardia.tscn      # Escena del enemigo guardia (placeholder visual)
 ├── scripts/
-│   ├── kive.gd            # Script de movimiento de Kive
+│   ├── kive.gd            # Script de movimiento de Kive (salto cargado, dive, crouch)
+│   ├── guardia.gd         # IA del guardia (FSM 3 estados + detección dual)
+│   ├── game_manager.gd    # Autoload — respawn y registro de entidades
+│   ├── debug_overlay.gd   # Autoload — toggle de visuales de debug (F1)
+│   ├── pause_menu.gd      # Autoload — menú de controles + remapping (ESC)
+│   ├── vagon1.gd          # Script de escena — registra Kive y fade en GameManager
 │   ├── train_scroll.gd    # Scroll continuo del paisaje (OutLayer)
 │   └── train_shake.gd     # Bamboleo de cámara (Camera2D)
 └── project.godot
 ```
+
+## Physics Layers
+
+| Layer | Bit | Nombre | Uso |
+|---|---|---|---|
+| 1 | 1 | Player | Kive |
+| 2 | 2 | Cover | Columnas que bloquean raycast de detección |
+| 3 | 4 | Enemy | Guardias |
+| 4 | 8 | World | Suelo, paredes, escaleras |
+| 5 | 16 | Detection | Cono de visión, radio de oído |
+
+## Sistema de movimiento
+
+### Velocidades
+
+| Estado | Velocidad (px/s) | Notas |
+|---|---|---|
+| Correr (default) | 800 | Movimiento base, sin mantener teclas extra |
+| Andar (Left Shift) | 400 | Mantener Shift para caminar |
+| Agachado | 200.4 | Cualquier modo crouch |
+| Control aéreo | ×0.8 | Multiplicador sobre la velocidad actual |
+
+### Salto cargado
+
+El salto pasa por una fase de anticipation antes de despegar. Si Kive está corriendo, salta directamente (instajump) sin anticipation.
+
+| Fase | Duración | Descripción |
+|---|---|---|
+| Anticipation | 0.04s | Kive se agacha (frame de preparación). Solo parado o andando |
+| Carga (hold) | 0 – 0.4s | Mantener Space para cargar. Se confirma tras 0.14s de hold |
+| Release | — | Soltar Space para saltar |
+| Cancel | 4.0s | Si se mantiene >4s, el salto se cancela |
+
+| Parámetro | Valor |
+|---|---|
+| Velocidad mínima (sin cargar) | -800 |
+| Velocidad máxima (carga completa) | -1200 |
+| Umbral de carga (charge threshold) | 0.14s |
+| Tiempo de carga completa | 0.4s |
+| Cancel timeout | 4.0s |
+
+**Visual**: durante la carga, el sprite pausa en el frame 1 de jump_anticipation.
+**Corriendo**: instajump directo a jump_air, sin pasar por anticipation.
+
+### Doble salto (air jump)
+
+- 1 salto extra en el aire (`max_air_jumps = 1`)
+- Velocidad: -800
+- Transiciones de animación: `air_jump_rise` → `air_jump_fall` → `jump_precontact`
+- Se resetea al tocar el suelo
+
+### Dive
+
+#### Ground dive
+
+Se activa con Right Shift mientras Kive corre (no funciona andando ni parado).
+
+- Slide horizontal a 1200 px/s en la dirección actual
+- Fricción de 800 px/s² — se frena progresivamente
+- Duración máxima: 1.2s
+- Reduce hitbox (misma que crouch, ×0.7)
+- Mantener Right Shift para extender el slide, soltar para terminar
+- **Combo**: Jump durante dive → cancela dive + salta (con air jumps reseteados)
+
+#### Air dive
+
+Se activa con Right Shift en el aire.
+
+- Impulso horizontal: velocidad de dive × 0.8
+- Boost vertical: min(-400, velocity.y) — garantiza impulso hacia arriba
+- **Combo**: Jump durante air dive → cancela dive + air jump
+
+### Step climbing
+
+Kive (y el guardia) suben escalones automáticamente al caminar contra ellos.
+- `STEP_HEIGHT = 80.0`
+- Lógica: choque con pared en suelo → test espacio libre arriba → test avance a altura elevada → subir
+
+### Máquina de estados del salto
+
+```
+none → anticipation → jump_air → precontact → contact → recovery → none
+                                                 ↑
+air jump:  air_jump_rise → air_jump_fall ─────────┘
+                                                 ↑
+caída libre:  none → jump_air → precontact ──────┘
+```
+
+Estados: `none`, `anticipation`, `jump_air`, `air_jump_rise`, `air_jump_fall`, `precontact`, `contact`, `recovery`
+
+## Sistema de sigilo
+
+### Crouch (agacharse)
+
+Dos modos configurables desde el menú de pausa (ESC):
+- **Toggle** (default): pulsar S o C para alternar agachado/de pie
+- **Hold**: mantener S o C para agacharse, soltar para levantarse
+
+Solo funciona en el suelo, sin saltar y sin dive activo.
+
+- Reduce la altura de la collision shape (×0.7)
+- Velocidad agachado: 200.4 px/s
+- Silencia completamente a Kive para el oído del guardia (radio de detección = 1px)
+- Saltar desde agachado levanta automáticamente a Kive antes del salto
+
+### Esconderse (Auto-hide)
+
+Kive se esconde automáticamente cuando se cumplen **todas** estas condiciones:
+- Está agachado (`is_crouched`)
+- Dentro de una HideZone (Area2D, grupo `hide_zone`)
+- En el suelo
+- Sin salto activo (`jump_state == "none"`)
+- Sin input direccional
+- Velocidad horizontal < 10 px/s
+- Ningún guardia en estado ALERT
+
+**Salir**: cualquier input de movimiento (A/D) o salto (Space).
+
+- **Efecto visual**: Sprite semitransparente (alpha 0.35)
+- **Detección**: El guardia ignora completamente a Kive escondido (visión + oído)
+- **Física**: `collision_layer=0` y `collision_mask=0` → Kive es invisible para la física
+- Respawn resetea el estado de escondite
+
+### Detección dual del guardia
+
+El guardia detecta a Kive por **vista** y **oído** simultáneamente:
+
+**Vista**: Cono trapezoidal (400px de largo, ~35° apertura) + RayCast2D para línea de visión. Si una columna (Cover layer) está entre el guardia y Kive, la visión se bloquea aunque Kive esté dentro del cono.
+
+**Oído**: Area2D circular con radio dinámico según el estado de Kive:
+
+| Estado de Kive | Radio de oído |
+|---|---|
+| Quieto | 80px |
+| Caminando | 250px |
+| Corriendo | 450px |
+| Agachado | 1px (sordo) |
+
+La detección combina ambos sentidos: `detected = (en_cono AND visible) OR oído`
+
+**Nota**: Si Kive está escondido (`is_hidden = true`), `_update_detection()` hace early return sin actualizar `last_seen_position`. Esto evita que el raycast (que no golpea a Kive con layer=0) interprete "nada entre ellos" como "lo veo".
+
+### Estados del guardia (FSM)
+
+| Estado | Comportamiento | Transición a... |
+|---|---|---|
+| PATROL | Camina entre dos markers a 80px/s | SUSPICIOUS si detecta a Kive |
+| SUSPICIOUS | Se detiene, mira hacia última posición conocida | ALERT tras 1.2s de detección continua / PATROL tras 5s sin detección |
+| ALERT | Persigue a Kive a 280px/s | SUSPICIOUS tras 3s sin detección |
+
+Si el guardia en ALERT colisiona físicamente con Kive → captura → respawn.
+
+## Enemigos — Guardia
+
+### Estructura de la escena (Guardia.tscn)
+
+```
+Guardia (CharacterBody2D, z=4, layer=Enemy, mask=World+Player)
+├── Body (Polygon2D 120x220, gris oscuro)
+├── Head (Polygon2D 40x40, cyan)
+├── StateIndicator (Label — ?, !)
+├── CollisionShape2D (100x200, centrado en pies)
+├── VisionCone (Area2D, layer=Detection, mask=Player)
+│   ├── VisionCollisionPolygon (trapecio 400px)
+│   └── VisionPolygon (Polygon2D visual, misma forma)
+├── LineOfSightRay (RayCast2D, mask=Player+Cover)
+├── HearingRange (Area2D, layer=Detection, mask=Player)
+│   ├── HearingShape (CircleShape2D, radio dinámico)
+│   └── HearingVisual (Node2D, debug_visual — círculo amarillo)
+├── DebugLabel (Label, debug_visual — estado/radio/flags)
+└── RayLine (Line2D, debug_visual — línea del raycast)
+```
+
+### Cómo añadir más guardias
+
+1. Crear dos `Marker2D` para los puntos de patrulla
+2. Instanciar `Guardia.tscn` como hijo de la escena
+3. Asignar `patrol_marker_a` y `patrol_marker_b` en el inspector
+4. El guardia se registra automáticamente en GameManager al entrar al árbol
+
+### Placeholders actuales
+
+- Body y Head son `Polygon2D` (antes eran `ColorRect`, cambiados porque los Control nodes bajo CharacterBody2D se desacoplan del viewport cuando la cámara topa con sus límites) — reemplazar con sprites cuando haya arte
+- No hay animaciones del guardia
+- Las posiciones de columnas (ColumnCollisions) son provisionales (X=1500, 3500, 5500)
+
+## Sistema de respawn
+
+### GameManager (Autoload)
+
+Gestiona el ciclo de captura y respawn:
+
+1. Guardia en ALERT colisiona con Kive → `GameManager.player_caught()`
+2. Se desactiva el control de Kive
+3. Fade out (0.3s, pantalla negra)
+4. Kive se reposiciona en spawn (200, 700)
+5. Todos los guardias vuelven a PATROL en su marker A
+6. Fade in (0.3s)
+7. Se reactiva el control
+
+El `RespawnFade` es un `CanvasLayer` (layer=11) con un `ColorRect` negro que cubre toda la pantalla, alpha inicial 0.
+
+## Debug
+
+### Toggle con F1
+
+Pulsar F1 alterna la visibilidad de todos los elementos de debug (grupo `debug_visual`):
+
+- **HearingVisual**: Círculo amarillo semitransparente que muestra el radio de oído actual del guardia
+- **DebugLabel**: Texto sobre el guardia con estado actual, radio de oído, flags de visión y oído (`S:PATROL H:80 V:F P:F`)
+- **RayLine**: Línea verde (visible) o roja (bloqueada) del raycast de línea de visión
+
+Para desactivar permanentemente en release, cambiar `debug_enabled = false` en `debug_overlay.gd`.
+
+## Controles
+
+| Acción | Tecla default | Notas |
+|---|---|---|
+| Mover izquierda | A | |
+| Mover derecha | D | |
+| Saltar | Space | Mantener para cargar salto |
+| Andar (lento) | Left Shift (mantener) | Por defecto Kive corre |
+| Agacharse | S, C | Toggle o hold (configurable en menú ESC) |
+| Dive | Right Shift | En suelo (corriendo) o en aire |
+| Debug overlay | F1 | Toggle |
+
+Todas las teclas (excepto F1) son remapeables desde el menú de pausa.
+
+## Menú de pausa
+
+Se abre/cierra con **ESC**. Pausa el juego completamente.
+
+### Funciones
+
+- **Remapping de teclas**: las 6 acciones de juego (Move Left, Move Right, Jump, Crouch, Walk, Dive) se pueden reasignar a cualquier tecla. Click en el botón de la acción → pulsar nueva tecla. ESC cancela el remapping.
+- **Crouch Mode**: alterna entre Toggle (default) y Hold.
+- **Persistencia**: los controles y el modo crouch se guardan en `user://settings.cfg` y se cargan automáticamente al iniciar.
+
+## Parámetros ajustables desde el editor
+
+### Kive
+
+| Parámetro | Valor default | Descripción |
+|---|---|---|
+| `walk_speed` | 400.0 | Velocidad al andar (Shift) |
+| `run_speed` | 800.0 | Velocidad al correr (default) |
+| `gravity` | 2400.0 | Fuerza de gravedad |
+| `air_control_factor` | 0.8 | Multiplicador de control en el aire |
+| `max_air_jumps` | 1 | Saltos adicionales en el aire (doble salto) |
+| `air_jump_velocity` | -800.0 | Impulso vertical del salto en el aire |
+| `crouch_walk_speed` | 200.4 | Velocidad agachado |
+| `crouch_height_multiplier` | 0.7 | Multiplicador de altura agachado |
+| `jump_charge_time` | 0.4 | Tiempo para carga completa del salto |
+| `jump_velocity_min` | -800.0 | Impulso mínimo (salto sin cargar) |
+| `jump_velocity_max` | -1200.0 | Impulso máximo (salto cargado al 100%) |
+| `dive_speed` | 1200.0 | Velocidad horizontal del dive |
+| `dive_max_duration` | 1.2 | Duración máxima del slide en suelo |
+| `dive_friction` | 800.0 | Fricción durante el slide |
+
+### Guardia
+
+| Parámetro | Valor default | Descripción |
+|---|---|---|
+| `patrol_speed` | 80.0 | Velocidad de patrulla |
+| `alert_speed` | 280.0 | Velocidad de persecución |
+| `suspicion_to_alert_time` | 1.2 | Segundos de detección continua para pasar a ALERT |
+| `alert_to_suspicious_time` | 3.0 | Segundos sin detección para bajar de ALERT |
+| `suspicious_to_patrol_time` | 5.0 | Segundos sin detección para volver a PATROL |
+| `hearing_radius_walking` | 250.0 | Radio de oído cuando Kive camina |
+| `hearing_radius_running` | 450.0 | Radio de oído cuando Kive corre |
+| `hearing_radius_idle` | 80.0 | Radio de oído cuando Kive está quieto |
+| `hearing_radius_crouched` | 1.0 | Radio de oído cuando Kive está agachado |
+
+## Animaciones (kive_frames.tres)
+
+Spritesheet unificado con 15 animaciones en `Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png` (+ idle desde `Kive_Sprite.png`):
+
+| Animación | Frames | FPS | Loop | Uso |
+|---|---|---|---|---|
+| `idle` | 1 | — | si | De pie, sin moverse |
+| `walk` | 4 | 8 | si | Andando (Shift) |
+| `run` | 4 | 10 | si | Corriendo (default) |
+| `crouch_idle` | 1 | — | si | Agachado quieto |
+| `crouch_walk` | 7 | 8 | si | Agachado caminando |
+| `jump_anticipation` | 2 | 8 | no | Preparación del salto (solo parado/andando) |
+| `jump_air` | 1 | — | no | En el aire (salto normal) |
+| `jump_precontact` | 1 | — | no | Cayendo, cerca del suelo |
+| `jump_contact` | 1 | 8 | no | Aterrizaje |
+| `jump_recovery` | 1 | 6 | no | Recuperación post-aterrizaje |
+| `air_jump_rise` | 1 | — | no | Doble salto — subiendo |
+| `air_jump_fall` | 1 | — | no | Doble salto — bajando |
+| `dive_start` | 3 | 12 | no | Inicio del dive |
+| `dive_slide` | 1 | — | si | Slide en suelo / air dive |
+| `dive_end` | 1 | 8 | no | Final del dive |
 
 ## Capas de renderizado
 
@@ -40,6 +339,7 @@ El vagón usa 5 capas visuales con z_index para controlar profundidad:
 | OUT | ParallaxBackground > OutLayer | 0 | Paisaje exterior, motion_scale=1.0, scroll continuo + motion blur |
 | BACK | ParallaxBackground > BackLayer | 0 | Fondo interior del vagón, motion_scale=0.88 (paralaje sutil) |
 | MID | ParallaxBackground > MidLayer | 0 | Paredes, butacas, motion_scale=1.0 |
+| Guardia | CharacterBody2D | 4 | Enemigo guardia (placeholder) |
 | Kive | CharacterBody2D | 5 | Personaje jugable |
 | TOP | Node2D (FrontLayer) | 10 | Columnas que ocultan a Kive |
 | ATMO | Node2D (AtmoLayer) | 20 | Capa atmosférica sobre todo |
@@ -49,27 +349,6 @@ El vagón usa 5 capas visuales con z_index para controlar profundidad:
 **Nota sobre BACK**: La capa BACK es el fondo interior del vagón (columnas lejanas, estructura). Tiene `motion_scale=(0.88, 1)` para un paralaje sutil respecto a MID, dando sensación de profundidad dentro del vagón.
 
 **Nota técnica**: La capa TOP no usa ParallaxBackground porque Godot 4 no respeta z_index entre ParallaxBackground y nodos regulares. Se usa un Node2D con z_index=10 que se mueve 1:1 con la cámara (equivalente a motion_scale=1.0).
-
-## Controles
-
-| Acción | Teclas |
-|---|---|
-| Mover izquierda | Flecha izquierda, A |
-| Mover derecha | Flecha derecha, D |
-| Saltar | Espacio, W, Flecha arriba |
-| Correr | Shift (mantener) |
-
-## Parámetros ajustables desde el editor
-
-Selecciona el nodo `Kive` en el inspector para modificar:
-
-| Parámetro | Valor default | Descripción |
-|---|---|---|
-| `walk_speed` | 300.0 | Velocidad al caminar |
-| `run_speed` | 850.0 | Velocidad al correr (Shift) |
-| `jump_velocity` | -900.0 | Impulso vertical del salto |
-| `gravity` | 2400.0 | Fuerza de gravedad |
-| `air_control_factor` | 0.7 | Multiplicador de control en el aire |
 
 ## Geometría del nivel
 
@@ -82,7 +361,18 @@ Dos `StaticBody2D` con colisión vertical (50x1080) en los bordes del nivel:
 - **ParedDerecha** — x=7680, impide salir por la derecha
 
 ### Escaleras y suelo elevado
-Al final del vagón (derecha) hay una escalera de 2 escalones (`Escalon1`, `Escalon2`) que conecta el suelo principal con un `SueloElevado` más alto. Los escalones son `CollisionShape2D` dentro de un `StaticBody2D` llamado `Escaleras`. Kive sube saltando escalón a escalón.
+Al final del vagón (derecha) hay una escalera de 2 escalones (`Escalon1`, `Escalon2`) que conecta el suelo principal con un `SueloElevado` más alto. Los escalones son `CollisionShape2D` dentro de un `StaticBody2D` llamado `Escaleras`.
+
+**Step climbing** (Kive y Guardia): Ambos suben escalones automáticamente al caminar contra ellos. `STEP_HEIGHT = 80.0`. Lógica: si chocas con pared en el suelo → test espacio arriba → test avance a altura elevada → subir. La gravedad aterriza suavemente en el siguiente frame.
+
+### Columnas de cobertura (ColumnCollisions)
+3 `StaticBody2D` (layer=Cover, mask=0) que bloquean el raycast de detección del guardia. Posiciones provisionales: X=1500, 3500, 5500. Ajustar visualmente para alinear con las columnas de VAGON1_TOP.png.
+
+### HideZones en columnas
+Cada columna (Column1, Column2, Column3) tiene un `Area2D` hijo que define la zona donde Kive puede esconderse:
+- `collision_layer=0`, `collision_mask=1` (Player), grupo `hide_zone`
+- `CollisionShape2D`: 160x300, centrado en la columna
+- `monitoring=true`, `monitorable=false`
 
 ## Efectos del tren
 
@@ -189,15 +479,36 @@ Stack completo de abajo a arriba:
 1. **OUT** — ParallaxBackground > OutLayer (paisaje exterior + scroll + motion blur)
 2. **BACK** — ParallaxBackground > BackLayer (fondo interior, parallax 0.88)
 3. **MID** — ParallaxBackground > MidLayer (paredes, butacas)
-4. **Kive** — CharacterBody2D (z=5)
+4. **Guardia** — CharacterBody2D (z=4)
+5. **Kive** — CharacterBody2D (z=5)
    - DustParticles — partículas de polvo (local_coords=false)
-5. **TOP** — Node2D FrontLayer (z=10, blur gaussiano)
-6. **ATMO** — Node2D AtmoLayer (z=20)
-7. **AtmosphereGrade** — CanvasLayer 9 (color grading)
-8. **PostProcess** — CanvasLayer 10 (viñeta + alarma roja pulsante)
+6. **TOP** — Node2D FrontLayer (z=10, blur gaussiano)
+7. **ATMO** — Node2D AtmoLayer (z=20)
+8. **AtmosphereGrade** — CanvasLayer 9 (color grading)
+9. **PostProcess** — CanvasLayer 10 (viñeta + alarma roja pulsante)
+10. **RespawnFade** — CanvasLayer 11 (fade negro para respawn)
+11. **PauseMenu** — CanvasLayer 100 (menú de controles)
+
+## Decisiones de implementación
+
+- **Velocidad invertida**: correr es el default, Shift = andar. El tren se siente más dinámico si Kive corre por defecto — los momentos de sigilo requieren Shift consciente.
+- **Auto-hide vs toggle manual**: se eliminó el toggle con Q. El hide es automático al agacharse en una HideZone sin movimiento, simplificando los controles y haciendo el sigilo más intuitivo.
+- **Salto cargado con anticipation frame**: permite feedback visual antes del salto. Al correr se salta la anticipation para no romper el flujo de movimiento.
+- **collision_mask del guardia = 9 (World + Player)**: El doc original especificaba mask=8 (solo World), pero eso impedía que `get_slide_collision()` detectara a Kive para la captura. Se corrigió a 9.
+- **Posiciones de ColumnCollisions provisionales**: X=1500, 3500, 5500 son estimaciones. Ajustar visualmente para alinear con las columnas reales de VAGON1_TOP.png.
+- **HearingRange radius mínimo = 1px**: En vez de 0, para evitar posibles warnings de Godot con shapes de radio 0.
+- **Polygon2D vs ColorRect para el guardia**: Los nodos `ColorRect` (Control) bajo `CharacterBody2D` se desacoplan del viewport cuando la cámara topa con sus límites, causando que el guardia apareciera "pegado" al borde de la pantalla. Cambiados a `Polygon2D` (Node2D) que se comportan correctamente.
+- **process_mode ALWAYS en el guardia**: Se establece `process_mode = Node.PROCESS_MODE_ALWAYS` en `_ready()` para garantizar que la IA del guardia procesa incluso cuando está fuera de cámara.
+- **Step climbing (STEP_HEIGHT = 80.0)**: Tanto Kive como el guardia suben escalones automáticamente. Se usa un test de espacio libre arriba + avance a la altura elevada para determinar si un choque con pared es un escalón franqueable.
 
 ## TODOs
 
+- Ajustar posiciones de ColumnCollisions para alinear con VAGON1_TOP.png
 - El tamaño del CollisionShape de Kive (80x200) puede necesitar ajuste fino
 - La posición de spawn de Kive (200, 700) es provisional
 - La capa ATMO está en blend normal — experimentar con opacidad/blend si se desea
+- Reemplazar placeholders visuales del guardia (Polygon2D) con sprites reales
+
+## Bugs conocidos
+
+- **Guardia errático cerca de columnas en SUSPICIOUS/ALERT**: El guardia se comporta erráticamente cerca de columnas (Cover layer) cuando está en estado SUSPICIOUS o ALERT. Parece relacionado con la pérdida del raycast de línea de visión al cruzar columnas. En PATROL no ocurre.

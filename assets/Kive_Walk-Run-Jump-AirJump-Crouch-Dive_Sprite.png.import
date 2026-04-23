@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cf60o3b7jkhmi"
-path="res://.godot/imported/Kive_Jump_Sprite.png-817d7a426315fabc6bb39ed091b691df.ctex"
+uid="uid://bpb817l08meo2"
+path="res://.godot/imported/Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png-03db111bfdcbef45269e36944c7a8765.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Kive_Jump_Sprite.png"
-dest_files=["res://.godot/imported/Kive_Jump_Sprite.png-817d7a426315fabc6bb39ed091b691df.ctex"]
+source_file="res://assets/Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png"
+dest_files=["res://.godot/imported/Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png-03db111bfdcbef45269e36944c7a8765.ctex"]
 
 [params]
 
