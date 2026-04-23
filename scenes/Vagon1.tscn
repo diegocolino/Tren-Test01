@@ -1,0 +1,217 @@
+[gd_scene format=3 uid="uid://cx7dcgak0ccu2"]
+
+[ext_resource type="Script" uid="uid://cfn7a8myk88o3" path="res://scripts/kive.gd" id="1_afs1t"]
+[ext_resource type="Texture2D" uid="uid://c2x14v1sgfy7u" path="res://assets/VAGON1_BACK.png" id="1_ch0r7"]
+[ext_resource type="Script" uid="uid://cyckb7xvxkac4" path="res://scripts/train_scroll.gd" id="1_erejh"]
+[ext_resource type="Shader" uid="uid://c8lkc1djmj4y0" path="res://resources/shaders/horizontal_motion_blur.gdshader" id="2_5ovka"]
+[ext_resource type="Texture2D" uid="uid://c564q6pl7cns" path="res://assets/VAGON1_MID.png" id="2_do3pn"]
+[ext_resource type="SpriteFrames" uid="uid://bcshkbrb7djaw" path="res://resources/kive_frames.tres" id="2_ucwio"]
+[ext_resource type="Texture2D" uid="uid://bx4lvuid4e22d" path="res://assets/VAGON1_TOP.png" id="3_ncysw"]
+[ext_resource type="Texture2D" uid="uid://cnqb6qftwmvqe" path="res://assets/VAGON1_OUT.png" id="4_vutg6"]
+[ext_resource type="Texture2D" uid="uid://c0qv8hv0pd687" path="res://assets/VAGON1_ATMO.png" id="6_do3pn"]
+[ext_resource type="Script" uid="uid://dmxmmdkybvdfu" path="res://scripts/train_shake.gd" id="6_lfrhs"]
+[ext_resource type="Texture2D" uid="uid://d4idi1e4o4gm3" path="res://resources/dust_particle.tres" id="7_dc6um"]
+[ext_resource type="Shader" uid="uid://j3h6sceiw2bt" path="res://resources/shaders/gaussian_blur.gdshader" id="8_vutg6"]
+[ext_resource type="Shader" uid="uid://r175oycwmxqs" path="res://resources/shaders/vignette.gdshader" id="11_6xjfw"]
+[ext_resource type="Shader" uid="uid://doqpxvii7j57i" path="res://resources/shaders/color_grading.gdshader" id="13_6xjfw"]
+[ext_resource type="Shader" uid="uid://cqigcb24padsd" path="res://resources/shaders/alarm_pulse.gdshader" id="14_alarm"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7c2j4"]
+shader = ExtResource("2_5ovka")
+shader_parameter/blur_radius = 44.0
+shader_parameter/samples = 44
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uglov"]
+size = Vector2(7680, 50)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall1"]
+size = Vector2(50, 1080)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_step1"]
+size = Vector2(200, 18)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_elev1"]
+size = Vector2(2882, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ch0r7"]
+size = Vector2(80, 200)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mp3i2"]
+emission_shape = 3
+emission_box_extents = Vector3(960, 400, 0)
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 4.0
+initial_velocity_max = 44.0
+gravity = Vector3(0, 0, 0)
+damping_min = 0.4
+damping_max = 4.0
+scale_min = 0.04
+scale_max = 0.4
+color = Color(0.9, 0.95, 1, 0.2)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_86pfq"]
+shader = ExtResource("8_vutg6")
+shader_parameter/blur_radius = 10.0
+shader_parameter/samples = 16
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dc6um"]
+shader = ExtResource("11_6xjfw")
+shader_parameter/vignette_intensity = 0.2
+shader_parameter/vignette_softness = 0.5
+shader_parameter/vignette_color = Color(0, 0, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_alarm"]
+shader = ExtResource("14_alarm")
+shader_parameter/alarm_color = Color(1, 0.25, 0.125, 1)
+shader_parameter/min_intensity = 0.08
+shader_parameter/max_intensity = 0.5
+shader_parameter/pulse_frequency = 0.4
+shader_parameter/edge_softness = 0.35
+shader_parameter/asymmetry = 0.3
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crngu"]
+shader = ExtResource("13_6xjfw")
+shader_parameter/tint_color = Color(0.3, 0.4, 0.55, 1)
+shader_parameter/tint_strength = 0.15
+shader_parameter/contrast = 1.1
+shader_parameter/saturation = 0.9
+shader_parameter/lift = 0.02
+
+[node name="Vagon1" type="Node2D" unique_id=84667739]
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="." unique_id=886412380]
+
+[node name="OutLayer" type="ParallaxLayer" parent="ParallaxBackground" unique_id=431007295]
+motion_mirroring = Vector2(7680, 0)
+script = ExtResource("1_erejh")
+
+[node name="OutSprite" type="Sprite2D" parent="ParallaxBackground/OutLayer" unique_id=981241830]
+texture_repeat = 2
+material = SubResource("ShaderMaterial_7c2j4")
+texture = ExtResource("4_vutg6")
+centered = false
+
+[node name="BackLayer" type="ParallaxLayer" parent="ParallaxBackground" unique_id=1362705175]
+motion_scale = Vector2(0.88, 1)
+
+[node name="BackSprite" type="Sprite2D" parent="ParallaxBackground/BackLayer" unique_id=325829209]
+texture = ExtResource("1_ch0r7")
+centered = false
+
+[node name="MidLayer" type="ParallaxLayer" parent="ParallaxBackground" unique_id=234930770]
+
+[node name="MidSprite" type="Sprite2D" parent="ParallaxBackground/MidLayer" unique_id=1038327545]
+texture = ExtResource("2_do3pn")
+centered = false
+
+[node name="Suelo" type="StaticBody2D" parent="." unique_id=871323720]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Suelo" unique_id=1404799271]
+position = Vector2(3840, 800)
+shape = SubResource("RectangleShape2D_uglov")
+
+[node name="ParedIzquierda" type="StaticBody2D" parent="." unique_id=2123886249]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ParedIzquierda" unique_id=1373084270]
+position = Vector2(0, 540)
+shape = SubResource("RectangleShape2D_wall1")
+
+[node name="ParedDerecha" type="StaticBody2D" parent="." unique_id=1713967303]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ParedDerecha" unique_id=1720274728]
+position = Vector2(7680, 540)
+shape = SubResource("RectangleShape2D_wall1")
+
+[node name="Escaleras" type="StaticBody2D" parent="." unique_id=2056787868]
+
+[node name="Escalon1" type="CollisionShape2D" parent="Escaleras" unique_id=1704911996]
+position = Vector2(4768, 728)
+shape = SubResource("RectangleShape2D_step1")
+
+[node name="Escalon2" type="CollisionShape2D" parent="Escaleras" unique_id=652117559]
+position = Vector2(4832, 672)
+shape = SubResource("RectangleShape2D_step1")
+
+[node name="SueloElevado" type="CollisionShape2D" parent="Escaleras" unique_id=1744590487]
+position = Vector2(6247, 624)
+shape = SubResource("RectangleShape2D_elev1")
+
+[node name="Kive" type="CharacterBody2D" parent="." unique_id=1676538727]
+z_index = 5
+position = Vector2(200, 700)
+script = ExtResource("1_afs1t")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Kive" unique_id=1667616364]
+sprite_frames = ExtResource("2_ucwio")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive" unique_id=74569011]
+shape = SubResource("RectangleShape2D_ch0r7")
+
+[node name="Camera2D" type="Camera2D" parent="Kive" unique_id=1434688142]
+limit_left = 0
+limit_top = 0
+limit_right = 7680
+limit_bottom = 1080
+position_smoothing_enabled = true
+drag_horizontal_enabled = true
+script = ExtResource("6_lfrhs")
+
+[node name="DustParticles" type="GPUParticles2D" parent="Kive" unique_id=581190322]
+z_index = -1
+position = Vector2(0, -100)
+amount = 44
+texture = ExtResource("7_dc6um")
+lifetime = 4.0
+preprocess = 5.0
+visibility_rect = Rect2(-5000, -1000, 10000, 2000)
+process_material = SubResource("ParticleProcessMaterial_mp3i2")
+
+[node name="FrontLayer" type="Node2D" parent="." unique_id=1195033319]
+z_index = 10
+
+[node name="FrontSprite" type="Sprite2D" parent="FrontLayer" unique_id=243795790]
+material = SubResource("ShaderMaterial_86pfq")
+texture = ExtResource("3_ncysw")
+centered = false
+
+[node name="AtmoLayer" type="Node2D" parent="." unique_id=1426098744]
+z_index = 20
+
+[node name="AtmoSprite" type="Sprite2D" parent="AtmoLayer" unique_id=2073356250]
+scale = Vector2(1.0011955, 1)
+texture = ExtResource("6_do3pn")
+centered = false
+
+[node name="PostProcess" type="CanvasLayer" parent="." unique_id=1318680832]
+layer = 10
+
+[node name="Vignette" type="ColorRect" parent="PostProcess" unique_id=221754530]
+material = SubResource("ShaderMaterial_dc6um")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="AlarmPulse" type="ColorRect" parent="PostProcess" unique_id=991056640]
+visible = false
+material = SubResource("ShaderMaterial_alarm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="AtmosphereGrade" type="CanvasLayer" parent="." unique_id=185024214]
+layer = 9
+
+[node name="GradeRect" type="ColorRect" parent="AtmosphereGrade" unique_id=181268331]
+material = SubResource("ShaderMaterial_crngu")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 0.0019749552
+mouse_filter = 2
