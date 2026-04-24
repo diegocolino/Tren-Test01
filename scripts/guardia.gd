@@ -49,7 +49,6 @@ var facing_right: bool = true
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameManager.register_guard(self)
 
 	# Conectar signals
@@ -93,7 +92,8 @@ func _physics_process(delta: float) -> void:
 	_try_step_up()
 	_update_visuals()
 	_check_caught_kive()
-	queue_redraw()
+	if DebugOverlay.debug_enabled:
+		queue_redraw()
 
 
 # ========== DETECCION ==========
@@ -105,7 +105,7 @@ func _update_hearing_radius() -> void:
 		if kive_ref.is_crouched:
 			radius = hearing_radius_crouched
 		elif abs(kive_ref.velocity.x) > 10:
-			if kive_ref.is_running_currently():
+			if kive_ref.is_sprinting():
 				radius = hearing_radius_running
 			else:
 				radius = hearing_radius_walking

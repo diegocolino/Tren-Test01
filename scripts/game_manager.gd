@@ -6,10 +6,10 @@ var kive_ref: Node2D = null
 
 # Referencia a guardias registrados para resetearlos al respawn
 var guards: Array[Node] = []
+var _respawning: bool = false
 
 # Fade visual
-@onready var fade_layer: CanvasLayer = null
-@onready var fade_rect: ColorRect = null
+var fade_rect: ColorRect = null
 
 signal player_respawn_started
 signal player_respawn_completed
@@ -23,33 +23,28 @@ func register_guard(guard: Node) -> void:
 	guards.append(guard)
 
 
-func register_fade(layer: CanvasLayer, rect: ColorRect) -> void:
-	fade_layer = layer
+func register_fade(rect: ColorRect) -> void:
 	fade_rect = rect
 
 
 func player_caught() -> void:
-	if kive_ref == null:
+	if _respawning or kive_ref == null:
 		return
+	_respawning = true
 	player_respawn_started.emit()
 	_do_respawn()
 
 
 func _do_respawn() -> void:
 	# Desactivar control de Kive
-	if kive_ref.has_method("set_control_enabled"):
-		kive_ref.set_control_enabled(false)
+	kive_ref.set_control_enabled(false)
 
 	# Fade out
-	if fade_rect:
-		var tween: Tween = create_tween()
-		tween.tween_property(fade_rect, "color:a", 1.0, 0.3)
-		await tween.finished
+	await _fade_to(1.0)
 
 	# Reposicionar Kive
 	kive_ref.global_position = kive_spawn_position
-	if kive_ref.has_method("reset_state"):
-		kive_ref.reset_state()
+	kive_ref.reset_state()
 
 	# Resetear guardias
 	for guard in guards:
@@ -57,13 +52,17 @@ func _do_respawn() -> void:
 			guard.reset_to_patrol()
 
 	# Fade in
-	if fade_rect:
-		var tween: Tween = create_tween()
-		tween.tween_property(fade_rect, "color:a", 0.0, 0.3)
-		await tween.finished
+	await _fade_to(0.0)
 
 	# Reactivar control
-	if kive_ref.has_method("set_control_enabled"):
-		kive_ref.set_control_enabled(true)
+	kive_ref.set_control_enabled(true)
 
+	_respawning = false
 	player_respawn_completed.emit()
+
+
+func _fade_to(alpha: float) -> void:
+	if fade_rect:
+		var tween: Tween = create_tween()
+		tween.tween_property(fade_rect, "color:a", alpha, 0.3)
+		await tween.finished

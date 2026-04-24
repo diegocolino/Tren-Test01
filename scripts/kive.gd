@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-# --- Parámetros ajustables desde el editor ---
+# ========== EXPORTS ==========
 @export var walk_speed: float = 400.0
 @export var run_speed: float = 800.0
 @export var gravity: float = 2400.0
@@ -11,7 +11,7 @@ extends CharacterBody2D
 @export var air_jump_velocity: float = -800.0
 
 @export_group("Crouch")
-@export var crouch_walk_speed: float = 200.4
+@export var crouch_walk_speed: float = 200.0
 @export var crouch_height_multiplier: float = 0.7
 
 @export_group("Charged Jump")
@@ -24,15 +24,16 @@ extends CharacterBody2D
 @export var dive_max_duration: float = 1.2
 @export var dive_friction: float = 800.0
 
-# --- Step climbing ---
+# ========== CONSTANTS ==========
 const step_height: float = 80.0
-
-# --- Timing del salto ---
 const anticipation_duration: float = 0.04
 const charge_threshold: float = 0.14
 const charge_cancel_time: float = 4.0
+const default_collision_height: float = 200.0
+const player_layer_bit: int = 1 << 0  # Layer 1 "Player" en el inspector
+const world_layer_bit: int = 1 << 3   # Layer 4 "World" en el inspector
 
-# --- Estado interno ---
+# ========== STATE ==========
 var jump_state: String = "none"  # none, anticipation, jump_air, air_jump_rise, air_jump_fall, precontact, contact, recovery
 var jump_timer: float = 0.0
 var control_enabled: bool = true
@@ -48,9 +49,11 @@ var _dive_direction: float = 0.0
 var _was_in_air: bool = false
 var _was_moving_at_jump: bool = false
 
-# --- Referencias ---
+# ========== REFERENCES ==========
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+
+# ========== LIFECYCLE ==========
 
 func _ready() -> void:
 	add_to_group("player")
@@ -125,12 +128,15 @@ func _physics_process(delta: float) -> void:
 
 	# Dive landing check (after move_and_slide)
 	if is_diving and is_on_floor() and _was_in_air:
-		_on_dive_landed()
+		_handle_dive_landing()
 
 	_try_step_up()
 	_update_sprite_direction()
-	queue_redraw()
+	if DebugOverlay.debug_enabled:
+		queue_redraw()
 
+
+# ========== JUMP / AIR STATES ==========
 
 func _process_anticipation(delta: float) -> void:
 	jump_timer += delta
@@ -183,6 +189,7 @@ func _cancel_charged_jump() -> void:
 	sprite.play()  # resume if paused
 	_is_charging_jump = false
 	_jump_charge_timer = 0.0
+	_was_moving_at_jump = false
 	jump_state = "recovery"
 	sprite.play("jump_recovery")
 
@@ -192,6 +199,8 @@ func _process_landing(delta: float) -> void:
 	_apply_horizontal_input(false)
 	# Animation handled by animation_finished signal (contact → recovery → none)
 
+
+# ========== MOVEMENT ==========
 
 func _process_normal_movement(delta: float) -> void:
 	# Gravedad
@@ -297,6 +306,8 @@ func _process_normal_movement(delta: float) -> void:
 		sprite.offset.y = 0.0
 
 
+# ========== DIVE ==========
+
 func _start_ground_dive() -> void:
 	is_diving = true
 	_dive_timer = 0.0
@@ -357,7 +368,7 @@ func _process_dive(delta: float) -> void:
 			sprite.play("dive_end")
 
 
-func _on_dive_landed() -> void:
+func _handle_dive_landing() -> void:
 	if Input.is_action_pressed("dive"):
 		# Transition to ground slide
 		velocity.x = dive_speed * _dive_direction
@@ -395,16 +406,21 @@ func _update_sprite_direction() -> void:
 		sprite.flip_h = true
 
 
+# ========== CROUCH / HIDE ==========
+
 func _update_collision_shape() -> void:
 	var shape: RectangleShape2D = $CollisionShape2D.shape as RectangleShape2D
 	if is_crouched or is_diving:
-		shape.size.y = 200 * crouch_height_multiplier
-		$CollisionShape2D.position.y = (200 * (1.0 - crouch_height_multiplier)) / 2
+		shape.size.y = default_collision_height * crouch_height_multiplier
+		$CollisionShape2D.position.y = (default_collision_height * (1.0 - crouch_height_multiplier)) / 2
 	else:
-		shape.size.y = 200
+		shape.size.y = default_collision_height
 		$CollisionShape2D.position.y = 0
-	queue_redraw()
+	if DebugOverlay.debug_enabled:
+		queue_redraw()
 
+
+# ========== PUBLIC API ==========
 
 func set_control_enabled(enabled: bool) -> void:
 	control_enabled = enabled
@@ -422,12 +438,13 @@ func reset_state() -> void:
 	_is_charging_jump = false
 	_jump_charge_timer = 0.0
 	_dive_timer = 0.0
+	_was_moving_at_jump = false
 	_update_collision_shape()
 	if is_hidden:
 		_unhide()
 
 
-func is_running_currently() -> bool:
+func is_sprinting() -> bool:
 	return not Input.is_action_pressed("run") and abs(velocity.x) > 10
 
 
@@ -446,7 +463,7 @@ func _try_step_up() -> void:
 
 func _can_hide() -> bool:
 	for guard in GameManager.guards:
-		if is_instance_valid(guard) and guard.state == 2:  # State.ALERT
+		if is_instance_valid(guard) and guard.state == guard.State.ALERT:
 			return false
 	return true
 
@@ -462,9 +479,11 @@ func _hide() -> void:
 func _unhide() -> void:
 	is_hidden = false
 	sprite.modulate.a = 1.0
-	collision_layer = 1
-	collision_mask = 8  # World
+	collision_layer = player_layer_bit
+	collision_mask = world_layer_bit
 
+
+# ========== SIGNALS ==========
 
 func _on_hide_zone_entered(body: Node2D) -> void:
 	if body == self:
@@ -475,6 +494,8 @@ func _on_hide_zone_exited(body: Node2D) -> void:
 	if body == self:
 		_nearby_hide_zones -= 1
 
+
+# ========== DEBUG ==========
 
 func _draw() -> void:
 	if not DebugOverlay.debug_enabled:
