@@ -54,7 +54,7 @@ Primer prototipo jugable del juego "Kive en el Tren". Movimiento del personaje (
 |---|---|---|
 | Correr (default) | 800 | Movimiento base, sin mantener teclas extra |
 | Andar (Left Shift) | 400 | Mantener Shift para caminar |
-| Agachado | 200.4 | Cualquier modo crouch |
+| Agachado | 200.0 | Cualquier modo crouch |
 | Control aéreo | ×0.8 | Multiplicador sobre la velocidad actual |
 
 ### Salto cargado
@@ -136,7 +136,7 @@ Dos modos configurables desde el menú de pausa (ESC):
 Solo funciona en el suelo, sin saltar y sin dive activo.
 
 - Reduce la altura de la collision shape (×0.7)
-- Velocidad agachado: 200.4 px/s
+- Velocidad agachado: 200.0 px/s
 - Silencia completamente a Kive para el oído del guardia (radio de detección = 1px)
 - Saltar desde agachado levanta automáticamente a Kive antes del salto
 
@@ -285,7 +285,7 @@ Se abre/cierra con **ESC**. Pausa el juego completamente.
 | `air_control_factor` | 0.8 | Multiplicador de control en el aire |
 | `max_air_jumps` | 1 | Saltos adicionales en el aire (doble salto) |
 | `air_jump_velocity` | -800.0 | Impulso vertical del salto en el aire |
-| `crouch_walk_speed` | 200.4 | Velocidad agachado |
+| `crouch_walk_speed` | 200.0 | Velocidad agachado |
 | `crouch_height_multiplier` | 0.7 | Multiplicador de altura agachado |
 | `jump_charge_time` | 0.4 | Tiempo para carga completa del salto |
 | `jump_velocity_min` | -800.0 | Impulso mínimo (salto sin cargar) |
@@ -498,7 +498,7 @@ Stack completo de abajo a arriba:
 - **Posiciones de ColumnCollisions provisionales**: X=1500, 3500, 5500 son estimaciones. Ajustar visualmente para alinear con las columnas reales de VAGON1_TOP.png.
 - **HearingRange radius mínimo = 1px**: En vez de 0, para evitar posibles warnings de Godot con shapes de radio 0.
 - **Polygon2D vs ColorRect para el guardia**: Los nodos `ColorRect` (Control) bajo `CharacterBody2D` se desacoplan del viewport cuando la cámara topa con sus límites, causando que el guardia apareciera "pegado" al borde de la pantalla. Cambiados a `Polygon2D` (Node2D) que se comportan correctamente.
-- **process_mode ALWAYS en el guardia**: Se establece `process_mode = Node.PROCESS_MODE_ALWAYS` en `_ready()` para garantizar que la IA del guardia procesa incluso cuando está fuera de cámara.
+- **process_mode del guardia**: El guardia usa el `process_mode` heredado (INHERIT). Anteriormente se forzaba `PROCESS_MODE_ALWAYS` pero esto impedía que el guardia se congelara al pausar el juego.
 - **Step climbing (STEP_HEIGHT = 80.0)**: Tanto Kive como el guardia suben escalones automáticamente. Se usa un test de espacio libre arriba + avance a la altura elevada para determinar si un choque con pared es un escalón franqueable.
 
 ## TODOs
