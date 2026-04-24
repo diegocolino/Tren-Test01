@@ -30,10 +30,10 @@ size = Vector2(7680, 50)
 size = Vector2(50, 1080)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_step1"]
-size = Vector2(200, 18)
+size = Vector2(110, 18)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_elev1"]
-size = Vector2(2882, 20)
+size = Vector2(2904, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ch0r7"]
 size = Vector2(80, 200)
@@ -158,15 +158,15 @@ collision_layer = 8
 collision_mask = 0
 
 [node name="Escalon1" type="CollisionShape2D" parent="Escaleras" unique_id=1704911996]
-position = Vector2(4768, 728)
+position = Vector2(4720, 736)
 shape = SubResource("RectangleShape2D_step1")
 
 [node name="Escalon2" type="CollisionShape2D" parent="Escaleras" unique_id=652117559]
-position = Vector2(4832, 672)
+position = Vector2(4784, 680)
 shape = SubResource("RectangleShape2D_step1")
 
 [node name="SueloElevado" type="CollisionShape2D" parent="Escaleras" unique_id=1744590487]
-position = Vector2(6247, 624)
+position = Vector2(6236, 632)
 shape = SubResource("RectangleShape2D_elev1")
 
 [node name="Kive" type="CharacterBody2D" parent="." unique_id=1676538727]
