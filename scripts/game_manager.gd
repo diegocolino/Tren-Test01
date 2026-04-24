@@ -4,8 +4,14 @@ extends Node
 var kive_spawn_position: Vector2 = Vector2(200, 700)
 var kive_ref: Node2D = null
 
-# Referencia a guardias registrados para resetearlos al respawn
-var guards: Array[Node] = []
+# Array unificado de enemigos (generico)
+var enemies: Array = []
+
+# Alias legacy para compatibilidad con guardia.gd existente
+var guards: Array:
+	get:
+		return enemies
+
 var _respawning: bool = false
 
 # Fade visual
@@ -19,8 +25,14 @@ func register_kive(kive: Node2D) -> void:
 	kive_ref = kive
 
 
+func register_enemy(enemy: Node) -> void:
+	if enemy not in enemies:
+		enemies.append(enemy)
+
+
 func register_guard(guard: Node) -> void:
-	guards.append(guard)
+	# Alias legacy
+	register_enemy(guard)
 
 
 func register_fade(rect: ColorRect) -> void:
@@ -47,7 +59,7 @@ func _do_respawn() -> void:
 	kive_ref.reset_state()
 
 	# Resetear guardias
-	for guard in guards:
+	for guard: Node in enemies:
 		if is_instance_valid(guard) and guard.has_method("reset_to_patrol"):
 			guard.reset_to_patrol()
 

@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bpb817l08meo2" path="res://assets/Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png" id="1_sheet"]
 [ext_resource type="Texture2D" uid="uid://djyq0mfypftva" path="res://assets/Kive_Sprite.png" id="2_idle"]
+[ext_resource type="Texture2D" uid="uid://icjswpqsh4s" path="res://assets/Kive_Punch_Kick_AttackEsp_Sprite.png" id="3_combat"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f13"]
 atlas = ExtResource("1_sheet")
@@ -10,6 +11,38 @@ region = Rect2(1024, 256, 256, 256)
 [sub_resource type="AtlasTexture" id="AtlasTexture_f12"]
 atlas = ExtResource("1_sheet")
 region = Rect2(768, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_airtime14"]
+atlas = ExtResource("3_combat")
+region = Rect2(1280, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_cast9"]
+atlas = ExtResource("3_combat")
+region = Rect2(0, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_cast10"]
+atlas = ExtResource("3_combat")
+region = Rect2(256, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_cast11"]
+atlas = ExtResource("3_combat")
+region = Rect2(512, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_cast12"]
+atlas = ExtResource("3_combat")
+region = Rect2(768, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_contact15"]
+atlas = ExtResource("3_combat")
+region = Rect2(1536, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_recovery16"]
+atlas = ExtResource("3_combat")
+region = Rect2(1792, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_charged_release13"]
+atlas = ExtResource("3_combat")
+region = Rect2(1024, 256, 256, 256)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f17"]
 atlas = ExtResource("1_sheet")
@@ -83,6 +116,14 @@ region = Rect2(1280, 256, 256, 256)
 atlas = ExtResource("1_sheet")
 region = Rect2(1792, 256, 256, 256)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_kick7"]
+atlas = ExtResource("3_combat")
+region = Rect2(1536, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_punch3"]
+atlas = ExtResource("3_combat")
+region = Rect2(512, 0, 256, 256)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_f05"]
 atlas = ExtResource("1_sheet")
 region = Rect2(1024, 0, 256, 256)
@@ -131,6 +172,55 @@ animations = [{
 }],
 "loop": false,
 "name": &"air_jump_rise",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_airtime14")
+}],
+"loop": true,
+"name": &"attack_charged_airtime",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_cast9")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_cast10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_cast11")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_cast12")
+}],
+"loop": true,
+"name": &"attack_charged_casting",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_contact15")
+}],
+"loop": false,
+"name": &"attack_charged_contact",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_recovery16")
+}],
+"loop": false,
+"name": &"attack_charged_recovery",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_charged_release13")
+}],
+"loop": false,
+"name": &"attack_charged_release",
 "speed": 1.0
 }, {
 "frames": [{
@@ -247,6 +337,22 @@ animations = [{
 "loop": false,
 "name": &"jump_recovery",
 "speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kick7")
+}],
+"loop": false,
+"name": &"kick_contact",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_punch3")
+}],
+"loop": false,
+"name": &"punch_contact",
+"speed": 1.0
 }, {
 "frames": [{
 "duration": 1.0,

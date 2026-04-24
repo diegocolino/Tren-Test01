@@ -1,0 +1,33 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/debug_hud.gd" id="1_hud"]
+
+[node name="DebugHUD" type="CanvasLayer" groups=["debug_visual"]]
+layer = 12
+script = ExtResource("1_hud")
+
+[node name="DebugInfoPanel" type="VBoxContainer" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 400.0
+offset_bottom = 400.0
+
+[node name="FPSLabel" type="Label" parent="DebugInfoPanel"]
+layout_mode = 2
+text = "FPS: --"
+
+[node name="KiveStateLabel" type="Label" parent="DebugInfoPanel"]
+layout_mode = 2
+text = "KIVE: --"
+
+[node name="AgentStateLabel" type="Label" parent="DebugInfoPanel"]
+layout_mode = 2
+text = "AGENT: --"
+
+[node name="DistanceLabel" type="Label" parent="DebugInfoPanel"]
+layout_mode = 2
+text = ""
+
+[node name="TimelineLabel" type="Label" parent="DebugInfoPanel"]
+layout_mode = 2
+text = ""

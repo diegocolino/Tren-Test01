@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://cg3ihqqll1aqv"]
+
+[ext_resource type="Script" uid="uid://cag6p352k1ov0" path="res://scripts/agent.gd" id="1_agent"]
+[ext_resource type="SpriteFrames" uid="uid://bi8g0p5hji37x" path="res://resources/agent_frames.tres" id="2_frames"]
+[ext_resource type="PackedScene" uid="uid://bfn5jo1ok3hfw" path="res://scenes/FlashlightSystem.tscn" id="3_flashlight"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(80, 200)
+
+[sub_resource type="RectangleShape2D" id="hurtbox_shape"]
+size = Vector2(80, 200)
+
+[sub_resource type="CircleShape2D" id="hearing_circle"]
+radius = 1.0
+
+[sub_resource type="RectangleShape2D" id="attack_shape"]
+size = Vector2(120, 60)
+
+[node name="Agent" type="CharacterBody2D" unique_id=1142865498 groups=["agent"]]
+z_index = 4
+collision_layer = 4
+collision_mask = 8
+script = ExtResource("1_agent")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1707671197]
+position = Vector2(0, -90)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1978577009]
+position = Vector2(0, -100)
+shape = SubResource("body_shape")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=194615658]
+z_index = 5
+collision_layer = 4
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1716365035]
+position = Vector2(0, -100)
+shape = SubResource("hurtbox_shape")
+
+[node name="FlashlightHand" type="Node2D" parent="." unique_id=1138004639]
+position = Vector2(56, -152)
+
+[node name="FlashlightSystem" parent="FlashlightHand" unique_id=1325586253 instance=ExtResource("3_flashlight")]
+
+[node name="FlashlightConeDetector" type="Area2D" parent="FlashlightHand" unique_id=1915381829]
+collision_layer = 16
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="FlashlightHand/FlashlightConeDetector" unique_id=1052998103]
+polygon = PackedVector2Array(30, 20, 30, -20, 350, -120, 350, 120)
+
+[node name="HearingRange" type="Area2D" parent="." unique_id=1720273986]
+collision_layer = 16
+
+[node name="HearingShape" type="CollisionShape2D" parent="HearingRange" unique_id=1775638807]
+shape = SubResource("hearing_circle")
+
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=1206818629]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox" unique_id=1058504873]
+position = Vector2(60, -100)
+shape = SubResource("attack_shape")
+
+[node name="StateIndicator" type="Label" parent="." unique_id=1029585083]
+offset_left = -20.0
+offset_top = -230.0
+offset_right = 20.0
+offset_bottom = -200.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DebugLabel" type="Label" parent="." unique_id=884663796 groups=["debug_visual"]]
+offset_left = -100.0
+offset_top = -260.0
+offset_right = 100.0
+offset_bottom = -235.0
+horizontal_alignment = 1

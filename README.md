@@ -1,6 +1,6 @@
 # Kive en el Tren — Prototipo Vagón 1
 
-Primer prototipo jugable del juego "Kive en el Tren". Movimiento del personaje (salto cargado, doble salto, dive, step climbing), primer enemigo (Guardia con IA de 3 estados), mecánica de sigilo (crouch + auto-hide + oído) y sistema de respawn.
+Primer prototipo jugable del juego "Kive en el Tren". Movimiento del personaje (salto cargado, doble salto, dive, step climbing), enemigo Agent con IA de 11 estados y sistema de combate (punch/kick/parry), mecanica de sigilo (crouch + auto-hide + oido) y sistema de respawn.
 
 ## Estructura de carpetas
 
@@ -14,7 +14,8 @@ Primer prototipo jugable del juego "Kive en el Tren". Movimiento del personaje (
 │   ├── Kive_Sprite.png           # Idle (256x256)
 │   └── Kive_Walk-Run-Jump-AirJump-Crouch-Dive_Sprite.png  # Spritesheet principal
 ├── resources/
-│   ├── kive_frames.tres  # SpriteFrames con todas las animaciones
+│   ├── kive_frames.tres  # SpriteFrames Kive (movimiento + combate)
+│   ├── agent_frames.tres # SpriteFrames Agent (13 animaciones)
 │   └── shaders/
 │       ├── gaussian_blur.gdshader          # Depth of field (FrontLayer)
 │       ├── horizontal_motion_blur.gdshader # Estrías de velocidad (OutLayer)
@@ -23,12 +24,16 @@ Primer prototipo jugable del juego "Kive en el Tren". Movimiento del personaje (
 │       └── alarm_pulse.gdshader           # Alarma roja pulsante periférica (PostProcess)
 ├── scenes/
 │   ├── Vagon1.tscn       # Escena principal del vagón
-│   └── Guardia.tscn      # Escena del enemigo guardia (placeholder visual)
+│   ├── Agent.tscn         # Escena del enemigo Agent (sprites reales + linterna)
+│   ├── Guardia.tscn      # Escena del guardia legacy (referencia)
+│   └── DebugHUD.tscn     # HUD de debug (CanvasLayer 12)
 ├── scripts/
 │   ├── kive.gd            # Script de movimiento de Kive (salto cargado, dive, crouch)
-│   ├── guardia.gd         # IA del guardia (FSM 3 estados + detección dual)
+│   ├── agent.gd            # IA del Agent (FSM 11 estados + combate)
+│   ├── guardia.gd         # IA del guardia legacy (referencia)
 │   ├── game_manager.gd    # Autoload — respawn y registro de entidades
-│   ├── debug_overlay.gd   # Autoload — toggle de visuales de debug (F1)
+│   ├── debug_overlay.gd   # Autoload — debug flags (F1-F4)
+│   ├── debug_hud.gd       # HUD de debug (FPS, estados, distancia)
 │   ├── pause_menu.gd      # Autoload — menú de controles + remapping (ESC)
 │   ├── vagon1.gd          # Script de escena — registra Kive y fade en GameManager
 │   ├── train_scroll.gd    # Scroll continuo del paisaje (OutLayer)
@@ -158,13 +163,13 @@ Kive se esconde automáticamente cuando se cumplen **todas** estas condiciones:
 - **Física**: `collision_layer=0` y `collision_mask=0` → Kive es invisible para la física
 - Respawn resetea el estado de escondite
 
-### Detección dual del guardia
+### Deteccion dual del Agent
 
-El guardia detecta a Kive por **vista** y **oído** simultáneamente:
+El Agent detecta a Kive por **vista** y **oido** simultaneamente:
 
-**Vista**: Cono trapezoidal (400px de largo, ~35° apertura) + RayCast2D para línea de visión. Si una columna (Cover layer) está entre el guardia y Kive, la visión se bloquea aunque Kive esté dentro del cono.
+**Vista**: Cono trapezoidal (350px, linterna) + raycast para linea de vision. Si una columna (Cover layer) esta entre el Agent y Kive, la vision se bloquea.
 
-**Oído**: Area2D circular con radio dinámico según el estado de Kive:
+**Oido**: Area2D circular con radio dinamico segun el estado de Kive:
 
 | Estado de Kive | Radio de oído |
 |---|---|
@@ -173,53 +178,102 @@ El guardia detecta a Kive por **vista** y **oído** simultáneamente:
 | Corriendo | 450px |
 | Agachado | 1px (sordo) |
 
-La detección combina ambos sentidos: `detected = (en_cono AND visible) OR oído`
+La deteccion combina ambos sentidos: `detected = (en_cono AND visible) OR oido`
 
-**Nota**: Si Kive está escondido (`is_hidden = true`), `_update_detection()` hace early return sin actualizar `last_seen_position`. Esto evita que el raycast (que no golpea a Kive con layer=0) interprete "nada entre ellos" como "lo veo".
+**Nota**: Si Kive esta escondido (`is_hidden = true`), la deteccion ignora a Kive completamente.
 
-### Estados del guardia (FSM)
+Ver seccion "Estados del Agent (FSM)" arriba para la tabla completa de estados.
 
-| Estado | Comportamiento | Transición a... |
+## Enemigos — Agent
+
+### Estructura de la escena (Agent.tscn)
+
+```
+Agent (CharacterBody2D, z=4, layer=Enemy, mask=World)
+├── AnimatedSprite2D (agent_frames.tres, 13 animaciones)
+├── CollisionShape2D (80x200)
+├── Hurtbox (Area2D)
+├── FlashlightHand (Node2D)
+│   ├── Flashlight (PointLight2D)
+│   └── FlashlightConeDetector (Area2D, trapecio 350px)
+├── HearingRange (Area2D, radio dinamico)
+├── AttackHitbox (Area2D, 120x60)
+├── StateIndicator (Label)
+└── DebugLabel (Label, debug_visual)
+```
+
+### Estados del Agent (FSM)
+
+| Estado | Comportamiento | Transicion a... |
 |---|---|---|
-| PATROL | Camina entre dos markers a 80px/s | SUSPICIOUS si detecta a Kive |
-| SUSPICIOUS | Se detiene, mira hacia última posición conocida | ALERT tras 1.2s de detección continua / PATROL tras 5s sin detección |
-| ALERT | Persigue a Kive a 280px/s | SUSPICIOUS tras 3s sin detección |
+| PATROL | Camina entre markers a 80px/s con linterna | GUARD_STANCE si detecta |
+| GUARD_STANCE | Persigue a 240px/s, espera en rango | WINDUP tras 1.5s en rango / PATROL tras 2s sin detectar |
+| GUARD_BROKEN | Aturdido 0.8s (guard roto por kick) | GUARD_STANCE |
+| WINDUP | Prepara ataque 0.5s | ATTACK_RELEASE |
+| ATTACK_RELEASE | Golpea (hitbox activa 0.12s) | GUARD_STANCE |
+| PARRY | Reaccion al ser parriado | GUARD_STANCE |
+| HIT | Retroceso 0.3s | GUARD_STANCE / STUNT / AIRTIME segun calidad |
+| STUNT | Aturdido de pie 0.8s | FLOORSTUNT |
+| AIRTIME | Volando por golpe maestro | DEAD al aterrizar |
+| FLOORSTUNT | Tumbado 3s | GUARD_STANCE |
+| DEAD | Muerto permanente | - |
 
-Si el guardia en ALERT colisiona físicamente con Kive → captura → respawn.
+## Sistema de combate
 
-## Enemigos — Guardia
+### Ataques de Kive
 
-### Estructura de la escena (Guardia.tscn)
+| Ataque | Tecla | Tipo | Bloqueo |
+|---|---|---|---|
+| Punch rapido | W (tap) | Golpe frontal | Total (sin movimiento/salto/dive/crouch) |
+| Punch cargado | W (hold >0.4s) | Golpe potente (+1 calidad) | Total |
+| Kick | Q | Empujon + 30% guard break | Total |
 
-```
-Guardia (CharacterBody2D, z=4, layer=Enemy, mask=World+Player)
-├── Body (Polygon2D 120x220, gris oscuro)
-├── Head (Polygon2D 40x40, cyan)
-├── StateIndicator (Label — ?, !)
-├── CollisionShape2D (100x200, centrado en pies)
-├── VisionCone (Area2D, layer=Detection, mask=Player)
-│   ├── VisionCollisionPolygon (trapecio 400px)
-│   └── VisionPolygon (Polygon2D visual, misma forma)
-├── LineOfSightRay (RayCast2D, mask=Player+Cover)
-├── HearingRange (Area2D, layer=Detection, mask=Player)
-│   ├── HearingShape (CircleShape2D, radio dinámico)
-│   └── HearingVisual (Node2D, debug_visual — círculo amarillo)
-├── DebugLabel (Label, debug_visual — estado/radio/flags)
-└── RayLine (Line2D, debug_visual — línea del raycast)
-```
+### Calidad de golpe
 
-### Cómo añadir más guardias
+La calidad depende del estado del Agent y la posicion relativa de Kive:
+
+| Estado Agent | Frente | Lateral | Detras |
+|---|---|---|---|
+| Desprevenido (PATROL) | maestro | maestro | maestro |
+| Guard | mal | mal | normal |
+| Guard broken | bueno | bueno | maestro |
+| Windup | normal | normal | bueno |
+| Release | bueno | bueno | maestro |
+| Stunt | bueno | maestro | maestro |
+
+Punch cargado sube un nivel (mal->normal->bueno->maestro).
+
+### Resoluciones de golpe
+
+| Calidad | Resultado |
+|---|---|
+| mal | Agent vuelve a GUARD_STANCE |
+| normal | Agent vuelve a GUARD_STANCE |
+| bueno | HIT -> STUNT -> FLOORSTUNT -> GUARD_STANCE |
+| maestro | HIT -> AIRTIME (flash blanco) -> DEAD |
+
+### Extras del kick
+
+- **Push**: empuja al Agent ~120px en la direccion del kick
+- **Guard break**: 30% de probabilidad de romper guardia -> GUARD_BROKEN 0.8s
+- **Kick por detras**: FLOORSTUNT directo (bypass stunt)
+
+### Parry
+
+- Ventana: 8 frames (~133ms) desde que se pulsa W
+- Si el Agent ataca durante la ventana: Agent -> STUNT, Kive flash verde
+- Si no hay parry: Kive flash rojo -> respawn
+
+### Como anadir mas Agents
 
 1. Crear dos `Marker2D` para los puntos de patrulla
-2. Instanciar `Guardia.tscn` como hijo de la escena
+2. Instanciar `Agent.tscn` como hijo de la escena
 3. Asignar `patrol_marker_a` y `patrol_marker_b` en el inspector
-4. El guardia se registra automáticamente en GameManager al entrar al árbol
+4. El Agent se registra automaticamente en GameManager
 
-### Placeholders actuales
+### Legacy (Guardia.tscn)
 
-- Body y Head son `Polygon2D` (antes eran `ColorRect`, cambiados porque los Control nodes bajo CharacterBody2D se desacoplan del viewport cuando la cámara topa con sus límites) — reemplazar con sprites cuando haya arte
-- No hay animaciones del guardia
-- Las posiciones de columnas (ColumnCollisions) son provisionales (X=1500, 3500, 5500)
+`Guardia.tscn` y `guardia.gd` se mantienen como referencia. `GameManager.register_guard()` funciona como alias de `register_enemy()`.
 
 ## Sistema de respawn
 
@@ -227,25 +281,43 @@ Guardia (CharacterBody2D, z=4, layer=Enemy, mask=World+Player)
 
 Gestiona el ciclo de captura y respawn:
 
-1. Guardia en ALERT colisiona con Kive → `GameManager.player_caught()`
+1. Agent ataca Kive sin parry -> `GameManager.player_caught()`
 2. Se desactiva el control de Kive
 3. Fade out (0.3s, pantalla negra)
 4. Kive se reposiciona en spawn (200, 700)
-5. Todos los guardias vuelven a PATROL en su marker A
+5. Todos los enemigos vuelven a PATROL en su marker A
 6. Fade in (0.3s)
 7. Se reactiva el control
 
 El `RespawnFade` es un `CanvasLayer` (layer=11) con un `ColorRect` negro que cubre toda la pantalla, alpha inicial 0.
 
-## Debug
+## Debug avanzado
 
-### Toggle con F1
+### Teclas de debug
 
-Pulsar F1 alterna la visibilidad de todos los elementos de debug (grupo `debug_visual`):
+| Tecla | Funcion |
+|---|---|
+| F1 | Toggle general debug (grupo `debug_visual`) |
+| F2 | Toggle hitboxes (punch rojo, kick naranja, hurtbox azul) |
+| F3 | Toggle timeline (animacion + frame actual) |
+| F4 | Toggle cono de linterna |
 
-- **HearingVisual**: Círculo amarillo semitransparente que muestra el radio de oído actual del guardia
-- **DebugLabel**: Texto sobre el guardia con estado actual, radio de oído, flags de visión y oído (`S:PATROL H:80 V:F P:F`)
-- **RayLine**: Línea verde (visible) o roja (bloqueada) del raycast de línea de visión
+### DebugHUD (CanvasLayer 12)
+
+Panel en esquina superior izquierda con:
+- FPS
+- Estado de Kive (crouch, hide, cast, attack, parry window, anim+frame)
+- Estado del Agent (state, timer, hit quality, detection flags, anim+frame)
+- Distancia Kive-Agent en px
+
+### Colores de hitboxes
+
+| Hitbox | Color |
+|---|---|
+| Hurtbox | Azul `(0.2, 0.5, 1.0, 0.3)` |
+| Punch | Rojo `(1.0, 0.2, 0.2, 0.5)` |
+| Kick | Naranja `(1.0, 0.5, 0.0, 0.5)` |
+| Agent attack | Rojo `(1.0, 0.2, 0.2, 0.5)` |
 
 Para desactivar permanentemente en release, cambiar `debug_enabled = false` en `debug_overlay.gd`.
 
@@ -259,9 +331,14 @@ Para desactivar permanentemente en release, cambiar `debug_enabled = false` en `
 | Andar (lento) | Left Shift (mantener) | Por defecto Kive corre |
 | Agacharse | S, C | Toggle o hold (configurable en menú ESC) |
 | Dive | Right Shift | En suelo (corriendo) o en aire |
-| Debug overlay | F1 | Toggle |
+| Punch | W | Tap=rapido, hold>0.4s=cargado |
+| Kick | Q | Empuja + 30% guard break |
+| Debug overlay | F1 | Toggle global |
+| Debug hitboxes | F2 | Toggle hitboxes |
+| Debug timeline | F3 | Toggle anim info |
+| Debug linterna | F4 | Toggle cono linterna |
 
-Todas las teclas (excepto F1) son remapeables desde el menú de pausa.
+Todas las teclas de movimiento (excepto F1-F4) son remapeables desde el menú de pausa.
 
 ## Menú de pausa
 
@@ -339,7 +416,7 @@ El vagón usa 5 capas visuales con z_index para controlar profundidad:
 | OUT | ParallaxBackground > OutLayer | 0 | Paisaje exterior, motion_scale=1.0, scroll continuo + motion blur |
 | BACK | ParallaxBackground > BackLayer | 0 | Fondo interior del vagón, motion_scale=0.88 (paralaje sutil) |
 | MID | ParallaxBackground > MidLayer | 0 | Paredes, butacas, motion_scale=1.0 |
-| Guardia | CharacterBody2D | 4 | Enemigo guardia (placeholder) |
+| Agent | CharacterBody2D | 4 | Enemigo Agent (sprites reales + linterna) |
 | Kive | CharacterBody2D | 5 | Personaje jugable |
 | TOP | Node2D (FrontLayer) | 10 | Columnas que ocultan a Kive |
 | ATMO | Node2D (AtmoLayer) | 20 | Capa atmosférica sobre todo |

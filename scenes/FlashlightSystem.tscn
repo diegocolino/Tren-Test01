@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://bfn5jo1ok3hfw"]
+
+[ext_resource type="Script" uid="uid://ckaklfgprgast" path="res://scripts/flashlight_system.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c2i8jmbtxewtq" path="res://resources/radial_gradient.tres" id="2_radial"]
+[ext_resource type="Texture2D" uid="uid://d4idi1e4o4gm3" path="res://resources/dust_particle.tres" id="3_dust"]
+
+[sub_resource type="Gradient" id="grad_ground"]
+offsets = PackedFloat32Array(0.67469877, 0.85542166)
+colors = PackedColorArray(1, 0.95, 0.85, 1, 1, 0.9, 0.75, 0)
+
+[sub_resource type="GradientTexture2D" id="tex_ground"]
+gradient = SubResource("grad_ground")
+width = 800
+height = 800
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="CanvasItemMaterial" id="dust_material"]
+blend_mode = 1
+
+[sub_resource type="ParticleProcessMaterial" id="dust_process"]
+emission_shape = 3
+emission_box_extents = Vector3(256, 100, 0)
+spread = 35.0
+initial_velocity_min = 2.0
+initial_velocity_max = 8.0
+angular_velocity_min = -5.0
+angular_velocity_max = 5.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.3
+scale_max = 1.2
+color = Color(1, 1, 1, 0.25)
+
+[node name="FlashlightSystem" type="Node2D" unique_id=1680582542]
+script = ExtResource("1_script")
+
+[node name="ConeLight" type="PointLight2D" parent="." unique_id=471660648]
+position = Vector2(999.99994, 199.99998)
+rotation = 0.21382979
+color = Color(0.85, 0.92, 1, 1)
+energy = 4.04
+shadow_enabled = true
+shadow_color = Color(0, 0, 0.05, 0.92)
+shadow_filter = 2
+shadow_filter_smooth = 2.0
+texture = ExtResource("2_radial")
+texture_scale = 2.0
+height = 4.0
+
+[node name="BulbGlow" type="PointLight2D" parent="." unique_id=955265084]
+position = Vector2(-16, -16)
+scale = Vector2(3.5081666, 3.259256)
+energy = 1.22
+texture = ExtResource("2_radial")
+texture_scale = 0.4
+
+[node name="GroundSpot" type="PointLight2D" parent="." unique_id=1964994253]
+position = Vector2(1120, 199.99998)
+scale = Vector2(4.4800014, 0.28000122)
+color = Color(0.85, 0.92, 1, 1)
+energy = 4.0
+texture = SubResource("tex_ground")
+texture_scale = 0.4
+
+[node name="DustParticles" type="GPUParticles2D" parent="." unique_id=2121394246]
+material = SubResource("dust_material")
+position = Vector2(200, 0)
+scale = Vector2(16.880001, 1)
+amount = 40
+amount_ratio = 0.4
+texture = ExtResource("3_dust")
+lifetime = 4.0
+preprocess = 4.0
+speed_scale = 0.4
+randomness = 0.4
+collision_base_size = 0.0
+process_material = SubResource("dust_process")

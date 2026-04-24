@@ -16,7 +16,8 @@
 [ext_resource type="Shader" uid="uid://r175oycwmxqs" path="res://resources/shaders/vignette.gdshader" id="11_6xjfw"]
 [ext_resource type="Shader" uid="uid://doqpxvii7j57i" path="res://resources/shaders/color_grading.gdshader" id="13_6xjfw"]
 [ext_resource type="Shader" uid="uid://cqigcb24padsd" path="res://resources/shaders/alarm_pulse.gdshader" id="14_alarm"]
-[ext_resource type="PackedScene" uid="uid://h66ayfw7ve44" path="res://scenes/Guardia.tscn" id="17_v7voo"]
+[ext_resource type="PackedScene" path="res://scenes/Agent.tscn" id="18_agent"]
+[ext_resource type="PackedScene" path="res://scenes/DebugHUD.tscn" id="19_debughud"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7c2j4"]
 shader = ExtResource("2_5ovka")
@@ -51,6 +52,15 @@ damping_max = 4.0
 scale_min = 0.04
 scale_max = 0.4
 color = Color(0.9, 0.95, 1, 0.2)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kive_hurtbox"]
+size = Vector2(80, 200)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kive_punch"]
+size = Vector2(80, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kive_kick"]
+size = Vector2(100, 40)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_86pfq"]
 shader = ExtResource("8_vutg6")
@@ -97,9 +107,6 @@ size = Vector2(80, 1080)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hz3"]
 size = Vector2(160, 300)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_t3ec0"]
-size = Vector2(100, 200)
 
 [node name="Vagon1" type="Node2D" unique_id=84667739]
 script = ExtResource("1_dc6um")
@@ -171,7 +178,7 @@ shape = SubResource("RectangleShape2D_elev1")
 
 [node name="Kive" type="CharacterBody2D" parent="." unique_id=1676538727]
 z_index = 5
-position = Vector2(200, 700)
+position = Vector2(312, 704)
 collision_mask = 8
 script = ExtResource("1_afs1t")
 
@@ -202,6 +209,32 @@ preprocess = 5.0
 visibility_rect = Rect2(-5000, -1000, 10000, 2000)
 process_material = SubResource("ParticleProcessMaterial_mp3i2")
 
+[node name="Hurtbox" type="Area2D" parent="Kive" unique_id=1652297313]
+z_index = 5
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive/Hurtbox" unique_id=583120104]
+scale = Vector2(1.0078579, 1)
+shape = SubResource("RectangleShape2D_kive_hurtbox")
+
+[node name="PunchHitbox" type="Area2D" parent="Kive" unique_id=1603070314]
+z_index = 5
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive/PunchHitbox" unique_id=1162315193]
+shape = SubResource("RectangleShape2D_kive_punch")
+
+[node name="KickHitbox" type="Area2D" parent="Kive" unique_id=213123593]
+z_index = 5
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive/KickHitbox" unique_id=1616264273]
+shape = SubResource("RectangleShape2D_kive_kick")
+
 [node name="FrontLayer" type="Node2D" parent="." unique_id=1195033319]
 z_index = 10
 
@@ -226,6 +259,8 @@ material = SubResource("ShaderMaterial_dc6um")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 
 [node name="AlarmPulse" type="ColorRect" parent="PostProcess" unique_id=991056640]
@@ -315,45 +350,12 @@ position = Vector2(2500, 800)
 [node name="PatrolMarkerB" type="Marker2D" parent="." unique_id=10102193]
 position = Vector2(3500, 800)
 
-[node name="Guardia" parent="." unique_id=307818346 instance=ExtResource("17_v7voo")]
-position = Vector2(3000, 800)
+[node name="SceneDarkness" type="CanvasModulate" parent="."]
+color = Color(0.18, 0.18, 0.24, 1)
+
+[node name="Agent" parent="." unique_id=688135817 instance=ExtResource("18_agent")]
+position = Vector2(3000, 775)
 patrol_marker_a = NodePath("../PatrolMarkerA")
 patrol_marker_b = NodePath("../PatrolMarkerB")
 
-[node name="Body2" type="Polygon2D" parent="Guardia" unique_id=430258336]
-color = Color(0.2, 0.2, 0.2, 1)
-polygon = PackedVector2Array(-60, -220, 60, -220, 60, 0, -60, 0)
-
-[node name="Head2" type="Polygon2D" parent="Guardia" unique_id=1738395102]
-color = Color(0.23, 0.66, 0.77, 1)
-polygon = PackedVector2Array(-20, -260, 20, -260, 20, -220, -20, -220)
-
-[node name="StateIndicator2" type="Label" parent="Guardia" unique_id=719558096]
-offset_left = -20.0
-offset_top = -290.0
-offset_right = 20.0
-offset_bottom = -260.0
-horizontal_alignment = 1
-
-[node name="VisionCone2" type="Area2D" parent="Guardia" unique_id=1026631542]
-collision_layer = 16
-
-[node name="LineOfSightRay2" type="RayCast2D" parent="Guardia" unique_id=875277902]
-collision_mask = 3
-
-[node name="HearingRange2" type="Area2D" parent="Guardia" unique_id=301957574]
-collision_layer = 16
-
-[node name="DebugLabel2" type="Label" parent="Guardia" unique_id=663917147 groups=["debug_visual"]]
-offset_left = -80.0
-offset_top = -310.0
-offset_right = 80.0
-offset_bottom = -287.0
-
-[node name="RayLine2" type="Line2D" parent="Guardia" unique_id=1178042697 groups=["debug_visual"]]
-width = 2.0
-default_color = Color(0, 1, 0, 0.6)
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Guardia" unique_id=634833179]
-position = Vector2(0, -100)
-shape = SubResource("RectangleShape2D_t3ec0")
+[node name="DebugHUD" parent="." unique_id=1295350160 instance=ExtResource("19_debughud")]

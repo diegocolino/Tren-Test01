@@ -1,0 +1,243 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://bi8g0p5hji37x"]
+
+[ext_resource type="Texture2D" uid="uid://dgawts3e3wcik" path="res://assets/Agent_Sprite.png" id="1_idle"]
+[ext_resource type="Texture2D" uid="uid://bl6hfmoi1mwvp" path="res://assets/Agent_Walk-Run-Guard-Kick-Parry-Kick-Fall_Sprite.png" id="2_sheet"]
+
+[sub_resource type="AtlasTexture" id="airtime_21"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1024, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="airtime_22"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1280, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="dead_24"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1792, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="floorstunt_23"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1536, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="hit_light_17"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="hit_light_18"]
+atlas = ExtResource("2_sheet")
+region = Rect2(256, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="kick_release_14"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1280, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="kick_windup_13"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1024, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="parry_1_15"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1536, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="parry_2_16"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1792, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="run_patrol_5"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1024, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="run_patrol_6"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1280, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="run_patrol_7"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1536, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="run_patrol_8"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1792, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="stunt_19"]
+atlas = ExtResource("2_sheet")
+region = Rect2(512, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="stunt_20"]
+atlas = ExtResource("2_sheet")
+region = Rect2(768, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_guard_9"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_guard_10"]
+atlas = ExtResource("2_sheet")
+region = Rect2(256, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_guard_11"]
+atlas = ExtResource("2_sheet")
+region = Rect2(512, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_guard_12"]
+atlas = ExtResource("2_sheet")
+region = Rect2(768, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_patrol_1"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_patrol_2"]
+atlas = ExtResource("2_sheet")
+region = Rect2(256, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_patrol_3"]
+atlas = ExtResource("2_sheet")
+region = Rect2(512, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="walk_patrol_4"]
+atlas = ExtResource("2_sheet")
+region = Rect2(768, 0, 256, 256)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("airtime_21")
+}, {
+"duration": 1.0,
+"texture": SubResource("airtime_22")
+}],
+"loop": false,
+"name": &"airtime",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("dead_24")
+}],
+"loop": true,
+"name": &"dead",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("floorstunt_23")
+}],
+"loop": true,
+"name": &"floorstunt",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("hit_light_17")
+}, {
+"duration": 1.0,
+"texture": SubResource("hit_light_18")
+}],
+"loop": false,
+"name": &"hit_light",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_idle")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("kick_release_14")
+}],
+"loop": false,
+"name": &"kick_release",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("kick_windup_13")
+}],
+"loop": false,
+"name": &"kick_windup",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("parry_1_15")
+}],
+"loop": false,
+"name": &"parry_1",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("parry_2_16")
+}],
+"loop": false,
+"name": &"parry_2",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("run_patrol_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("run_patrol_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("run_patrol_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("run_patrol_8")
+}],
+"loop": true,
+"name": &"run_patrol",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("stunt_19")
+}, {
+"duration": 1.0,
+"texture": SubResource("stunt_20")
+}],
+"loop": false,
+"name": &"stunt",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("walk_guard_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_guard_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_guard_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_guard_12")
+}],
+"loop": true,
+"name": &"walk_guard",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("walk_patrol_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_patrol_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_patrol_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_patrol_4")
+}],
+"loop": true,
+"name": &"walk_patrol",
+"speed": 8.0
+}]
