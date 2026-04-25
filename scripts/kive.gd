@@ -79,7 +79,7 @@ var _punch_hitbox_active_frames: int = 0
 var _kick_hitbox_active_frames: int = 0
 
 # Execution
-var is_executing: bool = false
+var is_finisher: bool = false
 
 # ========== REFERENCES ==========
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -126,7 +126,7 @@ func _physics_process(delta: float) -> void:
 	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
 		is_crouched = false
 		_update_collision_shape()
-		is_executing = true
+		is_finisher = true
 		current_attack_type = "kick"
 		is_punch_charged = false
 		_start_attack("kick")
@@ -185,7 +185,7 @@ func _physics_process(delta: float) -> void:
 		# Kick (Q) - nunca cargable; desde crouch/hidden = ejecucion
 		if Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
 			if is_hidden:
-				is_executing = true
+				is_finisher = true
 			current_attack_type = "kick"
 			is_punch_charged = false
 			_start_attack("kick")
@@ -323,7 +323,7 @@ func _process_attack(delta: float) -> void:
 						sprite.play("punch_contact")  # frame 3
 				else:
 					sprite.play("kick_contact")  # frame 7
-				_execute_hit_check()
+				_activate_hitbox()
 
 		"release":
 			if attack_phase_timer >= release_dur:
@@ -338,12 +338,12 @@ func _process_attack(delta: float) -> void:
 			elif attack_phase_timer >= recovery_dur:
 				attack_phase = "none"
 				is_attacking = false
-				is_executing = false
+				is_finisher = false
 				is_punch_charged = false
 				current_attack_type = "none"
 
 
-func _execute_hit_check() -> void:
+func _activate_hitbox() -> void:
 	var facing: float = -1.0 if sprite.flip_h else 1.0
 
 	var hitbox: Area2D
@@ -363,7 +363,7 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 	if not is_attacking or attack_phase != "release":
 		return
 	if body.is_in_group("agent"):
-		if is_executing and body.has_method("receive_execution"):
+		if is_finisher and body.has_method("receive_execution"):
 			body.receive_execution(self)
 		elif body.has_method("receive_hit_from"):
 			body.receive_hit_from(self, is_punch_charged, current_attack_type)
@@ -401,13 +401,13 @@ func receive_agent_hit(agent: Node2D) -> void:
 		])
 
 	if is_parry_window_active():
-		_execute_parry(agent)
+		_resolve_parry(agent)
 		return
 
 	_receive_damage(agent)
 
 
-func _execute_parry(agent: Node2D) -> void:
+func _resolve_parry(agent: Node2D) -> void:
 	if agent.has_method("receive_parry"):
 		agent.receive_parry()
 
@@ -726,7 +726,7 @@ func reset_state() -> void:
 	_parry_window_timer = 999.0
 	_punch_hitbox_active_frames = 0
 	_kick_hitbox_active_frames = 0
-	is_executing = false
+	is_finisher = false
 	_air_jumps_left = 0
 	_is_charging_jump = false
 	_jump_charge_timer = 0.0
