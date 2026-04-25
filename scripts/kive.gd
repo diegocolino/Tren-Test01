@@ -110,7 +110,7 @@ func _on_animation_finished() -> void:
 		"jump_recovery":
 			jump_state = "none"
 		"jump_contact":
-			jump_state = "recovery"
+			jump_state = "landing_recovery"
 			sprite.play("jump_recovery")
 
 
@@ -212,7 +212,7 @@ func _physics_process(delta: float) -> void:
 			is_punch_charged = false
 			current_attack_type = "none"
 			attack_phase = "none"
-			jump_state = "contact"
+			jump_state = "landing_impact"
 			jump_timer = 0.0
 			sprite.play("jump_contact")
 		_update_sprite_direction()
@@ -236,7 +236,7 @@ func _physics_process(delta: float) -> void:
 		match jump_state:
 			"anticipation":
 				_process_anticipation(delta)
-			"contact", "recovery":
+			"landing_impact", "landing_recovery":
 				_process_landing(delta)
 			_:
 				_process_normal_movement(delta)
@@ -294,16 +294,16 @@ func _process_attack(delta: float) -> void:
 		release_dur = kick_release
 		recovery_dur = kick_recovery
 
-	# Charged punch en el aire: mantener frame 15 y transicionar a precontact
+	# Charged punch en el aire: mantener frame 15 y transicionar a falling
 	if is_punch_charged and current_attack_type == "punch" and not is_on_floor():
 		if velocity.y > 200:
-			# Cayendo rapido → precontact, terminar ataque
+			# Cayendo rapido → falling, terminar ataque
 			sprite.play("jump_precontact")
 			attack_phase = "none"
 			is_attacking = false
 			is_punch_charged = false
 			current_attack_type = "none"
-			jump_state = "precontact"
+			jump_state = "falling"
 			return
 		elif attack_phase == "recovery":
 			# Mantener frame 15 durante toda la parabola
@@ -469,10 +469,10 @@ func _release_jump() -> void:
 	_jump_charge_timer = 0.0
 
 	if is_static:
-		jump_state = "precontact"
+		jump_state = "falling"
 		sprite.play("jump_precontact")
 	else:
-		jump_state = "jump_air"
+		jump_state = "jump_rise"
 		sprite.play("jump_air")
 
 
@@ -481,7 +481,7 @@ func _cancel_charged_jump() -> void:
 	_is_charging_jump = false
 	_jump_charge_timer = 0.0
 	_was_moving_at_jump = false
-	jump_state = "recovery"
+	jump_state = "landing_recovery"
 	sprite.play("jump_recovery")
 
 
@@ -511,7 +511,7 @@ func _process_normal_movement(delta: float) -> void:
 		_was_moving_at_jump = abs(velocity.x) > 10
 		if is_running:
 			velocity.y = jump_velocity_min
-			jump_state = "jump_air"
+			jump_state = "jump_rise"
 			sprite.play("jump_air")
 		else:
 			jump_state = "anticipation"
@@ -545,26 +545,26 @@ func _process_normal_movement(delta: float) -> void:
 		return
 
 	# Aterrizaje
-	if is_on_floor() and jump_state in ["jump_air", "air_jump_rise", "air_jump_fall", "precontact"]:
-		jump_state = "contact"
+	if is_on_floor() and jump_state in ["jump_rise", "air_jump_rise", "air_jump_fall", "falling"]:
+		jump_state = "landing_impact"
 		jump_timer = 0.0
 		sprite.play("jump_contact")
 		return
 
 	# Caida sin salto
 	if not is_on_floor() and jump_state == "none":
-		jump_state = "jump_air"
+		jump_state = "jump_rise"
 		sprite.play("jump_air")
 
 	# Actualizar estado aereo
-	if not is_on_floor() and jump_state in ["jump_air", "air_jump_rise", "air_jump_fall", "precontact"]:
+	if not is_on_floor() and jump_state in ["jump_rise", "air_jump_rise", "air_jump_fall", "falling"]:
 		if jump_state in ["air_jump_rise", "air_jump_fall"]:
 			if velocity.y < -50:
 				if jump_state != "air_jump_rise":
 					jump_state = "air_jump_rise"
 					sprite.play("air_jump_rise")
 			elif velocity.y > 200:
-				jump_state = "precontact"
+				jump_state = "falling"
 				sprite.play("jump_precontact")
 			elif velocity.y > 50:
 				if jump_state != "air_jump_fall":
@@ -572,8 +572,8 @@ func _process_normal_movement(delta: float) -> void:
 					sprite.play("air_jump_fall")
 		else:
 			if velocity.y > 200:
-				if jump_state != "precontact":
-					jump_state = "precontact"
+				if jump_state != "falling":
+					jump_state = "falling"
 					sprite.play("jump_precontact")
 		return
 
@@ -623,7 +623,7 @@ func _process_dive(delta: float) -> void:
 			_update_collision_shape()
 			_air_jumps_left = max_air_jumps
 			velocity.y = jump_velocity_min
-			jump_state = "jump_air"
+			jump_state = "jump_rise"
 			sprite.play("jump_air")
 			return
 		elif _air_jumps_left > 0:
