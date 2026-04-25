@@ -203,7 +203,7 @@ func _update_hearing_radius() -> void:
 		if kive_ref.is_crouched:
 			radius = hearing_radius_crouched
 		elif abs(kive_ref.velocity.x) > movement_detect_threshold:
-			if kive_ref.is_running_currently():
+			if kive_ref.is_sprinting():
 				radius = hearing_radius_running
 			else:
 				radius = hearing_radius_walking

@@ -385,9 +385,6 @@ func is_parry_window_active() -> bool:
 	return _parry_window_timer <= (parry_window_frames / 60.0)
 
 
-func is_running_currently() -> bool:
-	return is_sprinting()
-
 
 func get_charge_ratio() -> float:
 	if not attack_is_charged:
