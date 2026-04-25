@@ -120,7 +120,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	# Desactivar hitboxes de forma deterministica
-	_update_hitbox_flags()
+	_tick_hitbox_lifetimes()
 
 	# Ejecucion desde hidden (Q)
 	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
@@ -369,7 +369,7 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 			body.receive_hit_from(self, is_punch_charged, current_attack_type)
 
 
-func _update_hitbox_flags() -> void:
+func _tick_hitbox_lifetimes() -> void:
 	if _punch_hitbox_active_frames > 0:
 		_punch_hitbox_active_frames -= 1
 		if _punch_hitbox_active_frames == 0:
