@@ -74,11 +74,11 @@ var attack_phase_timer: float = 0.0
 var is_punch_charged: bool = false
 var _parry_window_timer: float = 999.0
 
-# Hitbox flags (desactivacion deterministica sin await)
+# Hitbox flags (desactivación determinística sin await)
 var _punch_hitbox_active_frames: int = 0
 var _kick_hitbox_active_frames: int = 0
 
-# Execution
+# Finisher
 var is_finisher: bool = false
 
 # ========== REFERENCES ==========
@@ -91,10 +91,10 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("player")
 	sprite.animation_finished.connect(_on_animation_finished)
-	# Conectar senales de hitboxes de combate
+	# Conectar señales de hitboxes de combate
 	$PunchHitbox.body_entered.connect(_on_hitbox_body_entered)
 	$KickHitbox.body_entered.connect(_on_hitbox_body_entered)
-	# Conectar senales de HideZones
+	# Conectar señales de HideZones
 	for zone in get_tree().get_nodes_in_group("hide_zone"):
 		zone.body_entered.connect(_on_hide_zone_entered)
 		zone.body_exited.connect(_on_hide_zone_exited)
@@ -119,10 +119,10 @@ func _physics_process(delta: float) -> void:
 	if not control_enabled:
 		return
 
-	# Desactivar hitboxes de forma deterministica
+	# Desactivar hitboxes de forma determinística
 	_tick_hitbox_lifetimes()
 
-	# Ejecucion desde hidden (Q)
+	# Ejecución desde hidden (Q)
 	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
 		is_crouched = false
 		_update_collision_shape()
@@ -143,7 +143,7 @@ func _physics_process(delta: float) -> void:
 				is_crouched = not is_crouched
 				_update_collision_shape()
 
-	# Auto-hide: agachado + en zona safe + suelo = hidden automatico
+	# Auto-hide: agachado + en zona safe + suelo = hidden automático
 	if not is_hidden:
 		if is_crouched and _nearby_hide_zones > 0 and _can_hide() and is_on_floor() and jump_state == "none":
 			_hide()
@@ -151,7 +151,7 @@ func _physics_process(delta: float) -> void:
 		if not is_crouched or _nearby_hide_zones <= 0:
 			_unhide()
 
-	# === COMBAT INPUT (antes de cualquier otra logica de movimiento) ===
+	# === COMBAT INPUT (antes de cualquier otra lógica de movimiento) ===
 
 	# Punch (W)
 	if control_enabled and not is_diving and jump_state == "none":
@@ -165,7 +165,7 @@ func _physics_process(delta: float) -> void:
 			punch_charge_timer = 0.0
 			_parry_window_timer = 0.0  # abre ventana de parry
 			velocity.x = 0
-			# No cambiar sprite aqui — se decide al soltar W
+			# No cambiar sprite aquí — se decide al soltar W
 
 		elif Input.is_action_pressed("attack_punch") and is_punch_charging:
 			punch_charge_timer += delta
@@ -190,7 +190,7 @@ func _physics_process(delta: float) -> void:
 			is_punch_charged = false
 			_start_attack("kick")
 
-	# === BLOQUEO TOTAL DURANTE COMBATE ===
+	# === FULL COMBAT LOCK ===
 	# Charged punch conserva el impulso del lunge
 	if is_punch_charging:
 		velocity.x = 0
@@ -200,7 +200,7 @@ func _physics_process(delta: float) -> void:
 	# Actualizar ventana de parry
 	_parry_window_timer += delta
 
-	# Actualizar attack si esta atacando
+	# Actualizar attack si está atacando
 	if is_attacking:
 		if not is_on_floor():
 			velocity.y += gravity * delta
@@ -224,7 +224,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		_update_sprite_direction()
 		queue_redraw()
-		return  # bloqueado durante charge tambien
+		return  # bloqueado durante charge también
 
 	# Track air state for dive landing
 	_was_in_air = not is_on_floor()
@@ -297,7 +297,7 @@ func _process_attack(delta: float) -> void:
 	# Charged punch en el aire: mantener frame 15 y transicionar a falling
 	if is_punch_charged and current_attack_type == "punch" and not is_on_floor():
 		if velocity.y > 200:
-			# Cayendo rapido → falling, terminar ataque
+			# Cayendo rápido → falling, terminar ataque
 			sprite.play("jump_precontact")
 			attack_phase = "none"
 			is_attacking = false
@@ -551,12 +551,12 @@ func _process_normal_movement(delta: float) -> void:
 		sprite.play("jump_contact")
 		return
 
-	# Caida sin salto
+	# Caída sin salto
 	if not is_on_floor() and jump_state == "none":
 		jump_state = "jump_rise"
 		sprite.play("jump_air")
 
-	# Actualizar estado aereo
+	# Actualizar estado aéreo
 	if not is_on_floor() and jump_state in ["jump_rise", "air_jump_rise", "air_jump_fall", "falling"]:
 		if jump_state in ["air_jump_rise", "air_jump_fall"]:
 			if velocity.y < -50:
@@ -577,7 +577,7 @@ func _process_normal_movement(delta: float) -> void:
 					sprite.play("jump_precontact")
 		return
 
-	# Animacion en suelo
+	# Animación en suelo
 	if is_on_floor() and jump_state == "none" and not is_diving:
 		var dir_input: float = Input.get_axis("move_left", "move_right")
 		if is_crouched:
