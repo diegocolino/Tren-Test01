@@ -67,11 +67,11 @@ var _was_moving_at_jump: bool = false
 # Combat state
 var is_attacking: bool = false
 var current_attack_type: String = "none"
-var is_casting: bool = false
-var cast_timer: float = 0.0
+var is_punch_charging: bool = false
+var punch_charge_timer: float = 0.0
 var attack_phase: String = "none"
 var attack_phase_timer: float = 0.0
-var attack_is_charged: bool = false
+var is_punch_charged: bool = false
 var _parry_window_timer: float = 999.0
 
 # Hitbox flags (desactivacion deterministica sin await)
@@ -123,16 +123,16 @@ func _physics_process(delta: float) -> void:
 	_update_hitbox_flags()
 
 	# Ejecucion desde hidden (Q)
-	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_casting:
+	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
 		is_crouched = false
 		_update_collision_shape()
 		is_executing = true
 		current_attack_type = "kick"
-		attack_is_charged = false
+		is_punch_charged = false
 		_start_attack("kick")
 
 	# Crouch toggle/hold (solo en suelo y sin saltar, sin dive, sin combate)
-	if is_on_floor() and jump_state == "none" and not is_diving and not is_attacking and not is_casting:
+	if is_on_floor() and jump_state == "none" and not is_diving and not is_attacking and not is_punch_charging:
 		if PauseMenu.hold_to_crouch:
 			var should_crouch: bool = Input.is_action_pressed("crouch")
 			if should_crouch != is_crouched:
@@ -155,46 +155,46 @@ func _physics_process(delta: float) -> void:
 
 	# Punch (W)
 	if control_enabled and not is_diving and jump_state == "none":
-		if Input.is_action_just_pressed("attack_punch") and not is_attacking and not is_casting:
+		if Input.is_action_just_pressed("attack_punch") and not is_attacking and not is_punch_charging:
 			if is_hidden:
 				is_crouched = false
 				_update_collision_shape()
 				_unhide()
-			is_casting = true
+			is_punch_charging = true
 			current_attack_type = "punch"
-			cast_timer = 0.0
+			punch_charge_timer = 0.0
 			_parry_window_timer = 0.0  # abre ventana de parry
 			velocity.x = 0
 			# No cambiar sprite aqui — se decide al soltar W
 
-		elif Input.is_action_pressed("attack_punch") and is_casting:
-			cast_timer += delta
+		elif Input.is_action_pressed("attack_punch") and is_punch_charging:
+			punch_charge_timer += delta
 			sprite.play("attack_charged_casting")
 
-		elif Input.is_action_just_released("attack_punch") and is_casting:
-			is_casting = false
-			attack_is_charged = cast_timer >= attack_charge_time
+		elif Input.is_action_just_released("attack_punch") and is_punch_charging:
+			is_punch_charging = false
+			is_punch_charged = punch_charge_timer >= attack_charge_time
 			_start_attack("punch")
 
 		# Auto-release al maximo
-		if is_casting and cast_timer >= attack_charge_time_max:
-			is_casting = false
-			attack_is_charged = true
+		if is_punch_charging and punch_charge_timer >= attack_charge_time_max:
+			is_punch_charging = false
+			is_punch_charged = true
 			_start_attack("punch")
 
 		# Kick (Q) - nunca cargable; desde crouch/hidden = ejecucion
-		if Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_casting:
+		if Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
 			if is_hidden:
 				is_executing = true
 			current_attack_type = "kick"
-			attack_is_charged = false
+			is_punch_charged = false
 			_start_attack("kick")
 
 	# === BLOQUEO TOTAL DURANTE COMBATE ===
 	# Charged punch conserva el impulso del lunge
-	if is_casting:
+	if is_punch_charging:
 		velocity.x = 0
-	elif is_attacking and not (attack_is_charged and current_attack_type == "punch"):
+	elif is_attacking and not (is_punch_charged and current_attack_type == "punch"):
 		velocity.x = 0
 
 	# Actualizar ventana de parry
@@ -207,9 +207,9 @@ func _physics_process(delta: float) -> void:
 		_process_attack(delta)
 		move_and_slide()
 		# Charged punch: aterrizaje termina el ataque
-		if attack_is_charged and current_attack_type == "punch" and is_on_floor() and attack_phase == "recovery":
+		if is_punch_charged and current_attack_type == "punch" and is_on_floor() and attack_phase == "recovery":
 			is_attacking = false
-			attack_is_charged = false
+			is_punch_charged = false
 			current_attack_type = "none"
 			attack_phase = "none"
 			jump_state = "contact"
@@ -220,11 +220,11 @@ func _physics_process(delta: float) -> void:
 		if is_attacking:
 			return  # saltar el resto del procesamiento de movimiento
 
-	if is_casting:
+	if is_punch_charging:
 		move_and_slide()
 		_update_sprite_direction()
 		queue_redraw()
-		return  # bloqueado durante cast tambien
+		return  # bloqueado durante charge tambien
 
 	# Track air state for dive landing
 	_was_in_air = not is_on_floor()
@@ -266,10 +266,10 @@ func _start_attack(attack_type: String) -> void:
 	attack_phase_timer = 0.0
 
 	# Anticipation sprite + lunge
-	if attack_type == "punch" and attack_is_charged:
+	if attack_type == "punch" and is_punch_charged:
 		sprite.play("attack_charged_airtime")  # frame 14 — puno extendido volando
-		# Impulso interpolado: 40% en cast minimo, 100% en cast maximo
-		var charge_ratio: float = clampf((cast_timer - attack_charge_time) / (attack_charge_time_max - attack_charge_time), 0.0, 1.0)
+		# Impulso interpolado: 40% en charge minimo, 100% en charge maximo
+		var charge_ratio: float = clampf((punch_charge_timer - attack_charge_time) / (attack_charge_time_max - attack_charge_time), 0.0, 1.0)
 		var impulse_factor: float = lerpf(0.4, 1.0, charge_ratio)
 		var facing: float = -1.0 if sprite.flip_h else 1.0
 		velocity.x = facing * charged_lunge_speed_x * impulse_factor
@@ -295,13 +295,13 @@ func _process_attack(delta: float) -> void:
 		recovery_dur = kick_recovery
 
 	# Charged punch en el aire: mantener frame 15 y transicionar a precontact
-	if attack_is_charged and current_attack_type == "punch" and not is_on_floor():
+	if is_punch_charged and current_attack_type == "punch" and not is_on_floor():
 		if velocity.y > 200:
 			# Cayendo rapido → precontact, terminar ataque
 			sprite.play("jump_precontact")
 			attack_phase = "none"
 			is_attacking = false
-			attack_is_charged = false
+			is_punch_charged = false
 			current_attack_type = "none"
 			jump_state = "precontact"
 			return
@@ -317,7 +317,7 @@ func _process_attack(delta: float) -> void:
 				attack_phase_timer = 0.0
 				# Release sprite — frame de contacto
 				if current_attack_type == "punch":
-					if attack_is_charged:
+					if is_punch_charged:
 						sprite.play("attack_charged_contact")  # frame 15
 					else:
 						sprite.play("punch_contact")  # frame 3
@@ -329,17 +329,17 @@ func _process_attack(delta: float) -> void:
 			if attack_phase_timer >= release_dur:
 				attack_phase = "recovery"
 				attack_phase_timer = 0.0
-				if not (current_attack_type == "punch" and attack_is_charged):
+				if not (current_attack_type == "punch" and is_punch_charged):
 					sprite.play("idle")  # recovery normal
 
 		"recovery":
-			if current_attack_type == "punch" and attack_is_charged:
+			if current_attack_type == "punch" and is_punch_charged:
 				pass  # charged punch: se queda en el aire, gestionado arriba
 			elif attack_phase_timer >= recovery_dur:
 				attack_phase = "none"
 				is_attacking = false
 				is_executing = false
-				attack_is_charged = false
+				is_punch_charged = false
 				current_attack_type = "none"
 
 
@@ -366,7 +366,7 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		if is_executing and body.has_method("receive_execution"):
 			body.receive_execution(self)
 		elif body.has_method("receive_hit_from"):
-			body.receive_hit_from(self, attack_is_charged, current_attack_type)
+			body.receive_hit_from(self, is_punch_charged, current_attack_type)
 
 
 func _update_hitbox_flags() -> void:
@@ -387,9 +387,9 @@ func is_parry_window_active() -> bool:
 
 
 func get_charge_ratio() -> float:
-	if not attack_is_charged:
+	if not is_punch_charged:
 		return 0.0
-	return clampf((cast_timer - attack_charge_time) / (attack_charge_time_max - attack_charge_time), 0.0, 1.0)
+	return clampf((punch_charge_timer - attack_charge_time) / (attack_charge_time_max - attack_charge_time), 0.0, 1.0)
 
 
 # ========== PARRY / DAMAGE (Fase 9) ==========
@@ -705,7 +705,7 @@ func set_control_enabled(enabled: bool) -> void:
 	if not enabled:
 		velocity = Vector2.ZERO
 		is_attacking = false
-		is_casting = false
+		is_punch_charging = false
 		attack_phase = "none"
 		current_attack_type = "none"
 
@@ -717,11 +717,11 @@ func reset_state() -> void:
 	is_crouched = false
 	is_diving = false
 	is_attacking = false
-	is_casting = false
-	cast_timer = 0.0
+	is_punch_charging = false
+	punch_charge_timer = 0.0
 	attack_phase = "none"
 	attack_phase_timer = 0.0
-	attack_is_charged = false
+	is_punch_charged = false
 	current_attack_type = "none"
 	_parry_window_timer = 999.0
 	_punch_hitbox_active_frames = 0
