@@ -1,0 +1,95 @@
+[gd_scene format=3 uid="uid://byk05mha1lvki"]
+
+[ext_resource type="Script" uid="uid://cfn7a8myk88o3" path="res://scripts/kive.gd" id="1_kive"]
+[ext_resource type="SpriteFrames" uid="uid://bcshkbrb7djaw" path="res://resources/kive_frames.tres" id="2_frames"]
+[ext_resource type="Texture2D" uid="uid://d4idi1e4o4gm3" path="res://resources/dust_particle.tres" id="3_dust"]
+[ext_resource type="Script" uid="uid://dmxmmdkybvdfu" path="res://scripts/train_shake.gd" id="4_shake"]
+[ext_resource type="Script" path="res://scripts/occluder_sync.gd" id="5_occluder_sync"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(80, 200)
+
+[sub_resource type="ParticleProcessMaterial" id="dust_process"]
+emission_shape = 3
+emission_box_extents = Vector3(960, 400, 0)
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 4.0
+initial_velocity_max = 44.0
+gravity = Vector3(0, 0, 0)
+damping_min = 0.4
+damping_max = 4.0
+scale_min = 0.04
+scale_max = 0.4
+color = Color(0.9, 0.95, 1, 0.2)
+
+[sub_resource type="RectangleShape2D" id="hurtbox_shape"]
+size = Vector2(80, 200)
+
+[sub_resource type="RectangleShape2D" id="punch_shape"]
+size = Vector2(80, 40)
+
+[sub_resource type="RectangleShape2D" id="kick_shape"]
+size = Vector2(100, 40)
+
+[node name="Kive" type="CharacterBody2D" unique_id=1945642922]
+z_index = 5
+collision_mask = 8
+script = ExtResource("1_kive")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1728125998]
+light_mask = 2
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=216717657]
+shape = SubResource("body_shape")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=922956635]
+limit_left = 0
+limit_top = 0
+limit_right = 7680
+limit_bottom = 1080
+position_smoothing_enabled = true
+drag_horizontal_enabled = true
+script = ExtResource("4_shake")
+
+[node name="DustParticles" type="GPUParticles2D" parent="." unique_id=1499161175]
+z_index = -1
+position = Vector2(0, -100)
+amount = 44
+texture = ExtResource("3_dust")
+lifetime = 4.0
+preprocess = 5.0
+visibility_rect = Rect2(-5000, -1000, 10000, 2000)
+process_material = SubResource("dust_process")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1819292026]
+z_index = 5
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1298795986]
+shape = SubResource("hurtbox_shape")
+
+[node name="PunchHitbox" type="Area2D" parent="." unique_id=822952797]
+z_index = 5
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PunchHitbox" unique_id=466500753]
+shape = SubResource("punch_shape")
+
+[node name="LightOccluder" type="LightOccluder2D" parent="." unique_id=1625153147]
+occluder_light_mask = 3
+script = ExtResource("5_occluder_sync")
+
+[node name="KickHitbox" type="Area2D" parent="." unique_id=1966443429]
+z_index = 5
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KickHitbox" unique_id=943485890]
+shape = SubResource("kick_shape")

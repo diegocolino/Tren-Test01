@@ -1,27 +1,36 @@
 extends Node
 
-var debug_enabled: bool = true
-var show_timeline: bool = true
-var show_hitboxes: bool = true
-var show_state_info: bool = true
-var show_parry_windows: bool = true
-var show_distance: bool = true
-var show_flashlight_cone: bool = true
+var god_mode: bool = false
+var show_hitboxes: bool = false
+var show_debug_text: bool = false
+var slow_motion: bool = false
+var freeze: bool = false
+
+var debug_enabled: bool:
+	get: return god_mode or show_hitboxes or show_debug_text
+
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_F1:
-			debug_enabled = not debug_enabled
-			_toggle_debug_visuals()
-		elif event.keycode == KEY_F2 and debug_enabled:
+	if not event is InputEventKey or not event.pressed:
+		return
+
+	if event.keycode == KEY_F1:
+		god_mode = not god_mode
+	elif god_mode:
+		if event.keycode == KEY_F2:
 			show_hitboxes = not show_hitboxes
-		elif event.keycode == KEY_F3 and debug_enabled:
-			show_timeline = not show_timeline
-		elif event.keycode == KEY_F4 and debug_enabled:
-			show_flashlight_cone = not show_flashlight_cone
-
-
-func _toggle_debug_visuals() -> void:
-	for node in get_tree().get_nodes_in_group("debug_visual"):
-		node.visible = debug_enabled
+		elif event.keycode == KEY_F3:
+			show_debug_text = not show_debug_text
+		elif event.keycode == KEY_F4:
+			slow_motion = not slow_motion
+			Engine.time_scale = 0.25 if slow_motion else 1.0
+		elif event.keycode == KEY_F:
+			freeze = not freeze
+			get_tree().paused = freeze
+		elif event.keycode == KEY_R:
+			for agent: Node in get_tree().get_nodes_in_group("agent"):
+				agent.reset_to_patrol()

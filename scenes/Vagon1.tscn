@@ -1,28 +1,56 @@
 [gd_scene format=3 uid="uid://cx7dcgak0ccu2"]
 
-[ext_resource type="Script" uid="uid://cfn7a8myk88o3" path="res://scripts/kive.gd" id="1_afs1t"]
 [ext_resource type="Texture2D" uid="uid://c2x14v1sgfy7u" path="res://assets/VAGON1_BACK.png" id="1_ch0r7"]
 [ext_resource type="Script" uid="uid://briwgdytg3epd" path="res://scripts/vagon1.gd" id="1_dc6um"]
 [ext_resource type="Script" uid="uid://cyckb7xvxkac4" path="res://scripts/train_scroll.gd" id="1_erejh"]
 [ext_resource type="Shader" uid="uid://c8lkc1djmj4y0" path="res://resources/shaders/horizontal_motion_blur.gdshader" id="2_5ovka"]
 [ext_resource type="Texture2D" uid="uid://c564q6pl7cns" path="res://assets/VAGON1_MID.png" id="2_do3pn"]
-[ext_resource type="SpriteFrames" uid="uid://bcshkbrb7djaw" path="res://resources/kive_frames.tres" id="2_ucwio"]
 [ext_resource type="Texture2D" uid="uid://bx4lvuid4e22d" path="res://assets/VAGON1_TOP.png" id="3_ncysw"]
 [ext_resource type="Texture2D" uid="uid://cnqb6qftwmvqe" path="res://assets/VAGON1_OUT.png" id="4_vutg6"]
 [ext_resource type="Texture2D" uid="uid://c0qv8hv0pd687" path="res://assets/VAGON1_ATMO.png" id="6_do3pn"]
-[ext_resource type="Script" uid="uid://dmxmmdkybvdfu" path="res://scripts/train_shake.gd" id="6_lfrhs"]
-[ext_resource type="Texture2D" uid="uid://d4idi1e4o4gm3" path="res://resources/dust_particle.tres" id="7_dc6um"]
 [ext_resource type="Shader" uid="uid://j3h6sceiw2bt" path="res://resources/shaders/gaussian_blur.gdshader" id="8_vutg6"]
 [ext_resource type="Shader" uid="uid://r175oycwmxqs" path="res://resources/shaders/vignette.gdshader" id="11_6xjfw"]
 [ext_resource type="Shader" uid="uid://doqpxvii7j57i" path="res://resources/shaders/color_grading.gdshader" id="13_6xjfw"]
 [ext_resource type="Shader" uid="uid://cqigcb24padsd" path="res://resources/shaders/alarm_pulse.gdshader" id="14_alarm"]
-[ext_resource type="PackedScene" path="res://scenes/Agent.tscn" id="18_agent"]
+[ext_resource type="Script" uid="uid://dpofo0f21n0cv" path="res://scripts/kive_music.gd" id="16_shg2n"]
+[ext_resource type="AudioStream" uid="uid://b721q0o1loso8" path="res://audio/music/kive_1_bass_d#.wav" id="17_6yuvm"]
+[ext_resource type="PackedScene" uid="uid://byk05mha1lvki" path="res://scenes/Kive.tscn" id="17_kive"]
+[ext_resource type="PackedScene" uid="uid://cg3ihqqll1aqv" path="res://scenes/Agent.tscn" id="18_agent"]
+[ext_resource type="AudioStream" uid="uid://dfxldbnjuufby" path="res://audio/music/kive_2_bass+guitarstrum_d#.wav" id="18_mp3i2"]
+[ext_resource type="AudioStream" uid="uid://v0lawkoqs55m" path="res://audio/music/kive_3_bass+guitarstrum+guitarriff_d#.wav" id="19_6vesj"]
 [ext_resource type="PackedScene" path="res://scenes/DebugHUD.tscn" id="19_debughud"]
+[ext_resource type="AudioStream" uid="uid://bbpbjbtc51qdt" path="res://audio/music/kive_4_bass+guitarstrum+guitarriff+guitarsolo_d#.wav" id="20_1gjma"]
+[ext_resource type="PackedScene" uid="uid://ttbtb7hsot3t" path="res://scenes/AlarmLight.tscn" id="20_alarm"]
+[ext_resource type="PackedScene" path="res://scenes/HideZone.tscn" id="21_hidezone"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7c2j4"]
 shader = ExtResource("2_5ovka")
 shader_parameter/blur_radius = 44.0
 shader_parameter/samples = 44
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_shg2n"]
+polygon = PackedVector2Array(1566, 612, 1555, 616, 1555, 621, 1579, 737, 1579, 742, 1592, 769, 1593, 769, 1593, 780, 1587, 790, 1587, 792, 1705, 792, 1699, 776, 1699, 765, 1716, 748, 1716, 746, 1731, 746, 1738, 759, 1739, 759, 1742, 768, 1742, 782, 1736, 792, 1840, 792, 1835, 774, 1834, 774, 1836, 764, 1836, 762, 1851, 746, 1869, 746, 1873, 733, 1874, 733, 1874, 722, 1866, 715, 1866, 714, 1835, 714, 1832, 714, 1833, 707, 1833, 705, 1846, 697, 1847, 697, 1846, 687, 1846, 686, 1798, 682, 1797, 682, 1787, 638, 1787, 635, 1777, 622, 1777, 620, 1769, 616, 1769, 615, 1755, 611, 1750, 611, 1739, 618, 1738, 618, 1720, 611, 1715, 611, 1705, 617, 1704, 617, 1723, 710, 1723, 713, 1699, 714, 1697, 714, 1698, 706, 1698, 704, 1711, 696, 1712, 696, 1711, 689, 1711, 687, 1703, 684, 1703, 683, 1665, 684, 1662, 684, 1656, 651, 1656, 647, 1640, 620, 1640, 619, 1620, 612, 1620, 611, 1605, 616, 1604, 616, 1616, 684, 1614, 684, 1608, 655, 1608, 650, 1599, 630, 1599, 628, 1587, 617, 1587, 616, 1566, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_6yuvm"]
+polygon = PackedVector2Array(1866, 612, 1855, 617, 1855, 619, 1880, 739, 1880, 744, 1893, 772, 1894, 772, 1887, 791, 1887, 792, 1992, 792, 1986, 774, 1985, 774, 1988, 763, 1988, 761, 2002, 746, 2021, 746, 2024, 733, 2025, 733, 2024, 722, 2024, 719, 2017, 715, 2017, 714, 1986, 714, 1983, 714, 1984, 707, 1984, 705, 1998, 695, 1999, 695, 1998, 689, 1998, 687, 1990, 683, 1949, 683, 1942, 648, 1942, 645, 1927, 620, 1927, 619, 1906, 612, 1906, 611, 1890, 617, 1890, 618, 1866, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_mp3i2"]
+polygon = PackedVector2Array(2238, 612, 2227, 617, 2227, 619, 2252, 739, 2252, 744, 2264, 767, 2265, 767, 2265, 777, 2265, 782, 2259, 791, 2259, 792, 2377, 792, 2371, 775, 2371, 767, 2388, 749, 2388, 746, 2403, 746, 2411, 760, 2412, 760, 2415, 770, 2415, 779, 2408, 792, 2513, 792, 2508, 776, 2507, 776, 2509, 763, 2509, 761, 2524, 746, 2542, 746, 2546, 731, 2547, 731, 2545, 721, 2545, 719, 2538, 715, 2538, 714, 2507, 714, 2505, 714, 2506, 706, 2506, 704, 2519, 696, 2520, 696, 2519, 689, 2519, 687, 2511, 683, 2470, 683, 2460, 639, 2460, 636, 2453, 626, 2453, 624, 2439, 615, 2439, 614, 2428, 611, 2423, 611, 2412, 619, 2411, 619, 2393, 611, 2388, 611, 2378, 616, 2377, 616, 2395, 708, 2395, 713, 2372, 714, 2369, 714, 2370, 707, 2370, 705, 2384, 695, 2385, 695, 2383, 688, 2383, 686, 2337, 684, 2335, 684, 2326, 643, 2326, 640, 2314, 622, 2314, 620, 2292, 612, 2292, 611, 2277, 617, 2276, 617, 2288, 684, 2286, 684, 2280, 653, 2280, 649, 2272, 631, 2272, 629, 2261, 618, 2261, 617, 2238, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_6vesj"]
+polygon = PackedVector2Array(2539, 612, 2528, 616, 2528, 621, 2552, 737, 2552, 742, 2565, 769, 2566, 769, 2566, 780, 2560, 790, 2560, 792, 2664, 792, 2659, 766, 2659, 763, 2675, 746, 2693, 746, 2697, 732, 2698, 732, 2696, 721, 2696, 719, 2689, 715, 2689, 714, 2658, 714, 2656, 714, 2656, 706, 2671, 694, 2672, 694, 2671, 692, 2671, 688, 2662, 683, 2621, 683, 2612, 641, 2612, 638, 2598, 619, 2598, 618, 2579, 612, 2579, 611, 2563, 616, 2563, 618, 2539, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_1gjma"]
+polygon = PackedVector2Array(2939, 612, 2928, 616, 2928, 622, 2953, 742, 2953, 746, 2965, 769, 2966, 769, 2966, 780, 2960, 790, 2960, 792, 3078, 792, 3071, 770, 3071, 769, 3089, 747, 3089, 746, 3103, 746, 3111, 759, 3112, 759, 3115, 768, 3115, 781, 3109, 792, 3213, 792, 3208, 775, 3207, 775, 3209, 764, 3209, 762, 3224, 746, 3242, 746, 3246, 732, 3247, 732, 3247, 722, 3239, 715, 3239, 714, 3208, 714, 3205, 714, 3206, 707, 3206, 705, 3220, 695, 3221, 695, 3219, 688, 3219, 686, 3212, 683, 3170, 683, 3160, 638, 3160, 635, 3142, 616, 3142, 615, 3128, 611, 3123, 611, 3112, 618, 3111, 618, 3093, 611, 3088, 611, 3078, 617, 3077, 617, 3096, 710, 3096, 713, 3072, 714, 3069, 714, 3070, 708, 3070, 705, 3083, 697, 3084, 697, 3084, 689, 3084, 687, 3076, 684, 3076, 683, 3038, 684, 3035, 684, 3025, 639, 3025, 636, 3013, 620, 3013, 619, 2992, 612, 2992, 611, 2978, 616, 2977, 616, 2989, 684, 2986, 684, 2983, 664, 2983, 659, 2973, 632, 2973, 630, 2960, 617, 2960, 616, 2939, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_bg1fg"]
+polygon = PackedVector2Array(3239, 612, 3228, 617, 3228, 619, 3253, 740, 3253, 745, 3265, 767, 3266, 767, 3266, 777, 3266, 782, 3260, 791, 3260, 792, 3364, 792, 3365, 791, 3365, 784, 3359, 774, 3358, 774, 3360, 764, 3360, 762, 3375, 746, 3393, 746, 3397, 733, 3398, 733, 3398, 722, 3390, 715, 3390, 714, 3359, 714, 3356, 714, 3357, 707, 3357, 705, 3371, 695, 3372, 695, 3371, 689, 3371, 687, 3363, 683, 3322, 683, 3312, 640, 3312, 637, 3301, 621, 3301, 620, 3279, 612, 3279, 611, 3263, 617, 3263, 618, 3239, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_0rhjb"]
+polygon = PackedVector2Array(3665, 612, 3654, 617, 3654, 619, 3679, 739, 3679, 744, 3692, 772, 3693, 772, 3686, 791, 3686, 792, 3804, 792, 3798, 774, 3798, 767, 3815, 749, 3815, 746, 3830, 746, 3838, 760, 3839, 760, 3842, 769, 3842, 779, 3835, 792, 3940, 792, 3935, 776, 3934, 776, 3936, 763, 3936, 761, 3951, 746, 3969, 746, 3973, 731, 3974, 731, 3972, 721, 3972, 719, 3965, 715, 3965, 714, 3934, 714, 3932, 714, 3933, 706, 3933, 704, 3946, 696, 3947, 696, 3947, 688, 3938, 683, 3897, 683, 3887, 639, 3887, 636, 3880, 626, 3880, 624, 3866, 615, 3866, 614, 3855, 611, 3850, 611, 3839, 618, 3837, 618, 3820, 611, 3815, 611, 3805, 616, 3804, 616, 3822, 707, 3822, 713, 3799, 714, 3796, 714, 3797, 707, 3797, 705, 3810, 697, 3811, 697, 3811, 690, 3811, 687, 3803, 684, 3803, 683, 3764, 684, 3762, 684, 3752, 640, 3752, 637, 3741, 622, 3741, 620, 3719, 612, 3719, 611, 3704, 617, 3703, 617, 3715, 684, 3713, 684, 3707, 652, 3707, 648, 3699, 631, 3699, 629, 3688, 618, 3688, 617, 3665, 611)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_xjx4i"]
+polygon = PackedVector2Array(3966, 612, 3955, 616, 3955, 621, 3979, 736, 3979, 742, 3992, 769, 3993, 769, 3993, 780, 3987, 790, 3987, 792, 4091, 792, 4086, 766, 4086, 763, 4102, 746, 4120, 746, 4124, 732, 4125, 732, 4124, 723, 4124, 720, 4116, 715, 4116, 714, 4086, 714, 4083, 714, 4083, 706, 4098, 694, 4099, 694, 4098, 692, 4098, 688, 4089, 683, 4048, 683, 4039, 641, 4039, 638, 4025, 619, 4025, 618, 4006, 612, 4006, 611, 3990, 616, 3990, 618, 3966, 611)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uglov"]
 size = Vector2(7680, 50)
@@ -36,36 +64,11 @@ size = Vector2(110, 18)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_elev1"]
 size = Vector2(2904, 20)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ch0r7"]
-size = Vector2(80, 200)
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mp3i2"]
-emission_shape = 3
-emission_box_extents = Vector3(960, 400, 0)
-direction = Vector3(0, -1, 0)
-spread = 180.0
-initial_velocity_min = 4.0
-initial_velocity_max = 44.0
-gravity = Vector3(0, 0, 0)
-damping_min = 0.4
-damping_max = 4.0
-scale_min = 0.04
-scale_max = 0.4
-color = Color(0.9, 0.95, 1, 0.2)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kive_hurtbox"]
-size = Vector2(80, 200)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kive_punch"]
-size = Vector2(80, 40)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kive_kick"]
-size = Vector2(100, 40)
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_86pfq"]
 shader = ExtResource("8_vutg6")
 shader_parameter/blur_radius = 10.0
 shader_parameter/samples = 16
+shader_parameter/alarm_tint = Color(1, 1, 1, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dc6um"]
 shader = ExtResource("11_6xjfw")
@@ -92,21 +95,6 @@ shader_parameter/lift = 0.02
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_crngu"]
 size = Vector2(80, 1080)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hz1"]
-size = Vector2(160, 300)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_v7voo"]
-size = Vector2(80, 1080)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hz2"]
-size = Vector2(160, 300)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_1moek"]
-size = Vector2(80, 1080)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hz3"]
-size = Vector2(160, 300)
 
 [node name="Vagon1" type="Node2D" unique_id=84667739]
 script = ExtResource("1_dc6um")
@@ -135,6 +123,30 @@ centered = false
 [node name="MidSprite" type="Sprite2D" parent="ParallaxBackground/MidLayer" unique_id=1038327545]
 texture = ExtResource("2_do3pn")
 centered = false
+
+[node name="ButacaOccluder1" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=1636682947]
+occluder = SubResource("OccluderPolygon2D_shg2n")
+
+[node name="ButacaOccluder2" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=1843497229]
+occluder = SubResource("OccluderPolygon2D_6yuvm")
+
+[node name="ButacaOccluder3" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=1137974397]
+occluder = SubResource("OccluderPolygon2D_mp3i2")
+
+[node name="ButacaOccluder4" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=335311806]
+occluder = SubResource("OccluderPolygon2D_6vesj")
+
+[node name="ButacaOccluder5" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=1879553392]
+occluder = SubResource("OccluderPolygon2D_1gjma")
+
+[node name="ButacaOccluder6" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=930476609]
+occluder = SubResource("OccluderPolygon2D_bg1fg")
+
+[node name="ButacaOccluder7" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=834576958]
+occluder = SubResource("OccluderPolygon2D_0rhjb")
+
+[node name="ButacaOccluder8" type="LightOccluder2D" parent="ParallaxBackground/MidLayer" unique_id=191780841]
+occluder = SubResource("OccluderPolygon2D_xjx4i")
 
 [node name="Suelo" type="StaticBody2D" parent="." unique_id=871323720]
 collision_layer = 8
@@ -176,72 +188,19 @@ shape = SubResource("RectangleShape2D_step1")
 position = Vector2(6236, 632)
 shape = SubResource("RectangleShape2D_elev1")
 
-[node name="Kive" type="CharacterBody2D" parent="." unique_id=1676538727]
-z_index = 5
+[node name="Kive" parent="." unique_id=1043163006 instance=ExtResource("17_kive")]
 position = Vector2(312, 704)
-collision_mask = 8
-script = ExtResource("1_afs1t")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Kive" unique_id=1667616364]
-sprite_frames = ExtResource("2_ucwio")
-animation = &"idle"
-autoplay = "idle"
+[node name="FrontLayer" type="CanvasLayer" parent="." unique_id=1195033319]
+follow_viewport_enabled = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive" unique_id=74569011]
-shape = SubResource("RectangleShape2D_ch0r7")
-
-[node name="Camera2D" type="Camera2D" parent="Kive" unique_id=1434688142]
-limit_left = 0
-limit_top = 0
-limit_right = 7680
-limit_bottom = 1080
-position_smoothing_enabled = true
-drag_horizontal_enabled = true
-script = ExtResource("6_lfrhs")
-
-[node name="DustParticles" type="GPUParticles2D" parent="Kive" unique_id=581190322]
-z_index = -1
-position = Vector2(0, -100)
-amount = 44
-texture = ExtResource("7_dc6um")
-lifetime = 4.0
-preprocess = 5.0
-visibility_rect = Rect2(-5000, -1000, 10000, 2000)
-process_material = SubResource("ParticleProcessMaterial_mp3i2")
-
-[node name="Hurtbox" type="Area2D" parent="Kive" unique_id=1652297313]
-z_index = 5
-collision_mask = 0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive/Hurtbox" unique_id=583120104]
-scale = Vector2(1.0078579, 1)
-shape = SubResource("RectangleShape2D_kive_hurtbox")
-
-[node name="PunchHitbox" type="Area2D" parent="Kive" unique_id=1603070314]
-z_index = 5
-collision_layer = 0
-collision_mask = 4
-monitoring = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive/PunchHitbox" unique_id=1162315193]
-shape = SubResource("RectangleShape2D_kive_punch")
-
-[node name="KickHitbox" type="Area2D" parent="Kive" unique_id=213123593]
-z_index = 5
-collision_layer = 0
-collision_mask = 4
-monitoring = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Kive/KickHitbox" unique_id=1616264273]
-shape = SubResource("RectangleShape2D_kive_kick")
-
-[node name="FrontLayer" type="Node2D" parent="." unique_id=1195033319]
-z_index = 10
-
-[node name="FrontSprite" type="Sprite2D" parent="FrontLayer" unique_id=243795790]
+[node name="FrontSprite" type="Sprite2D" parent="FrontLayer" unique_id=243795790 groups=["front_layer"]]
 material = SubResource("ShaderMaterial_86pfq")
 texture = ExtResource("3_ncysw")
 centered = false
+
+[node name="FrontDarkness" type="CanvasModulate" parent="FrontLayer" unique_id=208727832]
+color = Color(0.18, 0.18, 0.24, 1)
 
 [node name="AtmoLayer" type="Node2D" parent="." unique_id=1426098744]
 z_index = 20
@@ -292,47 +251,18 @@ collision_layer = 2
 collision_mask = 0
 
 [node name="CollisionShape" type="CollisionShape2D" parent="ColumnCollisions/Column1" unique_id=2113456363]
+position = Vector2(-728, 0)
 scale = Vector2(3.3078837, 1)
 shape = SubResource("RectangleShape2D_crngu")
 
-[node name="HideZone" type="Area2D" parent="ColumnCollisions/Column1" unique_id=74868782 groups=["hide_zone"]]
-collision_layer = 0
-monitorable = false
+[node name="HideZone1" parent="ColumnCollisions" unique_id=1353294437 instance=ExtResource("21_hidezone")]
+position = Vector2(2112, 672)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnCollisions/Column1/HideZone" unique_id=1513184805]
-shape = SubResource("RectangleShape2D_hz1")
+[node name="HideZone2" parent="ColumnCollisions" unique_id=967425932 instance=ExtResource("21_hidezone")]
+position = Vector2(2808, 672)
 
-[node name="Column2" type="StaticBody2D" parent="ColumnCollisions" unique_id=1133992637]
-position = Vector2(2808, 544)
-collision_layer = 2
-collision_mask = 0
-
-[node name="CollisionShape" type="CollisionShape2D" parent="ColumnCollisions/Column2" unique_id=1091567669]
-scale = Vector2(3.4370263, 1)
-shape = SubResource("RectangleShape2D_v7voo")
-
-[node name="HideZone" type="Area2D" parent="ColumnCollisions/Column2" unique_id=56733053 groups=["hide_zone"]]
-collision_layer = 0
-monitorable = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnCollisions/Column2/HideZone" unique_id=1184763869]
-shape = SubResource("RectangleShape2D_hz2")
-
-[node name="Column3" type="StaticBody2D" parent="ColumnCollisions" unique_id=1527280850]
-position = Vector2(3520, 544)
-collision_layer = 2
-collision_mask = 0
-
-[node name="CollisionShape" type="CollisionShape2D" parent="ColumnCollisions/Column3" unique_id=2115181429]
-scale = Vector2(3.570238, 1)
-shape = SubResource("RectangleShape2D_1moek")
-
-[node name="HideZone" type="Area2D" parent="ColumnCollisions/Column3" unique_id=1563204018 groups=["hide_zone"]]
-collision_layer = 0
-monitorable = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ColumnCollisions/Column3/HideZone" unique_id=453920922]
-shape = SubResource("RectangleShape2D_hz3")
+[node name="HideZone3" parent="ColumnCollisions" unique_id=257611965 instance=ExtResource("21_hidezone")]
+position = Vector2(3520, 672)
 
 [node name="RespawnFade" type="CanvasLayer" parent="." unique_id=416370828]
 layer = 11
@@ -345,17 +275,44 @@ mouse_filter = 2
 color = Color(0, 0, 0, 0)
 
 [node name="PatrolMarkerA" type="Marker2D" parent="." unique_id=675129029]
-position = Vector2(2500, 800)
+position = Vector2(7080, 616)
 
 [node name="PatrolMarkerB" type="Marker2D" parent="." unique_id=10102193]
-position = Vector2(3500, 800)
+position = Vector2(1928, 776)
 
-[node name="SceneDarkness" type="CanvasModulate" parent="."]
+[node name="SceneDarkness" type="CanvasModulate" parent="." unique_id=108302760]
 color = Color(0.18, 0.18, 0.24, 1)
 
+[node name="AlarmLights" parent="." unique_id=1474265801 instance=ExtResource("20_alarm")]
+
 [node name="Agent" parent="." unique_id=688135817 instance=ExtResource("18_agent")]
-position = Vector2(3000, 775)
+position = Vector2(7192, 584)
 patrol_marker_a = NodePath("../PatrolMarkerA")
 patrol_marker_b = NodePath("../PatrolMarkerB")
+hearing_radius_walking = 500.0
+hearing_radius_running = 900.0
+hearing_radius_idle = 160.0
+attack_range_horizontal = 400.0
+windup_duration = 0.4
+airtime_push_horizontal = 800.0
+airtime_push_vertical = 1600.0
 
 [node name="DebugHUD" parent="." unique_id=1295350160 instance=ExtResource("19_debughud")]
+
+[node name="KiveMusic" type="Node" parent="." unique_id=535436919]
+script = ExtResource("16_shg2n")
+
+[node name="Layer1" type="AudioStreamPlayer" parent="KiveMusic" unique_id=2045416407]
+stream = ExtResource("17_6yuvm")
+
+[node name="Layer2" type="AudioStreamPlayer" parent="KiveMusic" unique_id=1170680470]
+stream = ExtResource("18_mp3i2")
+volume_db = -80.0
+
+[node name="Layer3" type="AudioStreamPlayer" parent="KiveMusic" unique_id=1707460653]
+stream = ExtResource("19_6vesj")
+volume_db = -80.0
+
+[node name="Layer4" type="AudioStreamPlayer" parent="KiveMusic" unique_id=1862081370]
+stream = ExtResource("20_1gjma")
+volume_db = -80.0

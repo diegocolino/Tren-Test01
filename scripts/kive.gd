@@ -47,8 +47,6 @@ const anticipation_duration: float = 0.04
 const charge_threshold: float = 0.14
 const charge_cancel_time: float = 4.0
 const default_collision_height: float = 200.0
-const player_layer_bit: int = 1 << 0  # Layer 1 "Player" en el inspector
-const world_layer_bit: int = 1 << 3   # Layer 4 "World" en el inspector
 
 # ========== STATE ==========
 var jump_state: String = "none"
@@ -80,6 +78,9 @@ var _parry_window_timer: float = 999.0
 var _punch_hitbox_active_frames: int = 0
 var _kick_hitbox_active_frames: int = 0
 
+# Execution
+var is_executing: bool = false
+
 # ========== REFERENCES ==========
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -87,6 +88,7 @@ var _kick_hitbox_active_frames: int = 0
 # ========== LIFECYCLE ==========
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("player")
 	sprite.animation_finished.connect(_on_animation_finished)
 	# Conectar senales de hitboxes de combate
@@ -112,6 +114,7 @@ func _on_animation_finished() -> void:
 			sprite.play("jump_recovery")
 
 
+
 func _physics_process(delta: float) -> void:
 	if not control_enabled:
 		return
@@ -119,14 +122,14 @@ func _physics_process(delta: float) -> void:
 	# Desactivar hitboxes de forma deterministica
 	_update_hitbox_flags()
 
-	# Si esta escondido, salir si hay input de movimiento
-	if is_hidden:
-		var direction: float = Input.get_axis("move_left", "move_right")
-		if direction != 0 or Input.is_action_just_pressed("jump"):
-			_unhide()
-		else:
-			move_and_slide()
-			return
+	# Ejecucion desde hidden (Q)
+	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_casting:
+		is_crouched = false
+		_update_collision_shape()
+		is_executing = true
+		current_attack_type = "kick"
+		attack_is_charged = false
+		_start_attack("kick")
 
 	# Crouch toggle/hold (solo en suelo y sin saltar, sin dive, sin combate)
 	if is_on_floor() and jump_state == "none" and not is_diving and not is_attacking and not is_casting:
@@ -140,17 +143,23 @@ func _physics_process(delta: float) -> void:
 				is_crouched = not is_crouched
 				_update_collision_shape()
 
-	# Auto-hide: agachado + en zona segura + quieto = esconderse
-	if is_crouched and not is_hidden and _nearby_hide_zones > 0 and is_on_floor() and jump_state == "none" and _can_hide():
-		var auto_dir: float = Input.get_axis("move_left", "move_right")
-		if auto_dir == 0 and abs(velocity.x) < 10:
+	# Auto-hide: agachado + en zona safe + suelo = hidden automatico
+	if not is_hidden:
+		if is_crouched and _nearby_hide_zones > 0 and _can_hide() and is_on_floor() and jump_state == "none":
 			_hide()
+	elif is_hidden:
+		if not is_crouched or _nearby_hide_zones <= 0:
+			_unhide()
 
 	# === COMBAT INPUT (antes de cualquier otra logica de movimiento) ===
 
 	# Punch (W)
 	if control_enabled and not is_diving and jump_state == "none":
 		if Input.is_action_just_pressed("attack_punch") and not is_attacking and not is_casting:
+			if is_hidden:
+				is_crouched = false
+				_update_collision_shape()
+				_unhide()
 			is_casting = true
 			current_attack_type = "punch"
 			cast_timer = 0.0
@@ -173,8 +182,10 @@ func _physics_process(delta: float) -> void:
 			attack_is_charged = true
 			_start_attack("punch")
 
-		# Kick (Q) - nunca cargable
+		# Kick (Q) - nunca cargable; desde crouch/hidden = ejecucion
 		if Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_casting:
+			if is_hidden:
+				is_executing = true
 			current_attack_type = "kick"
 			attack_is_charged = false
 			_start_attack("kick")
@@ -327,6 +338,7 @@ func _process_attack(delta: float) -> void:
 			elif attack_phase_timer >= recovery_dur:
 				attack_phase = "none"
 				is_attacking = false
+				is_executing = false
 				attack_is_charged = false
 				current_attack_type = "none"
 
@@ -350,8 +362,11 @@ func _execute_hit_check() -> void:
 func _on_hitbox_body_entered(body: Node2D) -> void:
 	if not is_attacking or attack_phase != "release":
 		return
-	if body.is_in_group("agent") and body.has_method("receive_hit_from"):
-		body.receive_hit_from(self, attack_is_charged, current_attack_type)
+	if body.is_in_group("agent"):
+		if is_executing and body.has_method("receive_execution"):
+			body.receive_execution(self)
+		elif body.has_method("receive_hit_from"):
+			body.receive_hit_from(self, attack_is_charged, current_attack_type)
 
 
 func _update_hitbox_flags() -> void:
@@ -374,10 +389,16 @@ func is_running_currently() -> bool:
 	return is_sprinting()
 
 
+func get_charge_ratio() -> float:
+	if not attack_is_charged:
+		return 0.0
+	return clampf((cast_timer - attack_charge_time) / (attack_charge_time_max - attack_charge_time), 0.0, 1.0)
+
+
 # ========== PARRY / DAMAGE (Fase 9) ==========
 
 func receive_agent_hit(agent: Node2D) -> void:
-	if DebugOverlay.debug_enabled:
+	if DebugOverlay.show_debug_text:
 		print("[Kive hit] parry_timer=%.3f window=%.3f parry=%s" % [
 			_parry_window_timer, parry_window_frames / 60.0, str(is_parry_window_active())
 		])
@@ -708,6 +729,7 @@ func reset_state() -> void:
 	_parry_window_timer = 999.0
 	_punch_hitbox_active_frames = 0
 	_kick_hitbox_active_frames = 0
+	is_executing = false
 	_air_jumps_left = 0
 	_is_charging_jump = false
 	_jump_charge_timer = 0.0
@@ -726,42 +748,36 @@ func _try_step_up() -> void:
 	if not is_on_wall() or not is_on_floor():
 		return
 	var dir: float = -1.0 if sprite.flip_h else 1.0
-	if test_move(global_transform, Vector2(0, -step_height)):
-		return
-	var elevated: Transform2D = global_transform
-	elevated.origin.y -= step_height
-	if test_move(elevated, Vector2(dir * 4.0, 0)):
-		return
-	position.y -= step_height
+	for step: int in range(1, int(step_height / 4.0) + 1):
+		var lift: float = step * 4.0
+		if test_move(global_transform, Vector2(0, -lift)):
+			return
+		var elevated: Transform2D = global_transform
+		elevated.origin.y -= lift
+		if not test_move(elevated, Vector2(dir * 4.0, 0)):
+			position.y -= lift
+			return
 
 
 func _can_hide() -> bool:
 	for enemy: Node in GameManager.enemies:
 		if not is_instance_valid(enemy):
 			continue
-		# Agent: check GUARD_STANCE or combat states
-		if enemy.has_method("_get_agent_state_tier"):
-			if enemy.state != enemy.State.PATROL:
-				return false
-		# Legacy Guardia: check ALERT
-		elif "State" in enemy and enemy.state == enemy.State.ALERT:
+		if enemy.has_method("get_position_tier_of"):
+			if enemy.state in [enemy.State.DEAD, enemy.State.KO, enemy.State.PATROL, enemy.State.ALERT]:
+				continue
 			return false
 	return true
 
 
 func _hide() -> void:
 	is_hidden = true
-	velocity = Vector2.ZERO
 	sprite.modulate.a = 0.35
-	collision_layer = 0
-	collision_mask = 0
 
 
 func _unhide() -> void:
 	is_hidden = false
 	sprite.modulate.a = 1.0
-	collision_layer = player_layer_bit
-	collision_mask = world_layer_bit
 
 
 # ========== SIGNALS ==========
@@ -779,7 +795,7 @@ func _on_hide_zone_exited(body: Node2D) -> void:
 # ========== DEBUG ==========
 
 func _draw() -> void:
-	if not DebugOverlay.debug_enabled or not DebugOverlay.show_hitboxes:
+	if not DebugOverlay.show_hitboxes:
 		return
 
 	# Hurtbox azul

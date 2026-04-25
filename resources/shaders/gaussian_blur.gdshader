@@ -4,6 +4,7 @@ shader_type canvas_item;
 // Usa premultiplied alpha para evitar halos oscuros en bordes transparentes
 uniform float blur_radius : hint_range(0.0, 30.0) = 10.0;
 uniform int samples : hint_range(4, 32) = 16;
+uniform vec4 alarm_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 
 void fragment() {
 	vec2 pixel_size = TEXTURE_PIXEL_SIZE;
@@ -31,5 +32,5 @@ void fragment() {
 	vec3 final_rgb = rgb_sum / safe_alpha;
 	float final_alpha = alpha_sum / weight_sum;
 
-	COLOR = vec4(final_rgb, final_alpha);
+	COLOR = vec4(final_rgb * alarm_tint.rgb, final_alpha);
 }

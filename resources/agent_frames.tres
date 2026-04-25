@@ -11,13 +11,21 @@ region = Rect2(1024, 512, 256, 256)
 atlas = ExtResource("2_sheet")
 region = Rect2(1280, 512, 256, 256)
 
+[sub_resource type="AtlasTexture" id="attack_recovery_9"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 256, 256, 256)
+
+[sub_resource type="AtlasTexture" id="attack_release_14"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1280, 256, 256, 256)
+
 [sub_resource type="AtlasTexture" id="dead_24"]
 atlas = ExtResource("2_sheet")
 region = Rect2(1792, 512, 256, 256)
 
-[sub_resource type="AtlasTexture" id="floorstunt_23"]
+[sub_resource type="AtlasTexture" id="guard_idle_9"]
 atlas = ExtResource("2_sheet")
-region = Rect2(1536, 512, 256, 256)
+region = Rect2(0, 256, 256, 256)
 
 [sub_resource type="AtlasTexture" id="hit_light_17"]
 atlas = ExtResource("2_sheet")
@@ -27,13 +35,9 @@ region = Rect2(0, 512, 256, 256)
 atlas = ExtResource("2_sheet")
 region = Rect2(256, 512, 256, 256)
 
-[sub_resource type="AtlasTexture" id="kick_release_14"]
+[sub_resource type="AtlasTexture" id="ko_floor_23"]
 atlas = ExtResource("2_sheet")
-region = Rect2(1280, 256, 256, 256)
-
-[sub_resource type="AtlasTexture" id="kick_windup_13"]
-atlas = ExtResource("2_sheet")
-region = Rect2(1024, 256, 256, 256)
+region = Rect2(1536, 512, 256, 256)
 
 [sub_resource type="AtlasTexture" id="parry_1_15"]
 atlas = ExtResource("2_sheet")
@@ -67,9 +71,13 @@ region = Rect2(512, 512, 256, 256)
 atlas = ExtResource("2_sheet")
 region = Rect2(768, 512, 256, 256)
 
-[sub_resource type="AtlasTexture" id="walk_guard_9"]
+[sub_resource type="AtlasTexture" id="stunt_recover_20"]
 atlas = ExtResource("2_sheet")
-region = Rect2(0, 256, 256, 256)
+region = Rect2(768, 512, 256, 256)
+
+[sub_resource type="AtlasTexture" id="stunt_recover_19"]
+atlas = ExtResource("2_sheet")
+region = Rect2(512, 512, 256, 256)
 
 [sub_resource type="AtlasTexture" id="walk_guard_10"]
 atlas = ExtResource("2_sheet")
@@ -78,10 +86,6 @@ region = Rect2(256, 256, 256, 256)
 [sub_resource type="AtlasTexture" id="walk_guard_11"]
 atlas = ExtResource("2_sheet")
 region = Rect2(512, 256, 256, 256)
-
-[sub_resource type="AtlasTexture" id="walk_guard_12"]
-atlas = ExtResource("2_sheet")
-region = Rect2(768, 256, 256, 256)
 
 [sub_resource type="AtlasTexture" id="walk_patrol_1"]
 atlas = ExtResource("2_sheet")
@@ -99,6 +103,10 @@ region = Rect2(512, 0, 256, 256)
 atlas = ExtResource("2_sheet")
 region = Rect2(768, 0, 256, 256)
 
+[sub_resource type="AtlasTexture" id="windup_13"]
+atlas = ExtResource("2_sheet")
+region = Rect2(1024, 256, 256, 256)
+
 [resource]
 animations = [{
 "frames": [{
@@ -114,6 +122,22 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("attack_recovery_9")
+}],
+"loop": false,
+"name": &"attack_recovery",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("attack_release_14")
+}],
+"loop": false,
+"name": &"attack_release",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("dead_24")
 }],
 "loop": true,
@@ -122,10 +146,10 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("floorstunt_23")
+"texture": SubResource("guard_idle_9")
 }],
 "loop": true,
-"name": &"floorstunt",
+"name": &"guard_idle",
 "speed": 1.0
 }, {
 "frames": [{
@@ -149,18 +173,10 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("kick_release_14")
+"texture": SubResource("ko_floor_23")
 }],
-"loop": false,
-"name": &"kick_release",
-"speed": 1.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("kick_windup_13")
-}],
-"loop": false,
-"name": &"kick_windup",
+"loop": true,
+"name": &"ko_floor",
 "speed": 1.0
 }, {
 "frames": [{
@@ -209,20 +225,25 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("walk_guard_9")
+"texture": SubResource("stunt_recover_20")
 }, {
+"duration": 1.0,
+"texture": SubResource("stunt_recover_19")
+}],
+"loop": false,
+"name": &"stunt_recover",
+"speed": 8.0
+}, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("walk_guard_10")
 }, {
 "duration": 1.0,
 "texture": SubResource("walk_guard_11")
-}, {
-"duration": 1.0,
-"texture": SubResource("walk_guard_12")
 }],
 "loop": true,
 "name": &"walk_guard",
-"speed": 8.0
+"speed": 6.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -240,4 +261,12 @@ animations = [{
 "loop": true,
 "name": &"walk_patrol",
 "speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("windup_13")
+}],
+"loop": false,
+"name": &"windup",
+"speed": 1.0
 }]

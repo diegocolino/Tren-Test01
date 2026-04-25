@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cag6p352k1ov0" path="res://scripts/agent.gd" id="1_agent"]
 [ext_resource type="SpriteFrames" uid="uid://bi8g0p5hji37x" path="res://resources/agent_frames.tres" id="2_frames"]
 [ext_resource type="PackedScene" uid="uid://bfn5jo1ok3hfw" path="res://scenes/FlashlightSystem.tscn" id="3_flashlight"]
+[ext_resource type="Script" uid="uid://pp5ksefjb26f" path="res://scripts/occluder_sync.gd" id="4_5hfgq"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -21,6 +22,21 @@ z_index = 4
 collision_layer = 4
 collision_mask = 8
 script = ExtResource("1_agent")
+patrol_speed = 160.0
+chase_speed = 640.0
+hearing_radius_walking = 800.0
+vision_cone_angle = 44.0
+vision_cone_range = 2400.0
+attack_range_horizontal = 200.0
+guard_max_attack_delay = 4.0
+windup_duration = 0.4
+attack_recovery_duration = 0.2
+stunt_duration = 2.0
+ko_duration = 44.0
+parry_duration = 0.4
+hit_reaction_duration = 0.4
+airtime_push_horizontal = 800.0
+airtime_push_vertical = 1600.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1707671197]
 position = Vector2(0, -90)
@@ -79,3 +95,7 @@ offset_top = -260.0
 offset_right = 100.0
 offset_bottom = -235.0
 horizontal_alignment = 1
+
+[node name="LightOccluder" type="LightOccluder2D" parent="." unique_id=1284758922]
+occluder_light_mask = 2
+script = ExtResource("4_5hfgq")

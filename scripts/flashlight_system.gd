@@ -1,19 +1,13 @@
 extends Node2D
-## Sistema de linterna cinematografica del Agent.
-## Composicion de ConeLight (proyecta sombras), BulbGlow (lente), GroundSpot (suelo),
-## DustParticles (polvo) y control de parpadeo (flicker).
+## Sistema de linterna del Agent.
+## Solo gestiona ConeLight y control de parpadeo (flicker).
 ##
 ## API publica:
-##   set_active(bool)      — enciende / apaga todo el sistema
+##   set_active(bool)      — enciende / apaga
 ##   set_alert_mode(bool)  — aumenta la frecuencia e intensidad del parpadeo
 
 
-const ConeTexGen = preload("res://scripts/cone_texture_generator.gd")
-
 @onready var cone_light: PointLight2D = $ConeLight
-@onready var bulb_glow: PointLight2D = $BulbGlow
-@onready var ground_spot: PointLight2D = $GroundSpot
-@onready var dust_particles: GPUParticles2D = $DustParticles
 
 # === Flicker ===
 @export_group("Flicker sutil (idle)")
@@ -34,18 +28,30 @@ var _next_flicker_time: float = 0.0
 var _time_accumulator: float = 0.0
 
 var _base_cone_energy: float = 0.0
-var _base_bulb_energy: float = 0.0
-var _base_ground_energy: float = 0.0
 
 
 func _ready() -> void:
-	cone_light.texture = ConeTexGen.generate(Vector2i(1024, 512), 0.02, 0.95, 1.4)
-
+	cone_light.texture = _generate_cone_texture()
 	_base_cone_energy = cone_light.energy
-	_base_bulb_energy = bulb_glow.energy
-	_base_ground_energy = ground_spot.energy
-
 	_schedule_next_flicker()
+
+
+func _generate_cone_texture() -> ImageTexture:
+	var size := Vector2i(1024, 512)
+	var img := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
+	var center_y: float = size.y / 2.0
+	var half_x: float = size.x / 2.0
+	for x: int in range(size.x):
+		for y: int in range(size.y):
+			var alpha: float = 0.0
+			if x >= int(half_x):
+				var dist_x: float = (float(x) - half_x) / half_x
+				var cone_width: float = lerpf(0.02, 0.95, dist_x)
+				var dist_y: float = abs(float(y) - center_y) / center_y
+				if dist_y <= cone_width:
+					alpha = pow(1.0 - dist_x, 1.0) * (1.0 - pow(dist_y / cone_width, 2.0))
+			img.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+	return ImageTexture.create_from_image(img)
 
 
 func _process(delta: float) -> void:
@@ -63,9 +69,6 @@ func set_active(active: bool) -> void:
 	_is_active = active
 	visible = active
 	cone_light.enabled = active
-	bulb_glow.enabled = active
-	ground_spot.enabled = active
-	dust_particles.emitting = active
 
 
 func set_alert_mode(alert: bool) -> void:
@@ -90,16 +93,9 @@ func _do_flicker() -> void:
 
 	var tween: Tween = create_tween()
 	tween.tween_property(cone_light, "energy", _base_cone_energy * dip_mult, dip_dur * 0.4)
-	tween.parallel().tween_property(bulb_glow, "energy", _base_bulb_energy * dip_mult, dip_dur * 0.4)
-	tween.parallel().tween_property(ground_spot, "energy", _base_ground_energy * dip_mult, dip_dur * 0.4)
-
 	tween.tween_property(cone_light, "energy", _base_cone_energy, dip_dur * 0.6)
-	tween.parallel().tween_property(bulb_glow, "energy", _base_bulb_energy, dip_dur * 0.6)
-	tween.parallel().tween_property(ground_spot, "energy", _base_ground_energy, dip_dur * 0.6)
 
 	if do_double:
 		tween.tween_interval(0.05)
 		tween.tween_property(cone_light, "energy", _base_cone_energy * dip_mult, dip_dur * 0.3)
-		tween.parallel().tween_property(bulb_glow, "energy", _base_bulb_energy * dip_mult, dip_dur * 0.3)
 		tween.tween_property(cone_light, "energy", _base_cone_energy, dip_dur * 0.4)
-		tween.parallel().tween_property(bulb_glow, "energy", _base_bulb_energy, dip_dur * 0.4)
