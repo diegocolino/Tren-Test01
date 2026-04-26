@@ -16,6 +16,9 @@
 [ext_resource type="Script" uid="uid://cg0r4y5lphvhp" path="res://player/states/movement/jump_fall.gd" id="14_1bvtb"]
 [ext_resource type="Script" uid="uid://bsdisrp3hlvu3" path="res://player/states/movement/jump_landing.gd" id="15_5d8o0"]
 [ext_resource type="Script" uid="uid://dio6f7yrugiej" path="res://player/states/movement/air_jump.gd" id="16_bwjel"]
+[ext_resource type="Script" uid="uid://cxt0ys0kxeadj" path="res://player/states/movement/dive_ground.gd" id="17_1bvtb"]
+[ext_resource type="Script" uid="uid://baai0v1654n10" path="res://player/states/movement/dive_air.gd" id="18_5d8o0"]
+[ext_resource type="Script" uid="uid://873t14civc1e" path="res://player/states/movement/dive_landing.gd" id="19_bwjel"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -52,7 +55,7 @@ stats = ExtResource("2_yl1ef")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1728125998]
 light_mask = 2
 sprite_frames = ExtResource("2_frames")
-animation = &"idle"
+animation = &"jump_air"
 autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=216717657]
@@ -136,3 +139,12 @@ script = ExtResource("15_5d8o0")
 
 [node name="AirJump" type="Node" parent="StateMachine" unique_id=547054688]
 script = ExtResource("16_bwjel")
+
+[node name="DiveGround" type="Node" parent="StateMachine" unique_id=2059065976]
+script = ExtResource("17_1bvtb")
+
+[node name="DiveAir" type="Node" parent="StateMachine" unique_id=493775923]
+script = ExtResource("18_5d8o0")
+
+[node name="DiveLanding" type="Node" parent="StateMachine" unique_id=1152917285]
+script = ExtResource("19_bwjel")

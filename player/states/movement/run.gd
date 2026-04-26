@@ -19,8 +19,8 @@ func physics_update(delta: float) -> StringName:
 		kive._air_jumps_left = stats.max_air_jumps
 		kive.velocity.y = stats.jump_velocity_min
 		return &"JumpRise"
-	if Input.is_action_just_pressed("dive") and kive.is_on_floor():
-		return &"AllInOne"
+	if Input.is_action_just_pressed("dive") and kive.is_on_floor() and abs(kive.velocity.x) > 10:
+		return &"DiveGround"
 	if Input.is_action_just_pressed("attack_punch") or Input.is_action_just_pressed("attack_kick"):
 		return &"AllInOne"
 	if Input.is_action_just_pressed("crouch"):

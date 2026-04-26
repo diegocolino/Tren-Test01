@@ -110,14 +110,6 @@ func _on_animation_finished() -> void:
 	if state_machine and state_machine.current_state:
 		state_machine.current_state.on_animation_finished(sprite.animation)
 
-	# Legacy handlers (dive — todavia en AllInOne)
-	match sprite.animation:
-		"dive_start":
-			sprite.play("dive_slide")
-		"dive_end":
-			is_diving = false
-			_update_collision_shape()
-
 
 
 func _process(delta: float) -> void:

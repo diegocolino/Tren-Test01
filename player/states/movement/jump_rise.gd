@@ -22,7 +22,7 @@ func physics_update(delta: float) -> StringName:
 	if Input.is_action_just_pressed("jump") and kive._air_jumps_left > 0:
 		return &"AirJump"
 	if Input.is_action_just_pressed("dive"):
-		return &"AllInOne"
+		return &"DiveAir"
 	if Input.is_action_just_pressed("attack_punch") or Input.is_action_just_pressed("attack_kick"):
 		return &"AllInOne"
 

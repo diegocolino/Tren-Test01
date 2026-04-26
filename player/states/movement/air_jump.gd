@@ -23,7 +23,7 @@ func physics_update(delta: float) -> StringName:
 	kive.apply_horizontal_input(true)
 
 	if Input.is_action_just_pressed("dive"):
-		return &"AllInOne"
+		return &"DiveAir"
 
 	if kive.is_on_floor() and kive.velocity.y >= 0:
 		return &"JumpLanding"

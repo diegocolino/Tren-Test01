@@ -21,8 +21,6 @@ func physics_update(delta: float) -> StringName:
 			return &"JumpRise"
 		else:
 			return &"JumpAnticipation"
-	if Input.is_action_just_pressed("dive"):
-		return &"AllInOne"
 	if Input.is_action_just_pressed("attack_punch") or Input.is_action_just_pressed("attack_kick"):
 		return &"AllInOne"
 	if Input.is_action_just_pressed("crouch"):
