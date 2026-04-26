@@ -20,6 +20,9 @@ class_name KiveStats extends Resource
 @export var jump_velocity_min: float = -800.0
 @export var jump_velocity_max: float = -1200.0
 @export var jump_charge_time: float = 0.4
+@export var anticipation_duration: float = 0.04
+@export var charge_threshold: float = 0.14
+@export var charge_cancel_time: float = 4.0
 
 @export_subgroup("Air")
 @export_range(0, 5) var max_air_jumps: int = 1

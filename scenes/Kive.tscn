@@ -8,6 +8,14 @@
 [ext_resource type="Script" uid="uid://pp5ksefjb26f" path="res://scripts/occluder_sync.gd" id="5_occluder_sync"]
 [ext_resource type="Script" uid="uid://ncfueje0g4jn" path="res://player/state_machine/state_machine.gd" id="7_m1hew"]
 [ext_resource type="Script" uid="uid://expii4vo1vyt" path="res://player/states/all_in_one.gd" id="8_84e0g"]
+[ext_resource type="Script" uid="uid://btva1jxlyvna0" path="res://player/states/movement/idle.gd" id="9_aw7mq"]
+[ext_resource type="Script" uid="uid://dtqx8fjv6st8" path="res://player/states/movement/walk.gd" id="10_5stvk"]
+[ext_resource type="Script" uid="uid://c3irg4xy5evvn" path="res://player/states/movement/run.gd" id="11_08qbr"]
+[ext_resource type="Script" uid="uid://ctnf825yodxhv" path="res://player/states/movement/jump_anticipation.gd" id="12_fm1du"]
+[ext_resource type="Script" uid="uid://h1bgb05ynxa6" path="res://player/states/movement/jump_rise.gd" id="13_0b6oa"]
+[ext_resource type="Script" uid="uid://cg0r4y5lphvhp" path="res://player/states/movement/jump_fall.gd" id="14_1bvtb"]
+[ext_resource type="Script" uid="uid://bsdisrp3hlvu3" path="res://player/states/movement/jump_landing.gd" id="15_5d8o0"]
+[ext_resource type="Script" uid="uid://dio6f7yrugiej" path="res://player/states/movement/air_jump.gd" id="16_bwjel"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -104,3 +112,27 @@ initial_state = NodePath("AllInOne")
 
 [node name="AllInOne" type="Node" parent="StateMachine" unique_id=1913774353]
 script = ExtResource("8_84e0g")
+
+[node name="Idle" type="Node" parent="StateMachine" unique_id=1593325614]
+script = ExtResource("9_aw7mq")
+
+[node name="Walk" type="Node" parent="StateMachine" unique_id=1709202011]
+script = ExtResource("10_5stvk")
+
+[node name="Run" type="Node" parent="StateMachine" unique_id=555691830]
+script = ExtResource("11_08qbr")
+
+[node name="JumpAnticipation" type="Node" parent="StateMachine" unique_id=1842164887]
+script = ExtResource("12_fm1du")
+
+[node name="JumpRise" type="Node" parent="StateMachine" unique_id=1076687001]
+script = ExtResource("13_0b6oa")
+
+[node name="JumpFall" type="Node" parent="StateMachine" unique_id=1584216566]
+script = ExtResource("14_1bvtb")
+
+[node name="JumpLanding" type="Node" parent="StateMachine" unique_id=732149577]
+script = ExtResource("15_5d8o0")
+
+[node name="AirJump" type="Node" parent="StateMachine" unique_id=547054688]
+script = ExtResource("16_bwjel")

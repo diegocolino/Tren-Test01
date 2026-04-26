@@ -86,6 +86,7 @@ var is_finisher: bool = false
 
 # ========== REFERENCES ==========
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var state_machine: StateMachine = $StateMachine
 
 
 # ========== LIFECYCLE ==========
@@ -105,17 +106,17 @@ func _ready() -> void:
 
 
 func _on_animation_finished() -> void:
+	# Forward a la state machine
+	if state_machine and state_machine.current_state:
+		state_machine.current_state.on_animation_finished(sprite.animation)
+
+	# Legacy handlers (dive — todavia en AllInOne)
 	match sprite.animation:
 		"dive_start":
 			sprite.play("dive_slide")
 		"dive_end":
 			is_diving = false
 			_update_collision_shape()
-		"jump_recovery":
-			jump_state = "none"
-		"jump_contact":
-			jump_state = "landing_recovery"
-			sprite.play("jump_recovery")
 
 
 
@@ -217,14 +218,14 @@ func run_legacy_physics(delta: float) -> void:
 			jump_state = "landing_impact"
 			jump_timer = 0.0
 			sprite.play("jump_contact")
-		_update_sprite_direction()
+		update_sprite_direction()
 		queue_redraw()
 		if is_attacking:
 			return  # saltar el resto del procesamiento de movimiento
 
 	if is_punch_charging:
 		move_and_slide()
-		_update_sprite_direction()
+		update_sprite_direction()
 		queue_redraw()
 		return  # bloqueado durante charge también
 
@@ -249,8 +250,8 @@ func run_legacy_physics(delta: float) -> void:
 	if is_diving and is_on_floor() and _was_in_air:
 		_handle_dive_landing()
 
-	_try_step_up()
-	_update_sprite_direction()
+	try_step_up()
+	update_sprite_direction()
 	queue_redraw()
 
 
@@ -489,7 +490,7 @@ func _cancel_charged_jump() -> void:
 
 func _process_landing(delta: float) -> void:
 	jump_timer += delta
-	_apply_horizontal_input(false)
+	apply_horizontal_input(false)
 
 
 # ========== MOVEMENT ==========
@@ -501,7 +502,7 @@ func _process_normal_movement(delta: float) -> void:
 
 	# Input horizontal
 	var in_air: bool = not is_on_floor()
-	_apply_horizontal_input(in_air)
+	apply_horizontal_input(in_air)
 
 	# Input de salto (ground)
 	if Input.is_action_just_pressed("jump") and is_on_floor() and jump_state == "none":
@@ -660,7 +661,7 @@ func _handle_dive_landing() -> void:
 		sprite.play("dive_end")
 
 
-func _apply_horizontal_input(in_air: bool) -> void:
+func apply_horizontal_input(in_air: bool) -> void:
 	var direction: float = Input.get_axis("move_left", "move_right")
 	var is_walking_slow: bool = Input.is_action_pressed("run")
 	var speed: float
@@ -680,7 +681,7 @@ func _apply_horizontal_input(in_air: bool) -> void:
 		velocity.x = move_toward(velocity.x, 0, speed * 0.2)
 
 
-func _update_sprite_direction() -> void:
+func update_sprite_direction() -> void:
 	if velocity.x > 1:
 		sprite.flip_h = false
 	elif velocity.x < -1:
@@ -738,12 +739,16 @@ func reset_state() -> void:
 	if is_hidden:
 		_unhide()
 
+	# Forzar state machine a Idle tras reset
+	if state_machine:
+		state_machine.transition_to(&"Idle")
+
 
 func is_sprinting() -> bool:
 	return not Input.is_action_pressed("run") and abs(velocity.x) > 10
 
 
-func _try_step_up() -> void:
+func try_step_up() -> void:
 	if not is_on_wall() or not is_on_floor():
 		return
 	var dir: float = -1.0 if sprite.flip_h else 1.0
