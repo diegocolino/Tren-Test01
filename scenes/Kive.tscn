@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://d4idi1e4o4gm3" path="res://resources/dust_particle.tres" id="3_dust"]
 [ext_resource type="Script" uid="uid://dmxmmdkybvdfu" path="res://scripts/train_shake.gd" id="4_shake"]
 [ext_resource type="Script" uid="uid://pp5ksefjb26f" path="res://scripts/occluder_sync.gd" id="5_occluder_sync"]
+[ext_resource type="Script" uid="uid://ncfueje0g4jn" path="res://player/state_machine/state_machine.gd" id="7_m1hew"]
+[ext_resource type="Script" uid="uid://expii4vo1vyt" path="res://player/states/all_in_one.gd" id="8_84e0g"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -95,3 +97,10 @@ monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KickHitbox" unique_id=943485890]
 shape = SubResource("kick_shape")
+
+[node name="StateMachine" type="Node" parent="." unique_id=1108843331]
+script = ExtResource("7_m1hew")
+initial_state = NodePath("AllInOne")
+
+[node name="AllInOne" type="Node" parent="StateMachine" unique_id=1913774353]
+script = ExtResource("8_84e0g")

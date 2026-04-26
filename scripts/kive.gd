@@ -119,13 +119,14 @@ func _on_animation_finished() -> void:
 
 
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	if not control_enabled:
 		return
-
-	# Desactivar hitboxes de forma determinística
+	_parry_window_timer += delta
 	_tick_hitbox_lifetimes()
 
+
+func run_legacy_physics(delta: float) -> void:
 	# Ejecución desde hidden (Q)
 	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
 		is_crouched = false
@@ -200,9 +201,6 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0
 	elif is_attacking and not (is_punch_charged and current_attack_type == "punch"):
 		velocity.x = 0
-
-	# Actualizar ventana de parry
-	_parry_window_timer += delta
 
 	# Actualizar attack si está atacando
 	if is_attacking:
