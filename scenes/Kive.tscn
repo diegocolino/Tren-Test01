@@ -27,6 +27,9 @@
 [ext_resource type="Script" uid="uid://drgh8kesodenq" path="res://player/states/stealth/hidden.gd" id="26_6cubt"]
 [ext_resource type="Script" uid="uid://bor6fmkbfb1ue" path="res://player/states/combat/damaged.gd" id="27_jtavh"]
 [ext_resource type="Script" uid="uid://dbswix2d0x5ax" path="res://player/states/combat/execution.gd" id="27_qy68n"]
+[ext_resource type="Script" path="res://player/states/combat/red_fist/cross.gd" id="28_cross"]
+[ext_resource type="Script" path="res://player/states/combat/red_fist/hook.gd" id="29_hook"]
+[ext_resource type="Script" path="res://player/states/combat/red_fist/uppercut.gd" id="30_upper"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -156,6 +159,15 @@ script = ExtResource("19_bwjel")
 
 [node name="Jab" type="Node" parent="StateMachine" unique_id=917347685]
 script = ExtResource("20_bwjel")
+
+[node name="Cross" type="Node" parent="StateMachine"]
+script = ExtResource("28_cross")
+
+[node name="Hook" type="Node" parent="StateMachine"]
+script = ExtResource("29_hook")
+
+[node name="Uppercut" type="Node" parent="StateMachine"]
+script = ExtResource("30_upper")
 
 [node name="Kick" type="Node" parent="StateMachine" unique_id=1527890129]
 script = ExtResource("21_tv5nc")
