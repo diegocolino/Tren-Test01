@@ -26,7 +26,7 @@ var is_attacking: bool:
 	get:
 		if not state_machine:
 			return false
-		return state_machine.current_state_name in [&"Punch", &"PunchCharged", &"Kick", &"Execution"]
+		return state_machine.current_state_name in [&"Jab", &"PunchCharged", &"Kick", &"Execution"]
 
 var is_punch_charging: bool:
 	get:

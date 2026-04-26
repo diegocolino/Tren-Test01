@@ -46,7 +46,7 @@ func physics_update(delta: float) -> StringName:
 		if charged:
 			return &"PunchCharged"
 		else:
-			return &"Punch"
+			return &"Jab"
 
 	kive.move_and_slide()
 	return &""

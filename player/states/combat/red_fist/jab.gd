@@ -1,5 +1,5 @@
-## Punch normal (no cargado). Fases internas: anticipation → release → recovery.
-class_name Punch extends State
+## Jab (W1). Fases internas: anticipation → release → recovery.
+class_name Jab extends State
 
 var kive: Kive
 var stats: KiveStats
