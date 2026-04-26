@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="KiveStats" format=3 uid="uid://bho4nq5aio3q6"]
+
+[ext_resource type="Script" uid="uid://bcmausfhwxwyg" path="res://player/stats/kive_stats.gd" id="1_pna5q"]
+
+[resource]
+script = ExtResource("1_pna5q")
+metadata/_custom_type_script = "uid://bcmausfhwxwyg"

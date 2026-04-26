@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # ========== ENUMS ==========
-enum State {
+enum AgentState {
 	PATROL,
 	ALERT,
 	GUARD_STANCE,
@@ -74,7 +74,7 @@ enum State {
 const step_height: float = 80.0
 
 # ========== STATE ==========
-var state: State = State.PATROL
+var state: AgentState = AgentState.PATROL
 var state_timer: float = 0.0
 var facing_right: bool = true
 var current_target: Vector2 = Vector2.ZERO
@@ -154,18 +154,18 @@ func _physics_process(delta: float) -> void:
 	state_timer += delta
 
 	match state:
-		State.PATROL: _process_patrol(delta)
-		State.ALERT: _process_alert(delta)
-		State.GUARD_STANCE: _process_guard_stance(delta)
-		State.WINDUP: _process_windup(delta)
-		State.ATTACK_RELEASE: _process_attack_release(delta)
-		State.ATTACK_RECOVERY: _process_attack_recovery(delta)
-		State.PARRY: _process_parry(delta)
-		State.HIT: _process_hit(delta)
-		State.STUNT: _process_stunt(delta)
-		State.AIRTIME: _process_airtime(delta)
-		State.KO: _process_ko(delta)
-		State.DEAD: _process_dead(delta)
+		AgentState.PATROL: _process_patrol(delta)
+		AgentState.ALERT: _process_alert(delta)
+		AgentState.GUARD_STANCE: _process_guard_stance(delta)
+		AgentState.WINDUP: _process_windup(delta)
+		AgentState.ATTACK_RELEASE: _process_attack_release(delta)
+		AgentState.ATTACK_RECOVERY: _process_attack_recovery(delta)
+		AgentState.PARRY: _process_parry(delta)
+		AgentState.HIT: _process_hit(delta)
+		AgentState.STUNT: _process_stunt(delta)
+		AgentState.AIRTIME: _process_airtime(delta)
+		AgentState.KO: _process_ko(delta)
+		AgentState.DEAD: _process_dead(delta)
 
 	if _pending_kick_push_frames > 0:
 		velocity.x = _pending_kick_push_velocity
@@ -294,7 +294,7 @@ func _process_patrol(_delta: float) -> void:
 	var detected: bool = _is_detected()
 
 	if detected:
-		_enter_state(State.ALERT)
+		_enter_state(AgentState.ALERT)
 		return
 
 	var direction: float = sign(current_target.x - global_position.x)
@@ -326,7 +326,7 @@ func _process_alert(_delta: float) -> void:
 		state_timer = 0.0
 
 	if not detected and state_timer > alert_lose_detection_time:
-		_enter_state(State.PATROL)
+		_enter_state(AgentState.PATROL)
 		_snap_to_closest_marker()
 		return
 
@@ -336,7 +336,7 @@ func _process_alert(_delta: float) -> void:
 		in_range = dist < attack_range_horizontal
 
 	if in_range and not (kive_ref and kive_ref.is_hidden):
-		_enter_state(State.GUARD_STANCE)
+		_enter_state(AgentState.GUARD_STANCE)
 		return
 
 	if kive_ref and (detected or last_seen_position != Vector2.ZERO):
@@ -368,7 +368,7 @@ func _process_guard_stance(_delta: float) -> void:
 		_try_face_kive()
 
 	if not detected and kive_ref and kive_ref.is_hidden:
-		_enter_state(State.ALERT)
+		_enter_state(AgentState.ALERT)
 		return
 
 	var in_range: bool = false
@@ -378,12 +378,12 @@ func _process_guard_stance(_delta: float) -> void:
 		in_range = dist < attack_range_horizontal * guard_exit_hysteresis
 
 	if not in_range:
-		_enter_state(State.ALERT)
+		_enter_state(AgentState.ALERT)
 		return
 
 	# Ataque oportunista: Kive está encima, reaccionar rápido
 	if kive_ref and dist < 80.0 and state_timer >= 0.4:
-		_enter_state(State.WINDUP)
+		_enter_state(AgentState.WINDUP)
 		return
 
 	# Bobbing: perseguir distancia ideal con offset sinusoidal
@@ -407,27 +407,27 @@ func _process_guard_stance(_delta: float) -> void:
 		if kive_ref:
 			var attack_dist: float = abs(kive_ref.global_position.x - global_position.x)
 			if attack_dist <= 150.0:
-				_enter_state(State.WINDUP)
+				_enter_state(AgentState.WINDUP)
 			else:
 				state_timer = _guard_attack_delay * 0.7  # reintentar rápido
 		else:
-			_enter_state(State.WINDUP)
+			_enter_state(AgentState.WINDUP)
 
 
 func _return_to_combat_ready() -> void:
 	if kive_ref and kive_ref.is_hidden:
-		_enter_state(State.ALERT)
+		_enter_state(AgentState.ALERT)
 		return
 	var in_range: bool = false
 	if kive_ref:
 		var dist: float = abs(kive_ref.global_position.x - global_position.x)
 		in_range = dist < attack_range_horizontal * guard_exit_hysteresis
 	if in_range:
-		_enter_state(State.GUARD_STANCE)
+		_enter_state(AgentState.GUARD_STANCE)
 		# Contraataque rápido: delay corto tras recibir un golpe
 		_guard_attack_delay = randf_range(0.4, 0.8)
 	else:
-		_enter_state(State.ALERT)
+		_enter_state(AgentState.ALERT)
 
 
 func _snap_to_closest_marker() -> void:
@@ -456,7 +456,7 @@ func _process_windup(_delta: float) -> void:
 	sprite.play("windup")
 
 	if state_timer >= windup_duration:
-		_enter_state(State.ATTACK_RELEASE)
+		_enter_state(AgentState.ATTACK_RELEASE)
 
 
 func _process_attack_release(_delta: float) -> void:
@@ -478,7 +478,7 @@ func _process_attack_release(_delta: float) -> void:
 		attack_hitbox.monitoring = false
 
 	if state_timer >= attack_release_duration:
-		_enter_state(State.ATTACK_RECOVERY)
+		_enter_state(AgentState.ATTACK_RECOVERY)
 
 
 func _process_attack_recovery(_delta: float) -> void:
@@ -508,7 +508,7 @@ func _process_parry(_delta: float) -> void:
 
 # ========== ENTER STATE ==========
 
-func _enter_state(new_state: State) -> void:
+func _enter_state(new_state: AgentState) -> void:
 	# Clear animation chain on state change
 	_anim_queue.clear()
 	if sprite.animation_finished.is_connected(_advance_anim_chain):
@@ -516,16 +516,16 @@ func _enter_state(new_state: State) -> void:
 
 	state = new_state
 	state_timer = 0.0
-	if new_state != State.ATTACK_RELEASE:
+	if new_state != AgentState.ATTACK_RELEASE:
 		attack_hitbox.monitoring = false
 
 	# Flashlight alert mode
 	match new_state:
-		State.ALERT, State.GUARD_STANCE, State.WINDUP, State.ATTACK_RELEASE, State.ATTACK_RECOVERY:
+		AgentState.ALERT, AgentState.GUARD_STANCE, AgentState.WINDUP, AgentState.ATTACK_RELEASE, AgentState.ATTACK_RECOVERY:
 			flashlight_system.set_alert_mode(true)
-		State.PATROL:
+		AgentState.PATROL:
 			flashlight_system.set_alert_mode(false)
-		State.DEAD:
+		AgentState.DEAD:
 			flashlight_system.set_active(false)
 			set_collision_layer_value(3, false)
 			attack_hitbox.monitoring = false
@@ -533,17 +533,17 @@ func _enter_state(new_state: State) -> void:
 	# Alarm lights
 	var alarm_state: String = "patrol"
 	match new_state:
-		State.GUARD_STANCE, State.WINDUP, State.ATTACK_RELEASE, \
-		State.ATTACK_RECOVERY, State.HIT, State.STUNT, State.AIRTIME, State.KO:
+		AgentState.GUARD_STANCE, AgentState.WINDUP, AgentState.ATTACK_RELEASE, \
+		AgentState.ATTACK_RECOVERY, AgentState.HIT, AgentState.STUNT, AgentState.AIRTIME, AgentState.KO:
 			alarm_state = "combat"
-		State.ALERT:
+		AgentState.ALERT:
 			alarm_state = "alert"
 	get_tree().call_group("alarm_light", "set_alarm_state", alarm_state)
 
 	match new_state:
-		State.PARRY:
+		AgentState.PARRY:
 			sprite.play("parry_1" if randf() < 0.5 else "parry_2")
-		State.GUARD_STANCE:
+		AgentState.GUARD_STANCE:
 			_guard_attack_delay = randf_range(guard_min_attack_delay, guard_max_attack_delay)
 
 
@@ -555,7 +555,7 @@ func _update_visuals() -> void:
 	flashlight_hand.scale.x = -1.0 if flip else 1.0
 	flashlight_hand.position.x = -abs(flashlight_hand.position.x) if flip else abs(flashlight_hand.position.x)
 
-	var flashlight_on: bool = (state == State.PATROL or state == State.ALERT) and state != State.DEAD
+	var flashlight_on: bool = (state == AgentState.PATROL or state == AgentState.ALERT) and state != AgentState.DEAD
 	flashlight_system.set_active(flashlight_on)
 
 	state_indicator.visible = DebugOverlay.show_debug_text
@@ -565,35 +565,35 @@ func _update_visuals() -> void:
 
 	debug_label.visible = DebugOverlay.show_debug_text
 	if DebugOverlay.show_debug_text:
-		debug_label.text = "[%s] t=%.2f hit=%s" % [State.keys()[state], state_timer, last_hit_quality]
+		debug_label.text = "[%s] t=%.2f hit=%s" % [AgentState.keys()[state], state_timer, last_hit_quality]
 
 
 func _get_state_indicator_text() -> String:
 	match state:
-		State.PATROL: return ""
-		State.ALERT: return "A"
-		State.GUARD_STANCE: return "G"
-		State.WINDUP: return "W"
-		State.ATTACK_RELEASE: return "X"
-		State.ATTACK_RECOVERY: return "R"
-		State.HIT: return "-"
-		State.PARRY: return "P"
-		State.STUNT: return "~"
-		State.AIRTIME: return "^"
-		State.KO: return "K"
-		State.DEAD: return "X"
+		AgentState.PATROL: return ""
+		AgentState.ALERT: return "A"
+		AgentState.GUARD_STANCE: return "G"
+		AgentState.WINDUP: return "W"
+		AgentState.ATTACK_RELEASE: return "X"
+		AgentState.ATTACK_RECOVERY: return "R"
+		AgentState.HIT: return "-"
+		AgentState.PARRY: return "P"
+		AgentState.STUNT: return "~"
+		AgentState.AIRTIME: return "^"
+		AgentState.KO: return "K"
+		AgentState.DEAD: return "X"
 		_: return "?"
 
 
 func _get_state_color() -> Color:
 	match state:
-		State.ALERT: return Color(1.0, 0.6, 0.0)
-		State.GUARD_STANCE: return Color(0.43, 0.88, 0.94)
-		State.WINDUP, State.ATTACK_RELEASE: return Color(1.0, 0.25, 0.125)
-		State.ATTACK_RECOVERY: return Color(1.0, 0.5, 0.3)
-		State.STUNT: return Color(0.8, 0.8, 0.8)
-		State.KO: return Color(0.6, 0.4, 0.2)
-		State.DEAD: return Color(0.3, 0.3, 0.3)
+		AgentState.ALERT: return Color(1.0, 0.6, 0.0)
+		AgentState.GUARD_STANCE: return Color(0.43, 0.88, 0.94)
+		AgentState.WINDUP, AgentState.ATTACK_RELEASE: return Color(1.0, 0.25, 0.125)
+		AgentState.ATTACK_RECOVERY: return Color(1.0, 0.5, 0.3)
+		AgentState.STUNT: return Color(0.8, 0.8, 0.8)
+		AgentState.KO: return Color(0.6, 0.4, 0.2)
+		AgentState.DEAD: return Color(0.3, 0.3, 0.3)
 		_: return Color(1, 1, 1)
 
 
@@ -617,7 +617,7 @@ func _advance_anim_chain() -> void:
 # ========== HIT RESOLUTION ==========
 
 func receive_hit_from(attacker: Node2D, is_charged: bool, attack_type: String) -> void:
-	if state == State.DEAD or state == State.KO:
+	if state == AgentState.DEAD or state == AgentState.KO:
 		return
 
 	var is_max_charged: bool = is_charged and attack_type == "punch" \
@@ -636,13 +636,13 @@ func receive_hit_from(attacker: Node2D, is_charged: bool, attack_type: String) -
 
 
 func _resolve_punch(is_charged: bool, is_max_charged: bool, attacker: Node2D) -> void:
-	var is_vulnerable: bool = state in [State.WINDUP, State.ATTACK_RELEASE, \
-		State.ATTACK_RECOVERY, State.STUNT, State.HIT, State.PATROL]
+	var is_vulnerable: bool = state in [AgentState.WINDUP, AgentState.ATTACK_RELEASE, \
+		AgentState.ATTACK_RECOVERY, AgentState.STUNT, AgentState.HIT, AgentState.PATROL]
 
 	# 1. Vulnerable + max charged → MAESTRO (airtime → frame 24)
 	if is_vulnerable and is_max_charged:
 		last_hit_quality = "maestro"
-		_enter_state(State.AIRTIME)
+		_enter_state(AgentState.AIRTIME)
 		sprite.play("airtime")
 		return
 
@@ -650,40 +650,40 @@ func _resolve_punch(is_charged: bool, is_max_charged: bool, attacker: Node2D) ->
 	if is_vulnerable:
 		last_hit_quality = "golpe_bueno"
 		_ko_type = "golpe_bueno"
-		_enter_state(State.KO)
+		_enter_state(AgentState.KO)
 		_play_golpe_bueno_sequence(attacker)
 		return
 
 	# 3. GUARD_STANCE + charged → STUNT
-	if state == State.GUARD_STANCE and is_charged:
+	if state == AgentState.GUARD_STANCE and is_charged:
 		last_hit_quality = "stunt"
-		_enter_state(State.STUNT)
+		_enter_state(AgentState.STUNT)
 		_play_stunt_entry()
 		return
 
 	# 4. GUARD_STANCE + no charged → HIT ligero (abre ventana)
 	# 5. Fallback → HIT ligero
 	last_hit_quality = "hit"
-	_enter_state(State.HIT)
+	_enter_state(AgentState.HIT)
 	sprite.play("hit_light")
 
 
 func _resolve_kick(pos_tier: String, attacker: Node2D) -> void:
 	# 1. Frente + GUARD_STANCE → PARRY (agent bloquea) + push
-	if state == State.GUARD_STANCE and pos_tier == "frente":
+	if state == AgentState.GUARD_STANCE and pos_tier == "frente":
 		last_hit_quality = "block"
 		_apply_kick_push(attacker)
-		_enter_state(State.PARRY)
+		_enter_state(AgentState.PARRY)
 		return
 
 	# 2. Vulnerable o detras → KO (frame 23)
-	var is_vulnerable: bool = state in [State.HIT, State.STUNT, State.WINDUP, \
-		State.ATTACK_RELEASE, State.ATTACK_RECOVERY, State.PATROL]
+	var is_vulnerable: bool = state in [AgentState.HIT, AgentState.STUNT, AgentState.WINDUP, \
+		AgentState.ATTACK_RELEASE, AgentState.ATTACK_RECOVERY, AgentState.PATROL]
 	if is_vulnerable or pos_tier == "detras":
 		last_hit_quality = "ko"
 		_ko_type = "normal"
 		_apply_kick_push(attacker)
-		_enter_state(State.KO)
+		_enter_state(AgentState.KO)
 		_play_ko_sequence()
 		return
 
@@ -759,14 +759,14 @@ func _process_airtime(_delta: float) -> void:
 		_trigger_maestro_flash()
 
 	if is_on_floor() and state_timer > 0.2:
-		_enter_state(State.DEAD)
+		_enter_state(AgentState.DEAD)
 		sprite.play("dead")
 
 
 func _process_ko(_delta: float) -> void:
 	velocity.x = 0
 	if state_timer >= ko_duration:
-		_enter_state(State.DEAD)
+		_enter_state(AgentState.DEAD)
 		sprite.play("ko_floor")
 
 
@@ -779,19 +779,19 @@ func _process_dead(_delta: float) -> void:
 func receive_parry() -> void:
 	last_hit_quality = "maestro"
 	attack_hitbox.monitoring = false
-	_enter_state(State.AIRTIME)
+	_enter_state(AgentState.AIRTIME)
 	sprite.play("airtime")
 
 
 # ========== EXECUTION ==========
 
 func receive_execution(attacker: Node2D) -> void:
-	if state == State.DEAD or state == State.KO:
+	if state == AgentState.DEAD or state == AgentState.KO:
 		return
 	last_hit_quality = "execution"
 	_ko_type = "execution"
 	_apply_kick_push(attacker)
-	_enter_state(State.KO)
+	_enter_state(AgentState.KO)
 	sprite.play("ko_floor")
 
 	if DebugOverlay.show_debug_text:
@@ -842,7 +842,7 @@ func _on_intro_finished() -> void:
 # ========== RESPAWN HOOK ==========
 
 func reset_to_patrol() -> void:
-	_enter_state(State.PATROL)
+	_enter_state(AgentState.PATROL)
 	set_collision_layer_value(3, true)
 	player_in_light = false
 	player_visible = false

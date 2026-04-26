@@ -2,9 +2,10 @@
 
 [ext_resource type="Script" uid="uid://cfn7a8myk88o3" path="res://scripts/kive.gd" id="1_kive"]
 [ext_resource type="SpriteFrames" uid="uid://bcshkbrb7djaw" path="res://resources/kive_frames.tres" id="2_frames"]
+[ext_resource type="Resource" uid="uid://bho4nq5aio3q6" path="res://player/stats/kive_stats_default.tres" id="2_yl1ef"]
 [ext_resource type="Texture2D" uid="uid://d4idi1e4o4gm3" path="res://resources/dust_particle.tres" id="3_dust"]
 [ext_resource type="Script" uid="uid://dmxmmdkybvdfu" path="res://scripts/train_shake.gd" id="4_shake"]
-[ext_resource type="Script" path="res://scripts/occluder_sync.gd" id="5_occluder_sync"]
+[ext_resource type="Script" uid="uid://pp5ksefjb26f" path="res://scripts/occluder_sync.gd" id="5_occluder_sync"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -36,6 +37,7 @@ size = Vector2(100, 40)
 z_index = 5
 collision_mask = 8
 script = ExtResource("1_kive")
+stats = ExtResource("2_yl1ef")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1728125998]
 light_mask = 2

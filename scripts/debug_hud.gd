@@ -53,7 +53,7 @@ func _process(_delta: float) -> void:
 	if agents.size() > 0:
 		var agent: Node = agents[0]
 		var info: String = "AGENT\n"
-		info += "  state=%s t=%.2f\n" % [agent.State.keys()[agent.state], agent.state_timer]
+		info += "  state=%s t=%.2f\n" % [agent.AgentState.keys()[agent.state], agent.state_timer]
 		info += "  last_hit=%s\n" % agent.last_hit_quality
 		info += "  lit=%s visible=%s heard=%s\n" % [str(agent.player_in_light), str(agent.player_visible), str(agent.player_heard)]
 		info += "  vision=%s facing=%s\n" % [str(agent.player_in_vision), "R" if agent.facing_right else "L"]
@@ -67,7 +67,7 @@ func _process(_delta: float) -> void:
 		if kive and agent.has_method("get_position_tier_of"):
 			info += "\nCOMBAT INFO\n"
 			var pos_tier: String = agent.get_position_tier_of(kive)
-			var agent_state: String = agent.State.keys()[agent.state]
+			var agent_state: String = agent.AgentState.keys()[agent.state]
 			info += "  pos=%s state=%s\n" % [pos_tier, agent_state]
 			info += "  W: hit | W charged+guard: stunt\n"
 			info += "  W charged+vuln: golpe_bueno\n"

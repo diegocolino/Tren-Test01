@@ -1,4 +1,7 @@
+class_name Kive
 extends CharacterBody2D
+
+@export var stats: KiveStats
 
 # ========== EXPORTS ==========
 @export var walk_speed: float = 400.0
@@ -98,6 +101,7 @@ func _ready() -> void:
 	for zone in get_tree().get_nodes_in_group("hide_zone"):
 		zone.body_entered.connect(_on_hide_zone_entered)
 		zone.body_exited.connect(_on_hide_zone_exited)
+	assert(stats != null, "[Kive] Falta asignar KiveStats al nodo Kive")
 
 
 func _on_animation_finished() -> void:
@@ -761,7 +765,7 @@ func _can_hide() -> bool:
 		if not is_instance_valid(enemy):
 			continue
 		if enemy.has_method("get_position_tier_of"):
-			if enemy.state in [enemy.State.DEAD, enemy.State.KO, enemy.State.PATROL, enemy.State.ALERT]:
+			if enemy.state in [enemy.AgentState.DEAD, enemy.AgentState.KO, enemy.AgentState.PATROL, enemy.AgentState.ALERT]:
 				continue
 			return false
 	return true
