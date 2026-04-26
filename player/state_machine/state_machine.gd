@@ -11,31 +11,32 @@ var states: Dictionary = {}  # StringName -> State
 
 
 func _ready() -> void:
-	owner_node = get_parent()
+	var parent_node: Node = get_parent()
 
 	for child: Node in get_children():
 		if child is State:
-			child.owner_node = owner_node
+			child.owner_node = parent_node
 			child.sm = self
 			states[StringName(child.name)] = child
 
-	var start: State = null
-	if initial_state and not initial_state.is_empty():
-		start = get_node(initial_state) as State
-	elif states.size() > 0:
-		start = states.values()[0]
+	# Esperar al siguiente frame para que el parent tenga sus @onready listos
+	await get_tree().process_frame
 
-	if start:
-		current_state = start
-		current_state_name = StringName(start.name)
-		start.enter(&"", {})
+	if initial_state and not initial_state.is_empty():
+		var start: Node = get_node(initial_state)
+		if start and start is State:
+			current_state = start
+			current_state_name = StringName(start.name)
+			start.enter(&"", {})
 
 
 func _physics_process(delta: float) -> void:
-	if current_state:
-		var next: StringName = current_state.physics_update(delta)
-		if next != &"" and next != current_state_name:
-			transition_to(next)
+	if current_state == null:
+		return
+
+	var next: StringName = current_state.physics_update(delta)
+	if next != &"" and next != current_state_name:
+		transition_to(next)
 
 
 func transition_to(target: StringName, msg: Dictionary = {}) -> void:

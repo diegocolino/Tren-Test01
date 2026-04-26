@@ -9,9 +9,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
 
-	kive.is_diving = true
-	kive.jump_state = "none"
-
 	dive_direction = -1.0 if kive.sprite.flip_h else 1.0
 	if abs(kive.velocity.x) > 10:
 		dive_direction = sign(kive.velocity.x)
@@ -23,7 +20,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	pass
+	kive._update_collision_shape()
 
 
 func physics_update(delta: float) -> StringName:

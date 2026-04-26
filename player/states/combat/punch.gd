@@ -11,7 +11,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
 
-	kive.is_attacking = true
 	kive.is_punch_charged = false
 	# current_attack_type ya seteado por PunchCharging
 
@@ -21,7 +20,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_attacking = false
 	kive.current_attack_type = "none"
 
 

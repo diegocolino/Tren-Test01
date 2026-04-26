@@ -12,7 +12,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	stats = kive.stats
 	timer = 0.0
 
-	kive.is_diving = false
 	kive._update_collision_shape()
 	kive.sprite.play("dive_end")
 
@@ -38,7 +37,6 @@ func on_animation_finished(anim_name: String) -> void:
 
 
 func _decide_next_state() -> StringName:
-	kive.jump_state = "none"
 	var dir_input: float = Input.get_axis("move_left", "move_right")
 	if dir_input != 0:
 		return &"Walk" if Input.is_action_pressed("run") else &"Run"

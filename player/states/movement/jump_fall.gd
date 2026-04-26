@@ -8,7 +8,6 @@ var is_short_jump: bool = false
 func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
-	kive.jump_state = "falling"
 	is_short_jump = _msg.get("is_short_jump", false)
 
 	# Saltos cortos: jump_precontact ya viene puesto desde JumpAnticipation

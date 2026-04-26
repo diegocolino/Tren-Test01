@@ -7,7 +7,6 @@ var stats: KiveStats
 func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
-	kive.jump_state = "jump_rise"
 	kive.sprite.play("jump_air")
 
 	# Resetear air jumps si venimos de un salto nuevo (no desde AirJump)
@@ -23,9 +22,6 @@ func physics_update(delta: float) -> StringName:
 		return &"AirJump"
 	if Input.is_action_just_pressed("dive"):
 		return &"DiveAir"
-	if Input.is_action_just_pressed("attack_punch") or Input.is_action_just_pressed("attack_kick"):
-		return &"AllInOne"
-
 	if kive.is_on_floor() and kive.velocity.y >= 0:
 		return &"JumpLanding"
 	if kive.velocity.y > 0:

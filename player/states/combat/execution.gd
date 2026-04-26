@@ -18,7 +18,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive._update_collision_shape()
 
 	# Setup de execution
-	kive.is_attacking = true
 	kive.is_finisher = true
 	kive.current_attack_type = "kick"
 	kive.is_punch_charged = false
@@ -29,7 +28,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_attacking = false
 	kive.is_finisher = false
 	kive.current_attack_type = "none"
 

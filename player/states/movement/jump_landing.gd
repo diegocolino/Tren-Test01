@@ -18,11 +18,9 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	var start_phase: String = _msg.get("phase", "contact")
 	if start_phase == "recovery":
 		phase = "recovery"
-		kive.jump_state = "landing_recovery"
 		kive.sprite.play("jump_recovery")
 	else:
 		phase = "contact"
-		kive.jump_state = "landing_impact"
 		kive.sprite.play("jump_contact")
 
 
@@ -38,7 +36,6 @@ func physics_update(delta: float) -> StringName:
 	if phase == "contact" and timer >= CONTACT_TIMEOUT:
 		phase = "recovery"
 		timer = 0.0
-		kive.jump_state = "landing_recovery"
 		kive.sprite.play("jump_recovery")
 	elif phase == "recovery" and timer >= RECOVERY_TIMEOUT:
 		return _decide_next_state()
@@ -50,14 +47,12 @@ func on_animation_finished(anim_name: String) -> void:
 	if anim_name == "jump_contact":
 		phase = "recovery"
 		timer = 0.0
-		kive.jump_state = "landing_recovery"
 		kive.sprite.play("jump_recovery")
 	elif anim_name == "jump_recovery":
 		sm.transition_to(_decide_next_state())
 
 
 func _decide_next_state() -> StringName:
-	kive.jump_state = "none"
 	kive._air_jumps_left = 0
 	var dir_input: float = Input.get_axis("move_left", "move_right")
 	if dir_input != 0:

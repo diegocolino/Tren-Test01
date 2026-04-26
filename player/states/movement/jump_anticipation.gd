@@ -41,7 +41,6 @@ func physics_update(delta: float) -> StringName:
 		charge_timer += delta
 		if charge_timer >= stats.charge_cancel_time:
 			kive.sprite.play("jump_recovery")
-			kive.jump_state = "landing_recovery"
 			return &"JumpLanding"
 		elif charge_timer >= stats.charge_threshold:
 			is_charging = true

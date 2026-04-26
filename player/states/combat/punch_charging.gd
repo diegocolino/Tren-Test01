@@ -13,7 +13,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	charge_timer = 0.0
 
 	# Sincronizar flags legacy
-	kive.is_punch_charging = true
 	kive.current_attack_type = "punch"
 	kive.punch_charge_timer = 0.0
 	kive._parry_window_timer = 0.0  # abre ventana de parry
@@ -22,7 +21,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_punch_charging = false
+	pass
 
 
 func physics_update(delta: float) -> StringName:

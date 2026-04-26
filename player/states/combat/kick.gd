@@ -11,7 +11,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
 
-	kive.is_attacking = true
 	kive.current_attack_type = "kick"
 	kive.is_punch_charged = false
 	kive.velocity.x = 0
@@ -22,7 +21,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_attacking = false
 	kive.is_finisher = false
 	kive.current_attack_type = "none"
 

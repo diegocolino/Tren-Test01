@@ -11,9 +11,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	stats = kive.stats
 	dive_timer = 0.0
 
-	kive.is_diving = true
-	kive.jump_state = "none"
-
 	dive_direction = sign(kive.velocity.x) if kive.velocity.x != 0 else (-1.0 if kive.sprite.flip_h else 1.0)
 
 	# Si venimos de DiveAir aterrizando, mantener slide sin resetear velocity
@@ -27,13 +24,12 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	pass
+	kive._update_collision_shape()
 
 
 func physics_update(delta: float) -> StringName:
 	# Jump cancel
 	if Input.is_action_just_pressed("jump") and kive.is_on_floor():
-		kive.is_diving = false
 		kive._update_collision_shape()
 		kive._air_jumps_left = stats.max_air_jumps
 		kive.velocity.y = stats.jump_velocity_min

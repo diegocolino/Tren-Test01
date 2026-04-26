@@ -7,7 +7,6 @@
 [ext_resource type="Script" uid="uid://dmxmmdkybvdfu" path="res://scripts/train_shake.gd" id="4_shake"]
 [ext_resource type="Script" uid="uid://pp5ksefjb26f" path="res://scripts/occluder_sync.gd" id="5_occluder_sync"]
 [ext_resource type="Script" uid="uid://ncfueje0g4jn" path="res://player/state_machine/state_machine.gd" id="7_m1hew"]
-[ext_resource type="Script" uid="uid://expii4vo1vyt" path="res://player/states/all_in_one.gd" id="8_84e0g"]
 [ext_resource type="Script" uid="uid://btva1jxlyvna0" path="res://player/states/movement/idle.gd" id="9_aw7mq"]
 [ext_resource type="Script" uid="uid://dtqx8fjv6st8" path="res://player/states/movement/walk.gd" id="10_5stvk"]
 [ext_resource type="Script" uid="uid://c3irg4xy5evvn" path="res://player/states/movement/run.gd" id="11_08qbr"]
@@ -26,6 +25,7 @@
 [ext_resource type="Script" uid="uid://cf48mgwodul4u" path="res://player/states/stealth/crouch_idle.gd" id="24_jtavh"]
 [ext_resource type="Script" uid="uid://b7svjwfvrj1n" path="res://player/states/stealth/crouch_walk.gd" id="25_svsgi"]
 [ext_resource type="Script" uid="uid://drgh8kesodenq" path="res://player/states/stealth/hidden.gd" id="26_6cubt"]
+[ext_resource type="Script" uid="uid://bor6fmkbfb1ue" path="res://player/states/combat/damaged.gd" id="27_jtavh"]
 [ext_resource type="Script" uid="uid://dbswix2d0x5ax" path="res://player/states/combat/execution.gd" id="27_qy68n"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
@@ -119,10 +119,7 @@ shape = SubResource("kick_shape")
 
 [node name="StateMachine" type="Node" parent="." unique_id=1108843331]
 script = ExtResource("7_m1hew")
-initial_state = NodePath("AllInOne")
-
-[node name="AllInOne" type="Node" parent="StateMachine" unique_id=1913774353]
-script = ExtResource("8_84e0g")
+initial_state = NodePath("Idle")
 
 [node name="Idle" type="Node" parent="StateMachine" unique_id=1593325614]
 script = ExtResource("9_aw7mq")
@@ -180,3 +177,6 @@ script = ExtResource("26_6cubt")
 
 [node name="Execution" type="Node" parent="StateMachine" unique_id=533347304]
 script = ExtResource("27_qy68n")
+
+[node name="Damaged" type="Node" parent="StateMachine" unique_id=1420396978]
+script = ExtResource("27_jtavh")

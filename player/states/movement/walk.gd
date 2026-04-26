@@ -7,7 +7,6 @@ var stats: KiveStats
 func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
-	kive.jump_state = "none"
 
 
 func physics_update(delta: float) -> StringName:

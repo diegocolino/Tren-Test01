@@ -13,8 +13,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	phase = "anticipation"
 	phase_timer = 0.0
 
-	kive.is_attacking = true
-
 	# Impulso interpolado (40%-100% segun charge_ratio)
 	var charge_ratio: float = clampf(
 		(kive.punch_charge_timer - stats.attack_charge_time) / (stats.attack_charge_time_max - stats.attack_charge_time),
@@ -29,7 +27,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_attacking = false
 	kive.is_punch_charged = false
 	kive.current_attack_type = "none"
 
