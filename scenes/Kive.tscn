@@ -23,6 +23,10 @@
 [ext_resource type="Script" uid="uid://d4mlcg6wkwft7" path="res://player/states/combat/kick.gd" id="21_tv5nc"]
 [ext_resource type="Script" uid="uid://ch53sl4euaxfg" path="res://player/states/combat/punch_charging.gd" id="22_e00yl"]
 [ext_resource type="Script" uid="uid://dof6kn8n7kwda" path="res://player/states/combat/punch_charged.gd" id="23_xdoet"]
+[ext_resource type="Script" uid="uid://cf48mgwodul4u" path="res://player/states/stealth/crouch_idle.gd" id="24_jtavh"]
+[ext_resource type="Script" uid="uid://b7svjwfvrj1n" path="res://player/states/stealth/crouch_walk.gd" id="25_svsgi"]
+[ext_resource type="Script" uid="uid://drgh8kesodenq" path="res://player/states/stealth/hidden.gd" id="26_6cubt"]
+[ext_resource type="Script" uid="uid://dbswix2d0x5ax" path="res://player/states/combat/execution.gd" id="27_qy68n"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -164,3 +168,15 @@ script = ExtResource("22_e00yl")
 
 [node name="PunchCharged" type="Node" parent="StateMachine" unique_id=1697322583]
 script = ExtResource("23_xdoet")
+
+[node name="CrouchIdle" type="Node" parent="StateMachine" unique_id=1182177821]
+script = ExtResource("24_jtavh")
+
+[node name="CrouchWalk" type="Node" parent="StateMachine" unique_id=698170032]
+script = ExtResource("25_svsgi")
+
+[node name="Hidden" type="Node" parent="StateMachine" unique_id=382051220]
+script = ExtResource("26_6cubt")
+
+[node name="Execution" type="Node" parent="StateMachine" unique_id=533347304]
+script = ExtResource("27_qy68n")

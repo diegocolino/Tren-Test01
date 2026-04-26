@@ -120,74 +120,6 @@ func _process(delta: float) -> void:
 
 
 func run_legacy_physics(delta: float) -> void:
-	# Ejecución desde hidden (Q)
-	if is_hidden and Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
-		is_crouched = false
-		_update_collision_shape()
-		is_finisher = true
-		current_attack_type = "kick"
-		is_punch_charged = false
-		_start_attack("kick")
-
-	# Crouch toggle/hold (solo en suelo y sin saltar, sin dive, sin combate)
-	if is_on_floor() and jump_state == "none" and not is_diving and not is_attacking and not is_punch_charging:
-		if PauseMenu.hold_to_crouch:
-			var should_crouch: bool = Input.is_action_pressed("crouch")
-			if should_crouch != is_crouched:
-				is_crouched = should_crouch
-				_update_collision_shape()
-		else:
-			if Input.is_action_just_pressed("crouch"):
-				is_crouched = not is_crouched
-				_update_collision_shape()
-
-	# Auto-hide: agachado + en zona safe + suelo = hidden automático
-	if not is_hidden:
-		if is_crouched and _nearby_hide_zones > 0 and _can_hide() and is_on_floor() and jump_state == "none":
-			_hide()
-	elif is_hidden:
-		if not is_crouched or _nearby_hide_zones <= 0:
-			_unhide()
-
-	# === COMBAT INPUT (antes de cualquier otra lógica de movimiento) ===
-
-	# Punch (W)
-	if control_enabled and not is_diving and jump_state == "none":
-		if Input.is_action_just_pressed("attack_punch") and not is_attacking and not is_punch_charging:
-			if is_hidden:
-				is_crouched = false
-				_update_collision_shape()
-				_unhide()
-			is_punch_charging = true
-			current_attack_type = "punch"
-			punch_charge_timer = 0.0
-			_parry_window_timer = 0.0  # abre ventana de parry
-			velocity.x = 0
-			# No cambiar sprite aquí — se decide al soltar W
-
-		elif Input.is_action_pressed("attack_punch") and is_punch_charging:
-			punch_charge_timer += delta
-			sprite.play("attack_charged_casting")
-
-		elif Input.is_action_just_released("attack_punch") and is_punch_charging:
-			is_punch_charging = false
-			is_punch_charged = punch_charge_timer >= attack_charge_time
-			_start_attack("punch")
-
-		# Auto-release al maximo
-		if is_punch_charging and punch_charge_timer >= attack_charge_time_max:
-			is_punch_charging = false
-			is_punch_charged = true
-			_start_attack("punch")
-
-		# Kick (Q) - nunca cargable; desde crouch/hidden = ejecucion
-		if Input.is_action_just_pressed("attack_kick") and not is_attacking and not is_punch_charging:
-			if is_hidden:
-				is_finisher = true
-			current_attack_type = "kick"
-			is_punch_charged = false
-			_start_attack("kick")
-
 	# === FULL COMBAT LOCK ===
 	# Charged punch conserva el impulso del lunge
 	if is_punch_charging:
@@ -729,7 +661,8 @@ func reset_state() -> void:
 	_was_moving_at_jump = false
 	_update_collision_shape()
 	if is_hidden:
-		_unhide()
+		is_hidden = false
+		sprite.modulate.a = 1.0
 
 	# Forzar state machine a Idle tras reset
 	if state_machine:
@@ -755,7 +688,7 @@ func try_step_up() -> void:
 			return
 
 
-func _can_hide() -> bool:
+func can_hide() -> bool:
 	for enemy: Node in GameManager.enemies:
 		if not is_instance_valid(enemy):
 			continue
@@ -765,15 +698,6 @@ func _can_hide() -> bool:
 			return false
 	return true
 
-
-func _hide() -> void:
-	is_hidden = true
-	sprite.modulate.a = 0.35
-
-
-func _unhide() -> void:
-	is_hidden = false
-	sprite.modulate.a = 1.0
 
 
 # ========== SIGNALS ==========
