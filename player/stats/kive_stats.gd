@@ -54,5 +54,9 @@ class_name KiveStats extends Resource
 @export var charged_lunge_speed_x: float = 2400.0
 @export var charged_lunge_speed_y: float = -1200.0
 
+@export_subgroup("Hitbox lifetimes")
+@export var punch_hitbox_active_frames: int = 3
+@export var kick_hitbox_active_frames: int = 3
+
 @export_subgroup("Parry")
 @export_range(1, 120) var parry_window_frames: int = 40

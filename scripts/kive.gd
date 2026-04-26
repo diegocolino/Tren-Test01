@@ -89,11 +89,11 @@ func activate_hitbox() -> void:
 	if current_attack_type == "punch":
 		hitbox = $PunchHitbox
 		hitbox.position = Vector2(facing * 60, -50)
-		_punch_hitbox_active_frames = 3
+		_punch_hitbox_active_frames = stats.punch_hitbox_active_frames
 	else:
 		hitbox = $KickHitbox
 		hitbox.position = Vector2(facing * 70, -30)
-		_kick_hitbox_active_frames = 3
+		_kick_hitbox_active_frames = stats.kick_hitbox_active_frames
 	hitbox.monitoring = true
 
 
