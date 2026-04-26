@@ -17,8 +17,10 @@ func physics_update(delta: float) -> StringName:
 
 	if Input.is_action_just_pressed("jump") and kive.is_on_floor():
 		return &"JumpAnticipation"
-	if Input.is_action_just_pressed("attack_punch") or Input.is_action_just_pressed("attack_kick"):
-		return &"AllInOne"
+	if Input.is_action_just_pressed("attack_punch"):
+		return &"PunchCharging"
+	if Input.is_action_just_pressed("attack_kick"):
+		return &"Kick"
 	if Input.is_action_just_pressed("crouch"):
 		return &"AllInOne"
 	if not kive.is_on_floor() and kive.velocity.y > 50:

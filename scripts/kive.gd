@@ -318,7 +318,7 @@ func _process_attack(delta: float) -> void:
 						sprite.play("punch_contact")  # frame 3
 				else:
 					sprite.play("kick_contact")  # frame 7
-				_activate_hitbox()
+				activate_hitbox()
 
 		"release":
 			if attack_phase_timer >= release_dur:
@@ -338,7 +338,7 @@ func _process_attack(delta: float) -> void:
 				current_attack_type = "none"
 
 
-func _activate_hitbox() -> void:
+func activate_hitbox() -> void:
 	var facing: float = -1.0 if sprite.flip_h else 1.0
 
 	var hitbox: Area2D
@@ -355,7 +355,7 @@ func _activate_hitbox() -> void:
 
 
 func _on_hitbox_body_entered(body: Node2D) -> void:
-	if not is_attacking or attack_phase != "release":
+	if not is_attacking:
 		return
 	if body.is_in_group("agent"):
 		if is_finisher and body.has_method("receive_execution"):
