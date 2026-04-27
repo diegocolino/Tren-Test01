@@ -39,9 +39,10 @@ func physics_update(delta: float) -> StringName:
 	if dir_input != 0:
 		return &"CrouchWalk"
 
-	# Punch (W) sale del crouch
+	# W sale del crouch → Jab (o siguiente del chain)
 	if Input.is_action_just_pressed("attack_punch"):
-		return &"PunchCharging"
+		var chain_next: StringName = kive.get_w_chain_next()
+		return chain_next if chain_next != &"" else &"Jab"
 
 	# Salto sale del crouch
 	if Input.is_action_just_pressed("jump") and kive.is_on_floor():

@@ -10,6 +10,8 @@ var phase_timer: float = 0.0
 func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
+	if DebugOverlay.show_debug_text:
+		print("[%s] enter | chain_step=%d" % [name, kive.w_chain_step])
 
 	kive.is_punch_charged = false
 	kive.current_attack_type = "punch"
