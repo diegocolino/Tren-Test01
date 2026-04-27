@@ -28,6 +28,7 @@
 [ext_resource type="Script" uid="uid://j17gfswk52rv" path="res://player/states/combat/red_fist/cross.gd" id="28_cross"]
 [ext_resource type="Script" uid="uid://doxhiv2mvhwea" path="res://player/states/combat/red_fist/hook.gd" id="29_hook"]
 [ext_resource type="Script" uid="uid://dmavmjafscag2" path="res://player/states/combat/red_fist/uppercut.gd" id="30_upper"]
+[ext_resource type="Script" path="res://player/states/movement/dash.gd" id="31_dash"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -181,6 +182,9 @@ script = ExtResource("30_upper")
 
 [node name="FrontalKick" type="Node" parent="StateMachine" unique_id=1527890129]
 script = ExtResource("21_tv5nc")
+
+[node name="Dash" type="Node" parent="StateMachine"]
+script = ExtResource("31_dash")
 
 [node name="CrouchIdle" type="Node" parent="StateMachine" unique_id=1182177821]
 script = ExtResource("24_jtavh")

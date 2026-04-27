@@ -23,6 +23,8 @@ func physics_update(delta: float) -> StringName:
 		return chain_next if chain_next != &"" else &"Jab"
 	if Input.is_action_just_pressed("attack_kick"):
 		return &"FrontalKick"
+	if Input.is_action_just_pressed("dash"):
+		return &"Dash"
 	if Input.is_action_just_pressed("jump") and kive._air_jumps_left > 0:
 		return &"AirJump"
 	if Input.is_action_just_pressed("dive"):

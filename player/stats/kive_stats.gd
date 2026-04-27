@@ -68,3 +68,9 @@ class_name KiveStats extends Resource
 
 @export_subgroup("Parry")
 @export_range(1, 120) var parry_window_frames: int = 40
+
+# ============ DASH ============
+@export_group("Dash")
+@export var dash_duration: float = 0.133
+@export var dash_distance_neutral: float = 280.0
+@export var dash_recovery: float = 0.083

@@ -21,6 +21,8 @@ func physics_update(delta: float) -> StringName:
 		return chain_next if chain_next != &"" else &"Jab"
 	if Input.is_action_just_pressed("attack_kick"):
 		return &"FrontalKick"
+	if Input.is_action_just_pressed("dash"):
+		return &"Dash"
 	if PauseMenu.hold_to_crouch:
 		if Input.is_action_pressed("crouch"):
 			return &"CrouchIdle"
