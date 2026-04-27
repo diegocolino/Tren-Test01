@@ -12,6 +12,8 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	stats = kive.stats
 
 	kive.q_context = kive.get_q_context_from_chain()
+	if kive.is_chain_active():
+		kive._w_chain_timer = 0.0  # preserve chain during FrontalKick
 	kive.current_attack_type = "kick"
 	kive.velocity.x = 0
 
@@ -65,6 +67,18 @@ func physics_update(delta: float) -> StringName:
 				phase_timer = 0.0
 				kive.sprite.play("idle")
 		"recovery":
+			var in_cancel_window: bool = phase_timer >= stats.kick_recovery - stats.q_cancel_window
+			if in_cancel_window and Input.is_action_just_pressed("attack_punch"):
+				if DebugOverlay.show_debug_text:
+					print("[FrontalKick] CANCEL TIGHT → W at recovery_t=%.3f" % phase_timer)
+				if kive.is_chain_active():
+					return kive.get_w_chain_next()
+				else:
+					return &"Jab"
+			if in_cancel_window and Input.is_action_just_pressed("attack_kick"):
+				if DebugOverlay.show_debug_text:
+					print("[FrontalKick] CANCEL TIGHT → FrontalKick (spam) at recovery_t=%.3f" % phase_timer)
+				return &"FrontalKick"
 			if phase_timer >= stats.kick_recovery:
 				return _decide_next_state()
 

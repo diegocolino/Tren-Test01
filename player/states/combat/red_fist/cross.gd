@@ -50,6 +50,10 @@ func physics_update(delta: float) -> StringName:
 			var in_cancel_window: bool = phase_timer >= stats.punch_recovery - stats.w_chain_cancel_window
 			if in_cancel_window and Input.is_action_just_pressed("attack_punch"):
 				return &"Hook"
+			if in_cancel_window and Input.is_action_just_pressed("attack_kick"):
+				if DebugOverlay.show_debug_text:
+					print("[Cross] CANCEL TIGHT → FrontalKick at recovery_t=%.3f" % phase_timer)
+				return &"FrontalKick"
 			if phase_timer >= stats.punch_recovery:
 				return _decide_next_state()
 
