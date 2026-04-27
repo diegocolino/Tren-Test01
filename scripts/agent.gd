@@ -91,6 +91,7 @@ var _turn_cooldown: float = 0.0
 # Guard pacing
 var _guard_attack_delay: float = 3.0
 var _ko_type: String = "normal"
+var _airtime_kill_on_land: bool = true  # true = Uppercut (W=DEATH), false = air_launch (Q=KO)
 
 # Animation chain system
 var _anim_queue: Array[String] = []
@@ -617,7 +618,12 @@ func _advance_anim_chain() -> void:
 # ========== HIT RESOLUTION ==========
 
 func receive_hit_from(attacker: Node2D, hit_type: String) -> void:
-	if state == AgentState.DEAD or state == AgentState.KO:
+	# DEAD: only Q pushes the body. W ignored (gore mechanic reserved for V2).
+	if state == AgentState.DEAD:
+		if hit_type in ["frontal", "stunt_pie", "ko_suelo", "air_launch"]:
+			_apply_kick_push(attacker)
+			if DebugOverlay.show_debug_text:
+				print("[Agent] Q PUSH on DEAD body | hit_type=%s" % hit_type)
 		return
 
 	# Turn towards attacker
@@ -633,12 +639,23 @@ func receive_hit_from(attacker: Node2D, hit_type: String) -> void:
 
 
 func _resolve_w_hit(hit_type: String, attacker: Node2D) -> void:
+	# Kill selectiva: STUNT/KO/AIRTIME + any W = DEAD
+	if state in [AgentState.STUNT, AgentState.KO, AgentState.AIRTIME]:
+		if DebugOverlay.show_debug_text:
+			print("[Agent] _resolve_w_hit KILL from vulnerable state | state=%s | hit=%s" % [
+				AgentState.keys()[state], hit_type])
+		last_hit_quality = "kill"
+		_enter_state(AgentState.DEAD)
+		sprite.play("dead")
+		return
+
 	var is_vulnerable: bool = state in [AgentState.WINDUP, AgentState.ATTACK_RELEASE, \
 		AgentState.ATTACK_RECOVERY, AgentState.STUNT, AgentState.HIT, AgentState.PATROL]
 
-	# Uppercut (W4): AIRTIME → DEAD, independent of guard
+	# Uppercut (W4): AIRTIME → DEAD on landing, independent of guard
 	if hit_type == "uppercut":
 		last_hit_quality = "maestro"
+		_airtime_kill_on_land = true
 		_enter_state(AgentState.AIRTIME)
 		sprite.play("airtime")
 		return
@@ -688,6 +705,7 @@ func _resolve_q_hit(hit_type: String, pos_tier: String, attacker: Node2D) -> voi
 
 		"air_launch":
 			last_hit_quality = "air_launch"
+			_airtime_kill_on_land = false
 			_enter_state(AgentState.AIRTIME)
 			sprite.play("airtime")
 
@@ -764,8 +782,15 @@ func _process_airtime(_delta: float) -> void:
 		_trigger_maestro_flash()
 
 	if is_on_floor() and state_timer > 0.2:
-		_enter_state(AgentState.DEAD)
-		sprite.play("dead")
+		if DebugOverlay.show_debug_text:
+			var outcome: String = "DEAD" if _airtime_kill_on_land else "KO"
+			print("[Agent] AIRTIME landing → %s" % outcome)
+		if _airtime_kill_on_land:
+			_enter_state(AgentState.DEAD)
+			sprite.play("dead")
+		else:
+			_enter_state(AgentState.KO)
+			_play_ko_sequence()
 
 
 func _process_ko(_delta: float) -> void:
