@@ -52,6 +52,7 @@ func physics_update(delta: float) -> StringName:
 			if phase_timer >= stats.punch_recovery:
 				return _decide_next_state()
 
+	kive.velocity.x = move_toward(kive.velocity.x, 0, stats.combat_friction * delta)
 	kive.move_and_slide()
 	kive.update_sprite_direction()
 	return &""

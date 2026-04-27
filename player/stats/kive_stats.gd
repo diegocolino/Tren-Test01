@@ -57,6 +57,7 @@ class_name KiveStats extends Resource
 @export_subgroup("W chain")
 @export var w_chain_cancel_window: float = 0.15
 @export var w_chain_reset_timeout: float = 0.6
+@export var combat_friction: float = 800.0
 
 @export_subgroup("Hitbox lifetimes")
 @export var punch_hitbox_active_frames: int = 3
