@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://bmkcavrdrka3v"]
+
+[ext_resource type="PackedScene" uid="uid://byk05mha1lvki" path="res://scenes/Kive.tscn" id="1_kive"]
+[ext_resource type="Script" uid="uid://drb0lcffc3ax0" path="res://scripts/agent_dummy.gd" id="2_dummy"]
+[ext_resource type="SpriteFrames" uid="uid://bi8g0p5hji37x" path="res://resources/agent_frames.tres" id="3_frames"]
+[ext_resource type="Script" path="res://scripts/test_combat.gd" id="4_test"]
+
+[sub_resource type="RectangleShape2D" id="floor_shape"]
+size = Vector2(4000, 40)
+
+[sub_resource type="RectangleShape2D" id="dummy_body_shape"]
+size = Vector2(80, 200)
+
+[sub_resource type="RectangleShape2D" id="dummy_hurtbox_shape"]
+size = Vector2(80, 200)
+
+[node name="TestCombat" type="Node2D" unique_id=406115815]
+script = ExtResource("4_test")
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=722891076]
+position = Vector2(960, 800)
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1367164250]
+shape = SubResource("floor_shape")
+
+[node name="FloorVisual" type="ColorRect" parent="Floor" unique_id=1504788532]
+offset_left = -2000.0
+offset_top = -20.0
+offset_right = 2000.0
+offset_bottom = 20.0
+color = Color(0.3, 0.3, 0.35, 1)
+
+[node name="Kive" parent="." unique_id=1647050075 instance=ExtResource("1_kive")]
+position = Vector2(600, 680)
+
+[node name="AgentDummy" type="CharacterBody2D" parent="." unique_id=499199927 groups=["agent"]]
+position = Vector2(1300, 744)
+collision_layer = 4
+collision_mask = 8
+script = ExtResource("2_dummy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentDummy" unique_id=657019883]
+position = Vector2(0, -90)
+sprite_frames = ExtResource("3_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AgentDummy" unique_id=767909737]
+position = Vector2(0, -64)
+shape = SubResource("dummy_body_shape")
+
+[node name="Hurtbox" type="Area2D" parent="AgentDummy" unique_id=1882358760]
+z_index = 5
+collision_layer = 4
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AgentDummy/Hurtbox" unique_id=1895773487]
+position = Vector2(0, -64)
+shape = SubResource("dummy_hurtbox_shape")
+
+[node name="DebugLabel" type="Label" parent="AgentDummy" unique_id=133985967]
+offset_left = -100.0
+offset_top = -260.0
+offset_right = 100.0
+offset_bottom = -235.0
+horizontal_alignment = 1
