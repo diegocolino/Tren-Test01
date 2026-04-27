@@ -9,7 +9,7 @@ Proyecto en desarrollo. Primer prototipo del Vagón 1.
 
 - **Movimiento V1** ✅ (Idle, Walk, Run, Jump, AirJump, Dive)
 - **Sigilo V1** ✅ (Crouch, Hidden, Execution)
-- **Combate V1.1** ✅ (W chain: Jab/Cross/Hook/Uppercut con cancel windows)
+- **Combate V1.2** ✅ (W chain + Q standalone + Q-en-contexto + cross-cancels + kill selectiva + Q=KO landing + cuerpos empujables)
 - **Detección centralizada** 📋 planeada
 - **Vagón 2 (Yeri)** 📋 planeado
 
