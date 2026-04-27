@@ -39,6 +39,9 @@ var is_punch_charging: bool:
 var is_punch_charged: bool:
 	get: return false
 
+var is_in_air: bool:
+	get: return not is_on_floor()
+
 var is_diving: bool:
 	get:
 		if not state_machine:

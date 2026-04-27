@@ -15,7 +15,8 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	if kive.is_chain_active():
 		kive._w_chain_timer = 0.0  # preserve chain during FrontalKick
 	kive.current_attack_type = "kick"
-	kive.velocity.x = 0
+	if not kive.is_in_air:
+		kive.velocity.x = 0
 
 	# Map q_context → current_hit_type for agent dispatch
 	match kive.q_context:
@@ -32,9 +33,9 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 			push_warning("Unexpected q_context: %s" % kive.q_context)
 
 	if DebugOverlay.show_debug_text:
-		print("[%s] enter | w_step=%d | q_context=%s | last_w=%s | hit_type=%s | chain_active=%s" % [
+		print("[%s] enter | w_step=%d | q_context=%s | last_w=%s | hit_type=%s | chain_active=%s | in_air=%s" % [
 			name, kive.w_chain_step, kive.q_context, kive.last_w_executed,
-			kive.current_hit_type, kive.is_chain_active()
+			kive.current_hit_type, kive.is_chain_active(), kive.is_in_air
 		])
 
 	phase = "anticipation"

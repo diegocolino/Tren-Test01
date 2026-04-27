@@ -20,6 +20,11 @@ func physics_update(delta: float) -> StringName:
 	kive.velocity.y += stats.gravity * delta
 	kive.apply_horizontal_input(true)
 
+	if Input.is_action_just_pressed("attack_punch"):
+		var chain_next: StringName = kive.get_w_chain_next()
+		return chain_next if chain_next != &"" else &"Jab"
+	if Input.is_action_just_pressed("attack_kick"):
+		return &"FrontalKick"
 	if Input.is_action_just_pressed("dive"):
 		return &"DiveAir"
 

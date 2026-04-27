@@ -13,7 +13,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive.w_chain_step = 3
 	kive._w_chain_timer = 0.0
 	if DebugOverlay.show_debug_text:
-		print("[%s] enter | chain_step=%d" % [name, kive.w_chain_step])
+		print("[%s] enter | chain_step=%d | in_air=%s" % [name, kive.w_chain_step, kive.is_in_air])
 
 	kive.current_attack_type = "punch"
 	kive.current_hit_type = "uppercut"
@@ -51,7 +51,8 @@ func physics_update(delta: float) -> StringName:
 			if phase_timer >= stats.punch_recovery:
 				return _decide_next_state()
 
-	kive.velocity.x = move_toward(kive.velocity.x, 0, stats.combat_friction * delta)
+	if not kive.is_in_air:
+		kive.velocity.x = move_toward(kive.velocity.x, 0, stats.combat_friction * delta)
 	kive.move_and_slide()
 	kive.update_sprite_direction()
 	return &""
