@@ -26,6 +26,7 @@ MCPGameInspector="*res://addons/godot_mcp/mcp_game_inspector_service.gd"
 GameManager="*res://scripts/game_manager.gd"
 DebugOverlay="*res://scripts/debug_overlay.gd"
 PauseMenu="*res://scripts/pause_menu.gd"
+Flai="*res://scripts/flai.gd"
 
 [display]
 
