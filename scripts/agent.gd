@@ -616,53 +616,48 @@ func _advance_anim_chain() -> void:
 
 # ========== HIT RESOLUTION ==========
 
-func receive_hit_from(attacker: Node2D, is_charged: bool, attack_type: String) -> void:
+func receive_hit_from(attacker: Node2D, hit_type: String, is_charged: bool = false) -> void:
 	if state == AgentState.DEAD or state == AgentState.KO:
 		return
-
-	var is_max_charged: bool = is_charged and attack_type == "punch" \
-		and attacker.has_method("get_charge_ratio") and attacker.get_charge_ratio() >= 0.95
 
 	# Turn towards attacker
 	if attacker:
 		facing_right = attacker.global_position.x > global_position.x
 		_turn_cooldown = 0.0
 
-	if attack_type == "punch":
-		_resolve_punch(is_charged, is_max_charged, attacker)
-	else:
+	if hit_type == "kick":
 		var pos_tier: String = _get_position_tier(attacker)
 		_resolve_kick(pos_tier, attacker)
+	else:
+		_resolve_w_hit(hit_type, is_charged, attacker)
 
 
-func _resolve_punch(is_charged: bool, is_max_charged: bool, attacker: Node2D) -> void:
+func _resolve_w_hit(hit_type: String, is_charged: bool, attacker: Node2D) -> void:
 	var is_vulnerable: bool = state in [AgentState.WINDUP, AgentState.ATTACK_RELEASE, \
 		AgentState.ATTACK_RECOVERY, AgentState.STUNT, AgentState.HIT, AgentState.PATROL]
 
-	# 1. Vulnerable + max charged → MAESTRO (airtime → frame 24)
-	if is_vulnerable and is_max_charged:
+	# Uppercut (W4): AIRTIME → DEAD, independent of guard
+	if hit_type == "uppercut":
 		last_hit_quality = "maestro"
 		_enter_state(AgentState.AIRTIME)
 		sprite.play("airtime")
 		return
 
-	# 2. Vulnerable (charged o no) → golpe bueno (KO → frame 23)
-	if is_vulnerable:
-		last_hit_quality = "golpe_bueno"
-		_ko_type = "golpe_bueno"
-		_enter_state(AgentState.KO)
-		_play_golpe_bueno_sequence(attacker)
+	# Cross (W2) / Hook (W3): DEAD if vulnerable, HIT if guard
+	if hit_type in ["cross", "hook"]:
+		if is_vulnerable:
+			last_hit_quality = "golpe_bueno"
+			_ko_type = "golpe_bueno"
+			_enter_state(AgentState.KO)
+			_play_golpe_bueno_sequence(attacker)
+			return
+		# Guard or other non-vulnerable → HIT ligero
+		last_hit_quality = "hit"
+		_enter_state(AgentState.HIT)
+		sprite.play("hit_light")
 		return
 
-	# 3. GUARD_STANCE + charged → STUNT
-	if state == AgentState.GUARD_STANCE and is_charged:
-		last_hit_quality = "stunt"
-		_enter_state(AgentState.STUNT)
-		_play_stunt_entry()
-		return
-
-	# 4. GUARD_STANCE + no charged → HIT ligero (abre ventana)
-	# 5. Fallback → HIT ligero
+	# Jab (W1) and fallback: HIT ligero always
 	last_hit_quality = "hit"
 	_enter_state(AgentState.HIT)
 	sprite.play("hit_light")

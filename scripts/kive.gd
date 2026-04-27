@@ -14,6 +14,7 @@ var is_hidden: bool = false
 var is_punch_charged: bool = false
 var is_finisher: bool = false
 var current_attack_type: String = "none"
+var current_hit_type: String = "none"
 var punch_charge_timer: float = 0.0
 var _air_jumps_left: int = 0
 var _nearby_hide_zones: int = 0
@@ -107,7 +108,7 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		if is_finisher and body.has_method("receive_execution"):
 			body.receive_execution(self)
 		elif body.has_method("receive_hit_from"):
-			body.receive_hit_from(self, is_punch_charged, current_attack_type)
+			body.receive_hit_from(self, current_hit_type, is_punch_charged)
 
 
 func _tick_hitbox_lifetimes() -> void:
@@ -234,6 +235,7 @@ func set_control_enabled(enabled: bool) -> void:
 	if not enabled:
 		velocity = Vector2.ZERO
 		current_attack_type = "none"
+		current_hit_type = "none"
 
 
 func reset_state() -> void:
@@ -242,6 +244,7 @@ func reset_state() -> void:
 	is_punch_charged = false
 	punch_charge_timer = 0.0
 	current_attack_type = "none"
+	current_hit_type = "none"
 	_parry_window_timer = 999.0
 	_punch_hitbox_active_frames = 0
 	_kick_hitbox_active_frames = 0
