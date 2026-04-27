@@ -48,7 +48,7 @@ enum AgentState {
 @export var windup_duration: float = 0.6
 @export var attack_release_duration: float = 0.2
 @export var attack_recovery_duration: float = 0.5
-@export var stunt_duration: float = 1.5
+@export var stunt_duration: float = 2.0
 @export var ko_duration: float = 3.0
 @export var kick_push_distance: float = 120.0
 @export var kick_push_duration: float = 0.2
@@ -627,7 +627,7 @@ func receive_hit_from(attacker: Node2D, hit_type: String) -> void:
 
 	if hit_type in ["frontal", "stunt_pie", "ko_suelo", "air_launch"]:
 		var pos_tier: String = _get_position_tier(attacker)
-		_resolve_q_hit(pos_tier, attacker)
+		_resolve_q_hit(hit_type, pos_tier, attacker)
 	else:
 		_resolve_w_hit(hit_type, attacker)
 
@@ -663,28 +663,38 @@ func _resolve_w_hit(hit_type: String, attacker: Node2D) -> void:
 	sprite.play("hit_light")
 
 
-func _resolve_q_hit(pos_tier: String, attacker: Node2D) -> void:
-	# 1. Frente + GUARD_STANCE → PARRY (agent bloquea) + push
-	if state == AgentState.GUARD_STANCE and pos_tier == "frente":
-		last_hit_quality = "block"
-		_apply_kick_push(attacker)
-		_enter_state(AgentState.PARRY)
-		return
+func _resolve_q_hit(hit_type: String, pos_tier: String, attacker: Node2D) -> void:
+	if DebugOverlay.show_debug_text:
+		print("[Agent] _resolve_q_hit | hit_type=%s | pos_tier=%s | state=%s" % [
+			hit_type, pos_tier, AgentState.keys()[state]])
 
-	# 2. Vulnerable o detras → KO (frame 23)
-	var is_vulnerable: bool = state in [AgentState.HIT, AgentState.STUNT, AgentState.WINDUP, \
-		AgentState.ATTACK_RELEASE, AgentState.ATTACK_RECOVERY, AgentState.PATROL]
-	if is_vulnerable or pos_tier == "detras":
-		last_hit_quality = "ko"
-		_ko_type = "normal"
-		_apply_kick_push(attacker)
-		_enter_state(AgentState.KO)
-		_play_ko_sequence()
-		return
+	match hit_type:
+		"frontal":
+			last_hit_quality = "push"
+			_apply_kick_push(attacker)
 
-	# 3. Fallback (frente en no-guard, ej: ALERT) → push only
-	last_hit_quality = "push"
-	_apply_kick_push(attacker)
+		"stunt_pie":
+			last_hit_quality = "stunt_pie"
+			_apply_kick_push(attacker)
+			_enter_state(AgentState.STUNT)
+			sprite.play("stunt")
+
+		"ko_suelo":
+			last_hit_quality = "ko_suelo"
+			_ko_type = "normal"
+			_apply_kick_push(attacker)
+			_enter_state(AgentState.KO)
+			_play_ko_sequence()
+
+		"air_launch":
+			last_hit_quality = "air_launch"
+			_enter_state(AgentState.AIRTIME)
+			sprite.play("airtime")
+
+		_:
+			push_warning("Unknown q hit_type: %s" % hit_type)
+			last_hit_quality = "push"
+			_apply_kick_push(attacker)
 
 
 func _apply_kick_push(attacker: Node2D) -> void:

@@ -13,12 +13,26 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 	kive.q_context = kive.get_q_context_from_chain()
 	kive.current_attack_type = "kick"
-	kive.current_hit_type = "frontal"
 	kive.velocity.x = 0
 
+	# Map q_context → current_hit_type for agent dispatch
+	match kive.q_context:
+		"after_jab":
+			kive.current_hit_type = "stunt_pie"
+		"after_cross":
+			kive.current_hit_type = "ko_suelo"
+		"after_hook":
+			kive.current_hit_type = "air_launch"
+		"standalone":
+			kive.current_hit_type = "frontal"
+		_:
+			kive.current_hit_type = "frontal"
+			push_warning("Unexpected q_context: %s" % kive.q_context)
+
 	if DebugOverlay.show_debug_text:
-		print("[%s] enter | w_step=%d | q_context=%s | last_w=%s | chain_active=%s" % [
-			name, kive.w_chain_step, kive.q_context, kive.last_w_executed, kive.is_chain_active()
+		print("[%s] enter | w_step=%d | q_context=%s | last_w=%s | hit_type=%s | chain_active=%s" % [
+			name, kive.w_chain_step, kive.q_context, kive.last_w_executed,
+			kive.current_hit_type, kive.is_chain_active()
 		])
 
 	phase = "anticipation"
