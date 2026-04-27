@@ -1,5 +1,5 @@
-## Kick normal. Fases internas: anticipation → release → recovery.
-class_name Kick extends State
+## FrontalKick (Q standalone / Q en contexto W). Fases: anticipation → release → recovery.
+class_name FrontalKick extends State
 
 var kive: Kive
 var stats: KiveStats
@@ -11,9 +11,15 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
 
+	kive.q_context = kive.get_q_context_from_chain()
 	kive.current_attack_type = "kick"
-	kive.current_hit_type = "kick"
+	kive.current_hit_type = "frontal"
 	kive.velocity.x = 0
+
+	if DebugOverlay.show_debug_text:
+		print("[%s] enter | w_step=%d | q_context=%s | chain_active=%s" % [
+			name, kive.w_chain_step, kive.q_context, kive.is_chain_active()
+		])
 
 	phase = "anticipation"
 	phase_timer = 0.0
@@ -23,6 +29,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 func exit() -> void:
 	kive.is_finisher = false
 	kive.current_attack_type = "none"
+	kive.q_context = ""
 
 
 func physics_update(delta: float) -> StringName:

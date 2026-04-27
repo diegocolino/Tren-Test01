@@ -625,9 +625,9 @@ func receive_hit_from(attacker: Node2D, hit_type: String) -> void:
 		facing_right = attacker.global_position.x > global_position.x
 		_turn_cooldown = 0.0
 
-	if hit_type == "kick":
+	if hit_type in ["frontal", "stunt_pie", "ko_suelo", "air_launch"]:
 		var pos_tier: String = _get_position_tier(attacker)
-		_resolve_kick(pos_tier, attacker)
+		_resolve_q_hit(pos_tier, attacker)
 	else:
 		_resolve_w_hit(hit_type, attacker)
 
@@ -663,7 +663,7 @@ func _resolve_w_hit(hit_type: String, attacker: Node2D) -> void:
 	sprite.play("hit_light")
 
 
-func _resolve_kick(pos_tier: String, attacker: Node2D) -> void:
+func _resolve_q_hit(pos_tier: String, attacker: Node2D) -> void:
 	# 1. Frente + GUARD_STANCE → PARRY (agent bloquea) + push
 	if state == AgentState.GUARD_STANCE and pos_tier == "frente":
 		last_hit_quality = "block"

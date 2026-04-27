@@ -21,13 +21,14 @@ var _punch_hitbox_active_frames: int = 0
 var _kick_hitbox_active_frames: int = 0
 var w_chain_step: int = 0       # 0=fresh, 1=after Jab, 2=after Cross, 3=after Hook
 var _w_chain_timer: float = 999.0
+var q_context: String = ""      # "standalone" | "after_jab" | "after_cross" | "after_hook" | "after_uppercut" | ""
 
 # ========== COMPUTED PROPERTIES ==========
 var is_attacking: bool:
 	get:
 		if not state_machine:
 			return false
-		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"Kick", &"Execution"]
+		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"FrontalKick", &"Execution"]
 
 ## Stubs — PunchCharging/PunchCharged eliminados en V1.1.
 ## Se mantienen para compatibilidad con agent.gd y debug_hud.gd.
@@ -143,6 +144,17 @@ func reset_w_chain() -> void:
 	_w_chain_timer = 999.0
 
 
+func get_q_context_from_chain() -> String:
+	if not is_chain_active():
+		return "standalone"
+	match w_chain_step:
+		0: return "after_jab"
+		1: return "after_cross"
+		2: return "after_hook"
+		3: return "after_uppercut"
+		_: return "standalone"
+
+
 # ========== PARRY / DAMAGE ==========
 
 func is_parry_window_active() -> bool:
@@ -252,6 +264,7 @@ func reset_state() -> void:
 	is_finisher = false
 	_air_jumps_left = 0
 	reset_w_chain()
+	q_context = ""
 	_update_collision_shape()
 	if is_hidden:
 		is_hidden = false

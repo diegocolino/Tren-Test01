@@ -20,7 +20,7 @@ func physics_update(delta: float) -> StringName:
 		var chain_next: StringName = kive.get_w_chain_next()
 		return chain_next if chain_next != &"" else &"Jab"
 	if Input.is_action_just_pressed("attack_kick"):
-		return &"Kick"
+		return &"FrontalKick"
 	if PauseMenu.hold_to_crouch:
 		if Input.is_action_pressed("crouch"):
 			return &"CrouchIdle"

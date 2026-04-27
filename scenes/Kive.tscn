@@ -19,15 +19,15 @@
 [ext_resource type="Script" uid="uid://baai0v1654n10" path="res://player/states/movement/dive_air.gd" id="18_5d8o0"]
 [ext_resource type="Script" uid="uid://873t14civc1e" path="res://player/states/movement/dive_landing.gd" id="19_bwjel"]
 [ext_resource type="Script" uid="uid://cntehafu4disw" path="res://player/states/combat/red_fist/jab.gd" id="20_bwjel"]
-[ext_resource type="Script" uid="uid://d4mlcg6wkwft7" path="res://player/states/combat/kick.gd" id="21_tv5nc"]
+[ext_resource type="Script" uid="uid://d4mlcg6wkwft7" path="res://player/states/combat/kicks/frontal_kick.gd" id="21_tv5nc"]
 [ext_resource type="Script" uid="uid://cf48mgwodul4u" path="res://player/states/stealth/crouch_idle.gd" id="24_jtavh"]
 [ext_resource type="Script" uid="uid://b7svjwfvrj1n" path="res://player/states/stealth/crouch_walk.gd" id="25_svsgi"]
 [ext_resource type="Script" uid="uid://drgh8kesodenq" path="res://player/states/stealth/hidden.gd" id="26_6cubt"]
 [ext_resource type="Script" uid="uid://bor6fmkbfb1ue" path="res://player/states/combat/damaged.gd" id="27_jtavh"]
 [ext_resource type="Script" uid="uid://dbswix2d0x5ax" path="res://player/states/combat/execution.gd" id="27_qy68n"]
-[ext_resource type="Script" path="res://player/states/combat/red_fist/cross.gd" id="28_cross"]
-[ext_resource type="Script" path="res://player/states/combat/red_fist/hook.gd" id="29_hook"]
-[ext_resource type="Script" path="res://player/states/combat/red_fist/uppercut.gd" id="30_upper"]
+[ext_resource type="Script" uid="uid://j17gfswk52rv" path="res://player/states/combat/red_fist/cross.gd" id="28_cross"]
+[ext_resource type="Script" uid="uid://doxhiv2mvhwea" path="res://player/states/combat/red_fist/hook.gd" id="29_hook"]
+[ext_resource type="Script" uid="uid://dmavmjafscag2" path="res://player/states/combat/red_fist/uppercut.gd" id="30_upper"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -158,16 +158,16 @@ script = ExtResource("19_bwjel")
 [node name="Jab" type="Node" parent="StateMachine" unique_id=917347685]
 script = ExtResource("20_bwjel")
 
-[node name="Cross" type="Node" parent="StateMachine"]
+[node name="Cross" type="Node" parent="StateMachine" unique_id=630136741]
 script = ExtResource("28_cross")
 
-[node name="Hook" type="Node" parent="StateMachine"]
+[node name="Hook" type="Node" parent="StateMachine" unique_id=1773146140]
 script = ExtResource("29_hook")
 
-[node name="Uppercut" type="Node" parent="StateMachine"]
+[node name="Uppercut" type="Node" parent="StateMachine" unique_id=1044472551]
 script = ExtResource("30_upper")
 
-[node name="Kick" type="Node" parent="StateMachine" unique_id=1527890129]
+[node name="FrontalKick" type="Node" parent="StateMachine" unique_id=1527890129]
 script = ExtResource("21_tv5nc")
 
 [node name="CrouchIdle" type="Node" parent="StateMachine" unique_id=1182177821]
