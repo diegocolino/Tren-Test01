@@ -12,6 +12,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	stats = kive.stats
 
 	kive.is_punch_charged = false
+	kive.current_attack_type = "punch"
 
 	phase = "anticipation"
 	phase_timer = 0.0
@@ -41,7 +42,11 @@ func physics_update(delta: float) -> StringName:
 				phase_timer = 0.0
 				kive.sprite.play("idle")
 		"recovery":
+			var in_cancel_window: bool = phase_timer >= stats.punch_recovery - stats.w_chain_cancel_window
+			if in_cancel_window and Input.is_action_just_pressed("attack_punch"):
+				return &"Uppercut"
 			if phase_timer >= stats.punch_recovery:
+				kive.advance_w_chain(3)
 				return _decide_next_state()
 
 	kive.move_and_slide()

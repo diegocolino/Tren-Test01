@@ -1,4 +1,4 @@
-## Uppercut (W4). Fases internas: anticipation → release → recovery.
+## Uppercut (W4). End of chain. Fases internas: anticipation → release → recovery.
 class_name Uppercut extends State
 
 var kive: Kive
@@ -12,6 +12,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	stats = kive.stats
 
 	kive.is_punch_charged = false
+	kive.current_attack_type = "punch"
 
 	phase = "anticipation"
 	phase_timer = 0.0
@@ -20,6 +21,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 func exit() -> void:
 	kive.current_attack_type = "none"
+	kive.reset_w_chain()
 
 
 func physics_update(delta: float) -> StringName:

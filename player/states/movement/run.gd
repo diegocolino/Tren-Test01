@@ -21,6 +21,9 @@ func physics_update(delta: float) -> StringName:
 	if Input.is_action_just_pressed("dive") and kive.is_on_floor() and abs(kive.velocity.x) > 10:
 		return &"DiveGround"
 	if Input.is_action_just_pressed("attack_punch"):
+		var chain_next: StringName = kive.get_w_chain_next()
+		if chain_next != &"":
+			return chain_next
 		return &"PunchCharging"
 	if Input.is_action_just_pressed("attack_kick"):
 		return &"Kick"

@@ -20,13 +20,15 @@ var _nearby_hide_zones: int = 0
 var _parry_window_timer: float = 999.0
 var _punch_hitbox_active_frames: int = 0
 var _kick_hitbox_active_frames: int = 0
+var w_chain_step: int = 0       # 0=fresh, 1=after Jab, 2=after Cross, 3=after Hook
+var _w_chain_timer: float = 999.0
 
 # ========== COMPUTED PROPERTIES ==========
 var is_attacking: bool:
 	get:
 		if not state_machine:
 			return false
-		return state_machine.current_state_name in [&"Jab", &"PunchCharged", &"Kick", &"Execution"]
+		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"PunchCharged", &"Kick", &"Execution"]
 
 var is_punch_charging: bool:
 	get:
@@ -78,6 +80,7 @@ func _on_animation_finished() -> void:
 
 func _process(delta: float) -> void:
 	_parry_window_timer += delta
+	_w_chain_timer += delta
 	_tick_hitbox_lifetimes()
 
 
@@ -116,6 +119,28 @@ func _tick_hitbox_lifetimes() -> void:
 		_kick_hitbox_active_frames -= 1
 		if _kick_hitbox_active_frames == 0:
 			$KickHitbox.monitoring = false
+
+
+# ========== W CHAIN ==========
+
+func get_w_chain_next() -> StringName:
+	if _w_chain_timer > stats.w_chain_reset_timeout:
+		w_chain_step = 0
+	match w_chain_step:
+		1: return &"Cross"
+		2: return &"Hook"
+		3: return &"Uppercut"
+		_: return &""
+
+
+func advance_w_chain(step: int) -> void:
+	w_chain_step = step
+	_w_chain_timer = 0.0
+
+
+func reset_w_chain() -> void:
+	w_chain_step = 0
+	_w_chain_timer = 999.0
 
 
 # ========== PARRY / DAMAGE ==========
@@ -227,6 +252,7 @@ func reset_state() -> void:
 	_kick_hitbox_active_frames = 0
 	is_finisher = false
 	_air_jumps_left = 0
+	reset_w_chain()
 	_update_collision_shape()
 	if is_hidden:
 		is_hidden = false
