@@ -13,7 +13,8 @@ enum AgentState {
 	STUNT,
 	AIRTIME,
 	KO,
-	DEAD
+	DEAD,
+	FALLEN
 }
 
 # ========== EXPORTS ==========
@@ -50,12 +51,20 @@ enum AgentState {
 @export var attack_recovery_duration: float = 0.5
 @export var stunt_duration: float = 2.0
 @export var ko_duration: float = 3.0
+@export var fallen_duration: float = 1.5
+@export var fallen_knockback_duration: float = 0.3
 @export var kick_push_distance: float = 120.0
 @export var kick_push_duration: float = 0.2
 @export var parry_duration: float = 0.3
 @export var hit_reaction_duration: float = 0.3
 @export var guard_exit_hysteresis: float = 1.5
 @export var attack_hitbox_linger: float = 0.6
+
+@export_group("Dive Knockback")
+@export var dive_ground_knockback_vertical: float = 600.0
+@export var dive_ground_knockback_horizontal: float = 200.0
+@export var dive_air_knockback_horizontal: float = 800.0
+@export var dive_air_knockback_vertical: float = 200.0
 
 @export_group("Airtime")
 @export var airtime_push_horizontal: float = 400.0
@@ -99,6 +108,7 @@ var _anim_queue: Array[String] = []
 # Flag para push del kick
 var _pending_kick_push_velocity: float = 0.0
 var _pending_kick_push_frames: int = 0
+var _fallen_knockback_frames: int = 0
 
 # Intro musical
 var _waiting_for_intro: bool = true
@@ -167,6 +177,7 @@ func _physics_process(delta: float) -> void:
 		AgentState.AIRTIME: _process_airtime(delta)
 		AgentState.KO: _process_ko(delta)
 		AgentState.DEAD: _process_dead(delta)
+		AgentState.FALLEN: _process_fallen(delta)
 
 	if _pending_kick_push_frames > 0:
 		velocity.x = _pending_kick_push_velocity
@@ -802,6 +813,51 @@ func _process_ko(_delta: float) -> void:
 
 func _process_dead(_delta: float) -> void:
 	velocity.x = 0
+
+
+func _process_fallen(delta: float) -> void:
+	if _fallen_knockback_frames > 0:
+		_fallen_knockback_frames -= 1
+	else:
+		velocity.x = move_toward(velocity.x, 0, 800.0 * delta)
+	if state_timer >= fallen_duration:
+		_return_to_combat_ready()
+		if DebugOverlay.show_debug_text:
+			print("[Agent] FALLEN recovered → combat ready")
+
+
+# ========== RECEIVE DIVE ==========
+
+func receive_dive_from(attacker: Node2D, dive_type: String) -> void:
+	if state in [AgentState.DEAD, AgentState.KO, AgentState.AIRTIME, AgentState.STUNT, AgentState.FALLEN]:
+		return
+	last_hit_quality = "dive_fallen"
+	_apply_dive_knockback(attacker, dive_type)
+	_enter_state(AgentState.FALLEN)
+	_play_anim_chain(["airtime", "ko_floor"])
+	if DebugOverlay.show_debug_text:
+		print("[Agent] DIVE FALLEN | type=%s | will recover in %.1fs" % [dive_type, fallen_duration])
+
+
+func _apply_dive_knockback(attacker: Node2D, dive_type: String) -> void:
+	if not attacker:
+		return
+	match dive_type:
+		"ground":
+			var horizontal_dir: float = sign(global_position.x - attacker.global_position.x)
+			if horizontal_dir == 0:
+				horizontal_dir = 1.0 if facing_right else -1.0
+			velocity.x = horizontal_dir * dive_ground_knockback_horizontal
+			velocity.y = -dive_ground_knockback_vertical
+		"air":
+			var horizontal_dir: float = sign(attacker.velocity.x)
+			if horizontal_dir == 0:
+				horizontal_dir = sign(global_position.x - attacker.global_position.x)
+				if horizontal_dir == 0:
+					horizontal_dir = 1.0 if not attacker.sprite.flip_h else -1.0
+			velocity.x = horizontal_dir * dive_air_knockback_horizontal
+			velocity.y = -dive_air_knockback_vertical * 0.3
+	_fallen_knockback_frames = int(fallen_knockback_duration * 60.0)
 
 
 # ========== RECEIVE PARRY ==========

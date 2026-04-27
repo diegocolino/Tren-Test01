@@ -55,6 +55,9 @@ size = Vector2(80, 40)
 [sub_resource type="RectangleShape2D" id="kick_shape"]
 size = Vector2(100, 40)
 
+[sub_resource type="RectangleShape2D" id="dive_shape"]
+size = Vector2(120, 80)
+
 [node name="Kive" type="CharacterBody2D" unique_id=1945642922]
 z_index = 5
 collision_mask = 8
@@ -117,6 +120,15 @@ monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KickHitbox" unique_id=943485890]
 shape = SubResource("kick_shape")
+
+[node name="DiveHitbox" type="Area2D" parent="."]
+z_index = 5
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DiveHitbox"]
+shape = SubResource("dive_shape")
 
 [node name="StateMachine" type="Node" parent="." unique_id=1108843331]
 script = ExtResource("7_m1hew")

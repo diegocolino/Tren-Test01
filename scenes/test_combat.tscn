@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://byk05mha1lvki" path="res://scenes/Kive.tscn" id="1_kive"]
 [ext_resource type="Script" uid="uid://drb0lcffc3ax0" path="res://scripts/agent_dummy.gd" id="2_dummy"]
 [ext_resource type="SpriteFrames" uid="uid://bi8g0p5hji37x" path="res://resources/agent_frames.tres" id="3_frames"]
-[ext_resource type="Script" path="res://scripts/test_combat.gd" id="4_test"]
+[ext_resource type="Script" uid="uid://dhxilonlrfbxu" path="res://scripts/test_combat.gd" id="4_test"]
 
 [sub_resource type="RectangleShape2D" id="floor_shape"]
 size = Vector2(8000, 40)
@@ -40,6 +40,12 @@ position = Vector2(1300, 744)
 collision_layer = 4
 collision_mask = 8
 script = ExtResource("2_dummy")
+kick_push_distance = 400.0
+kick_push_duration = 0.4
+dive_ground_knockback_vertical = 1600.0
+dive_ground_knockback_horizontal = 400.0
+dive_air_knockback_horizontal = 1600.0
+dive_air_knockback_vertical = 400.0
 facing_right = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentDummy" unique_id=657019883]

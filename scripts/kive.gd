@@ -73,6 +73,7 @@ func _ready() -> void:
 	sprite.animation_finished.connect(_on_animation_finished)
 	$PunchHitbox.body_entered.connect(_on_hitbox_body_entered)
 	$KickHitbox.body_entered.connect(_on_hitbox_body_entered)
+	$DiveHitbox.body_entered.connect(_on_dive_hitbox_body_entered)
 	for zone in get_tree().get_nodes_in_group("hide_zone"):
 		zone.body_entered.connect(_on_hide_zone_entered)
 		zone.body_exited.connect(_on_hide_zone_exited)
@@ -125,6 +126,35 @@ func _tick_hitbox_lifetimes() -> void:
 		_kick_hitbox_active_frames -= 1
 		if _kick_hitbox_active_frames == 0:
 			$KickHitbox.monitoring = false
+
+
+# ========== DIVE HITBOX ==========
+
+func activate_dive_hitbox() -> void:
+	$DiveHitbox.position = Vector2(0, -30)
+	$DiveHitbox.monitoring = true
+
+
+func deactivate_dive_hitbox() -> void:
+	$DiveHitbox.monitoring = false
+
+
+func _on_dive_hitbox_body_entered(body: Node2D) -> void:
+	if not body.is_in_group("agent"):
+		return
+	if not body.has_method("receive_dive_from"):
+		return
+
+	var dive_type: String = "ground" if state_machine.current_state_name == &"DiveGround" else "air"
+	body.receive_dive_from(self, dive_type)
+
+	# Kive feels impact differently per type
+	if dive_type == "air":
+		velocity.x *= 0.85
+		velocity.y = max(velocity.y, 100)
+	# DiveGround: no velocity change — Kive almost passes through
+
+	deactivate_dive_hitbox()
 
 
 # ========== W CHAIN ==========

@@ -13,6 +13,8 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 	dive_direction = sign(kive.velocity.x) if kive.velocity.x != 0 else (-1.0 if kive.sprite.flip_h else 1.0)
 
+	kive.activate_dive_hitbox()
+
 	# Si venimos de DiveAir aterrizando, mantener slide sin resetear velocity
 	if _prev == &"DiveAir":
 		kive.velocity.x = stats.dive_speed * dive_direction
@@ -24,6 +26,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
+	kive.deactivate_dive_hitbox()
 	kive._update_collision_shape()
 
 

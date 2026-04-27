@@ -16,10 +16,12 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive.velocity.x = stats.dive_speed * dive_direction * 0.8
 	kive.velocity.y = minf(kive.velocity.y, -400.0)
 	kive._update_collision_shape()
+	kive.activate_dive_hitbox()
 	kive.sprite.play("dive_slide")
 
 
 func exit() -> void:
+	kive.deactivate_dive_hitbox()
 	kive._update_collision_shape()
 
 

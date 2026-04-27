@@ -3,17 +3,25 @@
 class_name AgentDummy
 extends CharacterBody2D
 
-enum DummyState { IDLE, HIT, STUNT, KO, AIRTIME, DEAD }
+enum DummyState { IDLE, HIT, STUNT, KO, AIRTIME, DEAD, FALLEN }
 
 # ========== EXPORTS ==========
 @export_group("Timings")
 @export var hit_reaction_duration: float = 0.4
 @export var stunt_duration: float = 2.0
 @export var ko_duration: float = 44.0
+@export var fallen_duration: float = 1.5
+@export var fallen_knockback_duration: float = 0.3
 
 @export_group("Kick Push")
 @export var kick_push_distance: float = 120.0
 @export var kick_push_duration: float = 0.2
+
+@export_group("Dive Knockback")
+@export var dive_ground_knockback_vertical: float = 600.0
+@export var dive_ground_knockback_horizontal: float = 200.0
+@export var dive_air_knockback_horizontal: float = 800.0
+@export var dive_air_knockback_vertical: float = 200.0
 
 @export_group("Airtime")
 @export var airtime_push_horizontal: float = 800.0
@@ -39,6 +47,7 @@ var _airtime_kill_on_land: bool = true  # true = Uppercut (W=DEATH), false = air
 
 var _pending_kick_push_velocity: float = 0.0
 var _pending_kick_push_frames: int = 0
+var _fallen_knockback_frames: int = 0
 var _anim_queue: Array[String] = []
 var _spawn_position: Vector2 = Vector2.ZERO
 
@@ -81,6 +90,8 @@ func _physics_process(delta: float) -> void:
 			_process_ko(delta)
 		DummyState.DEAD:
 			velocity.x = 0
+		DummyState.FALLEN:
+			_process_fallen(delta)
 
 	# Kick push overrides state velocity — push is something that happens TO you
 	if _pending_kick_push_frames > 0:
@@ -217,6 +228,40 @@ func _resolve_q_hit(hit_type: String, pos_tier: String, attacker: Node2D) -> voi
 			_apply_kick_push(attacker)
 
 
+# ========== DIVE RESOLUTION ==========
+
+func receive_dive_from(attacker: Node2D, dive_type: String) -> void:
+	if state in [DummyState.DEAD, DummyState.KO, DummyState.AIRTIME, DummyState.STUNT, DummyState.FALLEN]:
+		return
+	last_hit_quality = "dive_fallen"
+	_apply_dive_knockback(attacker, dive_type)
+	_enter_state(DummyState.FALLEN)
+	_play_anim_chain(["airtime", "ko_floor"])
+	if DebugOverlay.show_debug_text:
+		print("[AgentDummy] DIVE FALLEN | type=%s | will recover in %.1fs" % [dive_type, fallen_duration])
+
+
+func _apply_dive_knockback(attacker: Node2D, dive_type: String) -> void:
+	if not attacker:
+		return
+	match dive_type:
+		"ground":
+			var horizontal_dir: float = sign(global_position.x - attacker.global_position.x)
+			if horizontal_dir == 0:
+				horizontal_dir = 1.0 if facing_right else -1.0
+			velocity.x = horizontal_dir * dive_ground_knockback_horizontal
+			velocity.y = -dive_ground_knockback_vertical
+		"air":
+			var horizontal_dir: float = sign(attacker.velocity.x)
+			if horizontal_dir == 0:
+				horizontal_dir = sign(global_position.x - attacker.global_position.x)
+				if horizontal_dir == 0:
+					horizontal_dir = 1.0 if not attacker.sprite.flip_h else -1.0
+			velocity.x = horizontal_dir * dive_air_knockback_horizontal
+			velocity.y = -dive_air_knockback_vertical * 0.3
+	_fallen_knockback_frames = int(fallen_knockback_duration * 60.0)
+
+
 # ========== STATE TRANSITIONS ==========
 
 func _enter_state(new_state: DummyState) -> void:
@@ -272,6 +317,18 @@ func _process_ko(_delta: float) -> void:
 	if state_timer >= ko_duration:
 		_enter_state(DummyState.DEAD)
 		sprite.play("ko_floor")
+
+
+func _process_fallen(delta: float) -> void:
+	if _fallen_knockback_frames > 0:
+		_fallen_knockback_frames -= 1
+	else:
+		velocity.x = move_toward(velocity.x, 0, 800.0 * delta)
+	if state_timer >= fallen_duration:
+		_enter_state(DummyState.IDLE)
+		sprite.play("idle")
+		if DebugOverlay.show_debug_text:
+			print("[AgentDummy] FALLEN recovered → IDLE")
 
 
 # ========== HELPERS ==========
