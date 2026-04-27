@@ -22,6 +22,7 @@ var _kick_hitbox_active_frames: int = 0
 var w_chain_step: int = 0       # 0=fresh, 1=after Jab, 2=after Cross, 3=after Hook
 var _w_chain_timer: float = 999.0
 var q_context: String = ""      # "standalone" | "after_jab" | "after_cross" | "after_hook" | "after_uppercut" | ""
+var last_w_executed: String = "" # "jab" | "cross" | "hook" | "uppercut" | ""
 
 # ========== COMPUTED PROPERTIES ==========
 var is_attacking: bool:
@@ -251,6 +252,7 @@ func set_control_enabled(enabled: bool) -> void:
 		velocity = Vector2.ZERO
 		current_attack_type = "none"
 		current_hit_type = "none"
+		last_w_executed = ""
 
 
 func reset_state() -> void:
@@ -265,6 +267,7 @@ func reset_state() -> void:
 	_air_jumps_left = 0
 	reset_w_chain()
 	q_context = ""
+	last_w_executed = ""
 	_update_collision_shape()
 	if is_hidden:
 		is_hidden = false

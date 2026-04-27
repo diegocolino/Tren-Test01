@@ -17,6 +17,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 	kive.current_attack_type = "punch"
 	kive.current_hit_type = "jab"
+	kive.last_w_executed = "jab"
 
 	phase = "anticipation"
 	phase_timer = 0.0

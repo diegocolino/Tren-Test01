@@ -17,8 +17,8 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive.velocity.x = 0
 
 	if DebugOverlay.show_debug_text:
-		print("[%s] enter | w_step=%d | q_context=%s | chain_active=%s" % [
-			name, kive.w_chain_step, kive.q_context, kive.is_chain_active()
+		print("[%s] enter | w_step=%d | q_context=%s | last_w=%s | chain_active=%s" % [
+			name, kive.w_chain_step, kive.q_context, kive.last_w_executed, kive.is_chain_active()
 		])
 
 	phase = "anticipation"
