@@ -124,13 +124,17 @@ func _tick_hitbox_lifetimes() -> void:
 
 # ========== W CHAIN ==========
 
+func is_chain_active() -> bool:
+	return _w_chain_timer < stats.w_chain_reset_timeout
+
+
 func get_w_chain_next() -> StringName:
-	if _w_chain_timer > stats.w_chain_reset_timeout:
-		w_chain_step = 0
+	if not is_chain_active():
+		return &""
 	match w_chain_step:
-		1: return &"Cross"
-		2: return &"Hook"
-		3: return &"Uppercut"
+		0: return &"Cross"
+		1: return &"Hook"
+		2: return &"Uppercut"
 		_: return &""
 
 
