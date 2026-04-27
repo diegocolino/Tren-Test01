@@ -35,7 +35,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var next: StringName = current_state.physics_update(delta)
-	if next != &"" and next != current_state_name:
+	if next != &"":
 		transition_to(next)
 
 
