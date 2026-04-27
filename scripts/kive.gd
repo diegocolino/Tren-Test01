@@ -11,11 +11,9 @@ const default_collision_height: float = 200.0
 var control_enabled: bool = true
 var is_crouched: bool = false
 var is_hidden: bool = false
-var is_punch_charged: bool = false
 var is_finisher: bool = false
 var current_attack_type: String = "none"
 var current_hit_type: String = "none"
-var punch_charge_timer: float = 0.0
 var _air_jumps_left: int = 0
 var _nearby_hide_zones: int = 0
 var _parry_window_timer: float = 999.0
@@ -29,13 +27,15 @@ var is_attacking: bool:
 	get:
 		if not state_machine:
 			return false
-		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"PunchCharged", &"Kick", &"Execution"]
+		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"Kick", &"Execution"]
 
+## Stubs — PunchCharging/PunchCharged eliminados en V1.1.
+## Se mantienen para compatibilidad con agent.gd y debug_hud.gd.
 var is_punch_charging: bool:
-	get:
-		if not state_machine:
-			return false
-		return state_machine.current_state_name == &"PunchCharging"
+	get: return false
+
+var is_punch_charged: bool:
+	get: return false
 
 var is_diving: bool:
 	get:
@@ -108,7 +108,7 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		if is_finisher and body.has_method("receive_execution"):
 			body.receive_execution(self)
 		elif body.has_method("receive_hit_from"):
-			body.receive_hit_from(self, current_hit_type, is_punch_charged)
+			body.receive_hit_from(self, current_hit_type)
 
 
 func _tick_hitbox_lifetimes() -> void:
@@ -173,10 +173,9 @@ func _trigger_parry_flash() -> void:
 	tween.tween_property(sprite, "modulate", Color.WHITE, 0.5)
 
 
+## Stub — charge ratio reactivated in V1.5 (Uppercut hold finisher).
 func get_charge_ratio() -> float:
-	if not is_punch_charged:
-		return 0.0
-	return clampf((punch_charge_timer - stats.attack_charge_time) / (stats.attack_charge_time_max - stats.attack_charge_time), 0.0, 1.0)
+	return 0.0
 
 
 # ========== MOVEMENT HELPERS ==========
@@ -245,8 +244,6 @@ func set_control_enabled(enabled: bool) -> void:
 func reset_state() -> void:
 	velocity = Vector2.ZERO
 	is_crouched = false
-	is_punch_charged = false
-	punch_charge_timer = 0.0
 	current_attack_type = "none"
 	current_hit_type = "none"
 	_parry_window_timer = 999.0

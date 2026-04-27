@@ -20,7 +20,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	# Setup de execution
 	kive.is_finisher = true
 	kive.current_attack_type = "kick"
-	kive.is_punch_charged = false
 
 	phase = "anticipation"
 	phase_timer = 0.0

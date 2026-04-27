@@ -616,7 +616,7 @@ func _advance_anim_chain() -> void:
 
 # ========== HIT RESOLUTION ==========
 
-func receive_hit_from(attacker: Node2D, hit_type: String, is_charged: bool = false) -> void:
+func receive_hit_from(attacker: Node2D, hit_type: String) -> void:
 	if state == AgentState.DEAD or state == AgentState.KO:
 		return
 
@@ -629,10 +629,10 @@ func receive_hit_from(attacker: Node2D, hit_type: String, is_charged: bool = fal
 		var pos_tier: String = _get_position_tier(attacker)
 		_resolve_kick(pos_tier, attacker)
 	else:
-		_resolve_w_hit(hit_type, is_charged, attacker)
+		_resolve_w_hit(hit_type, attacker)
 
 
-func _resolve_w_hit(hit_type: String, is_charged: bool, attacker: Node2D) -> void:
+func _resolve_w_hit(hit_type: String, attacker: Node2D) -> void:
 	var is_vulnerable: bool = state in [AgentState.WINDUP, AgentState.ATTACK_RELEASE, \
 		AgentState.ATTACK_RECOVERY, AgentState.STUNT, AgentState.HIT, AgentState.PATROL]
 

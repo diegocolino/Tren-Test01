@@ -13,7 +13,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 	kive.current_attack_type = "kick"
 	kive.current_hit_type = "kick"
-	kive.is_punch_charged = false
 	kive.velocity.x = 0
 
 	phase = "anticipation"

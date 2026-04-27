@@ -15,7 +15,6 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	if DebugOverlay.show_debug_text:
 		print("[%s] enter | chain_step=%d" % [name, kive.w_chain_step])
 
-	kive.is_punch_charged = false
 	kive.current_attack_type = "punch"
 	kive.current_hit_type = "cross"
 

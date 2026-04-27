@@ -39,9 +39,7 @@ func _process(_delta: float) -> void:
 		info += "  state=%s\n" % str(kive.state_machine.current_state_name)
 		info += "  crouch=%s hide=%s\n" % [str(kive.is_crouched), str(kive.is_hidden)]
 		info += "  jump=%s dive=%s\n" % [kive.jump_state, str(kive.is_diving)]
-		info += "  charging=%s atk=%s\n" % [str(kive.is_punch_charging), str(kive.is_attacking)]
-		if kive.is_punch_charging:
-			info += "  charge_t=%.2fs (charged=%s)\n" % [kive.punch_charge_timer, str(kive.punch_charge_timer >= kive.stats.attack_charge_time)]
+		info += "  atk=%s hit=%s chain=%d\n" % [str(kive.is_attacking), kive.current_hit_type, kive.w_chain_step]
 		if kive.has_method("is_parry_window_active"):
 			info += "  parry_window=%s\n" % str(kive.is_parry_window_active())
 		if kive.has_node("AnimatedSprite2D"):

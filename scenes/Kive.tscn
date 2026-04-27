@@ -20,8 +20,6 @@
 [ext_resource type="Script" uid="uid://873t14civc1e" path="res://player/states/movement/dive_landing.gd" id="19_bwjel"]
 [ext_resource type="Script" uid="uid://cntehafu4disw" path="res://player/states/combat/red_fist/jab.gd" id="20_bwjel"]
 [ext_resource type="Script" uid="uid://d4mlcg6wkwft7" path="res://player/states/combat/kick.gd" id="21_tv5nc"]
-[ext_resource type="Script" uid="uid://ch53sl4euaxfg" path="res://player/states/combat/punch_charging.gd" id="22_e00yl"]
-[ext_resource type="Script" uid="uid://dof6kn8n7kwda" path="res://player/states/combat/punch_charged.gd" id="23_xdoet"]
 [ext_resource type="Script" uid="uid://cf48mgwodul4u" path="res://player/states/stealth/crouch_idle.gd" id="24_jtavh"]
 [ext_resource type="Script" uid="uid://b7svjwfvrj1n" path="res://player/states/stealth/crouch_walk.gd" id="25_svsgi"]
 [ext_resource type="Script" uid="uid://drgh8kesodenq" path="res://player/states/stealth/hidden.gd" id="26_6cubt"]
@@ -171,12 +169,6 @@ script = ExtResource("30_upper")
 
 [node name="Kick" type="Node" parent="StateMachine" unique_id=1527890129]
 script = ExtResource("21_tv5nc")
-
-[node name="PunchCharging" type="Node" parent="StateMachine" unique_id=1537631105]
-script = ExtResource("22_e00yl")
-
-[node name="PunchCharged" type="Node" parent="StateMachine" unique_id=1697322583]
-script = ExtResource("23_xdoet")
 
 [node name="CrouchIdle" type="Node" parent="StateMachine" unique_id=1182177821]
 script = ExtResource("24_jtavh")
