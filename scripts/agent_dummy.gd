@@ -32,7 +32,7 @@ enum DummyState { IDLE, HIT, STUNT, KO, AIRTIME, DEAD }
 # ========== STATE ==========
 var state: DummyState = DummyState.IDLE
 var state_timer: float = 0.0
-var facing_right: bool = true
+@export var facing_right: bool = true
 var last_hit_quality: String = "none"
 var _ko_type: String = "normal"
 var _airtime_kill_on_land: bool = true  # true = Uppercut (W=DEATH), false = air_launch (Q=KO)
@@ -91,7 +91,8 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	# Debug label
+	# Visuals
+	sprite.flip_h = not facing_right
 	if debug_label:
 		debug_label.text = "[%s] t=%.2f hit=%s" % [DummyState.keys()[state], state_timer, last_hit_quality]
 
