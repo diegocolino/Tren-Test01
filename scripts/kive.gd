@@ -133,11 +133,6 @@ func get_w_chain_next() -> StringName:
 		_: return &""
 
 
-func advance_w_chain(step: int) -> void:
-	w_chain_step = step
-	_w_chain_timer = 0.0
-
-
 func reset_w_chain() -> void:
 	w_chain_step = 0
 	_w_chain_timer = 999.0

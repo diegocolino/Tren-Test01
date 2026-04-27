@@ -10,6 +10,8 @@ var phase_timer: float = 0.0
 func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
+	kive.w_chain_step = 3
+	kive._w_chain_timer = 0.0
 	if DebugOverlay.show_debug_text:
 		print("[%s] enter | chain_step=%d" % [name, kive.w_chain_step])
 
