@@ -26,6 +26,7 @@ var last_w_executed: String = "" # "jab" | "cross" | "hook" | "uppercut" | ""
 var _sensible_target: Node2D = null
 var _sensible_window_timer: float = 999.0
 var _chain_hit_agents: Array[Node2D] = []
+var _pending_finisher: String = ""  # "" | "w" | "q"
 
 # ========== COMPUTED PROPERTIES ==========
 var is_attacking: bool:
@@ -225,6 +226,15 @@ func find_chained_agent_in_direction(direction: float) -> Node2D:
 
 
 func decide_dash_state() -> StringName:
+	# Detectar modificador (W tiene precedencia)
+	if Input.is_action_pressed("attack_punch"):
+		_pending_finisher = "w"
+	elif Input.is_action_pressed("attack_kick"):
+		_pending_finisher = "q"
+	else:
+		_pending_finisher = ""
+	if DebugOverlay.show_debug_text and _pending_finisher != "":
+		print("[Kive] decide_dash_state | finisher=%s" % _pending_finisher)
 	if _sensible_target != null:
 		return &"DashOffensive"
 	var dir: float = Input.get_axis("move_left", "move_right")
@@ -381,6 +391,7 @@ func reset_state() -> void:
 	reset_w_chain()
 	_sensible_target = null
 	_sensible_window_timer = 999.0
+	_pending_finisher = ""
 	q_context = ""
 	last_w_executed = ""
 	_update_collision_shape()

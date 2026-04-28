@@ -40,6 +40,21 @@ func physics_update(delta: float) -> StringName:
 		"active":
 			kive.velocity.x = _dash_direction * (stats.dash_distance_neutral / stats.dash_duration)
 			if phase_timer >= stats.dash_duration:
+				if kive._pending_finisher == "w":
+					var next_state: StringName = kive.get_w_chain_next()
+					if next_state == &"":
+						next_state = &"Jab"
+					if DebugOverlay.show_debug_text:
+						print("[Dash] FINISHER W → %s" % next_state)
+					kive._pending_finisher = ""
+					kive.velocity.x = 0.0
+					return next_state
+				elif kive._pending_finisher == "q":
+					if DebugOverlay.show_debug_text:
+						print("[Dash] FINISHER Q → FrontalKick")
+					kive._pending_finisher = ""
+					kive.velocity.x = 0.0
+					return &"FrontalKick"
 				phase = "recovery"
 				phase_timer = 0.0
 		"recovery":

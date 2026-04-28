@@ -81,3 +81,5 @@ class_name KiveStats extends Resource
 @export_group("Sensible")
 @export var sensible_window: float = 0.4
 @export var magnetic_speed_multiplier: float = 3.0
+@export var dash_teleport_threshold: float = 0.5
+@export var dash_teleport_curve: float = 2.0

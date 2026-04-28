@@ -11,6 +11,7 @@ var _dash_active_duration: float = 0.0
 var _dash_speed: float = 0.0
 var _dash_target: Node2D = null
 var _mode: String = ""  # "magnetic" | "target"
+var _target_position: Vector2 = Vector2.ZERO
 
 
 func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
@@ -67,6 +68,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 	# Facing: turn toward target (exception to "nunca mira atrás")
 	kive.sprite.flip_h = dx < 0
+	_target_position = Vector2(target_x, _dash_target.global_position.y)
 
 	# Vertical impulse fijo, solo en magnetic
 	if _mode == "magnetic":
@@ -95,16 +97,57 @@ func exit() -> void:
 func physics_update(delta: float) -> StringName:
 	phase_timer += delta
 
-	if not kive.is_on_floor():
-		kive.velocity.y += stats.gravity * delta
-
 	match phase:
 		"active":
-			kive.velocity.x = _dash_direction * _dash_speed
+			# Update target position if target still valid (tracking)
+			if _dash_target != null and is_instance_valid(_dash_target):
+				_target_position = Vector2(
+					_dash_target.global_position.x - sign(_dash_direction) * stats.dash_target_offset,
+					_dash_target.global_position.y
+				)
+
+			var progress: float = phase_timer / _dash_active_duration if _dash_active_duration > 0 else 1.0
+
+			if progress < stats.dash_teleport_threshold:
+				# Primera mitad: dash puro con gravedad + move_and_slide
+				if not kive.is_on_floor():
+					kive.velocity.y += stats.gravity * delta
+				kive.velocity.x = _dash_direction * _dash_speed
+				kive.move_and_slide()
+			else:
+				# Segunda mitad: teleport progresivo XY, sin gravedad, sin move_and_slide
+				var teleport_progress: float = (progress - stats.dash_teleport_threshold) / (1.0 - stats.dash_teleport_threshold)
+				var lerp_factor: float = pow(teleport_progress, stats.dash_teleport_curve) * 0.5
+				kive.global_position.x = lerp(kive.global_position.x, _target_position.x, lerp_factor)
+				kive.global_position.y = lerp(kive.global_position.y, _target_position.y, lerp_factor)
+				kive.velocity.x = _dash_direction * _dash_speed * (1.0 - lerp_factor * 2.0)
+				kive.velocity.y *= (1.0 - lerp_factor * 2.0)
+
 			if phase_timer >= _dash_active_duration:
+				# Snap final + zero velocity + recalc floor detection
+				kive.global_position.x = _target_position.x
+				kive.global_position.y = _target_position.y
+				kive.velocity = Vector2.ZERO
+				kive.move_and_slide()
+				# Finisher
+				if kive._pending_finisher == "w":
+					var next_state: StringName = kive.get_w_chain_next()
+					if next_state == &"":
+						next_state = &"Jab"
+					if DebugOverlay.show_debug_text:
+						print("[DashOffensive] FINISHER W → %s" % next_state)
+					kive._pending_finisher = ""
+					return next_state
+				elif kive._pending_finisher == "q":
+					if DebugOverlay.show_debug_text:
+						print("[DashOffensive] FINISHER Q → FrontalKick")
+					kive._pending_finisher = ""
+					return &"FrontalKick"
 				phase = "recovery"
 				phase_timer = 0.0
 		"recovery":
+			if not kive.is_on_floor():
+				kive.velocity.y += stats.gravity * delta
 			kive.velocity.x = move_toward(kive.velocity.x, 0, abs(kive.velocity.x) / stats.dash_recovery * delta)
 			# Cancels during recovery
 			if Input.is_action_just_pressed("jump"):
@@ -123,8 +166,8 @@ func physics_update(delta: float) -> StringName:
 				return &"CrouchIdle"
 			if phase_timer >= stats.dash_recovery:
 				return _decide_next_state()
+			kive.move_and_slide()
 
-	kive.move_and_slide()
 	return &""
 
 
