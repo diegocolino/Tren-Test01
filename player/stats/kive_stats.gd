@@ -76,3 +76,8 @@ class_name KiveStats extends Resource
 @export var dash_recovery: float = 0.083
 @export var dash_target_range: float = 600.0
 @export var dash_target_offset: float = 80.0
+
+# ============ SENSIBLE ============
+@export_group("Sensible")
+@export var sensible_window: float = 0.4
+@export var magnetic_speed_multiplier: float = 3.0

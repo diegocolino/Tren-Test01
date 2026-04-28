@@ -45,7 +45,7 @@ func physics_update(delta: float) -> StringName:
 		return chain_next if chain_next != &"" else &"Jab"
 
 	if Input.is_action_just_pressed("dash"):
-		return &"Dash"
+		return kive.decide_dash_state()
 
 	# Salto sale del crouch
 	if Input.is_action_just_pressed("jump") and kive.is_on_floor():

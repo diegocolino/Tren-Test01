@@ -172,6 +172,8 @@ func _resolve_w_hit(hit_type: String, attacker: Node2D) -> void:
 		_airtime_kill_on_land = true
 		_enter_state(DummyState.AIRTIME)
 		sprite.play("airtime")
+		if attacker and attacker.has_method("open_sensible_window"):
+			attacker.open_sensible_window(self)
 		return
 
 	# Cross (W2) / Hook (W3): KO if vulnerable, HIT otherwise
@@ -221,6 +223,8 @@ func _resolve_q_hit(hit_type: String, pos_tier: String, attacker: Node2D) -> voi
 			_airtime_kill_on_land = false
 			_enter_state(DummyState.AIRTIME)
 			sprite.play("airtime")
+			if attacker and attacker.has_method("open_sensible_window"):
+				attacker.open_sensible_window(self)
 
 		_:
 			push_warning("Unknown q hit_type: %s" % hit_type)

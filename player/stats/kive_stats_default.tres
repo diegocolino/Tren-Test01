@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_pna5q")
+dash_target_range = 800.0
+magnetic_speed_multiplier = 4.0
 metadata/_custom_type_script = "uid://bcmausfhwxwyg"
