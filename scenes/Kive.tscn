@@ -24,7 +24,7 @@
 [ext_resource type="Script" uid="uid://b7svjwfvrj1n" path="res://player/states/stealth/crouch_walk.gd" id="25_svsgi"]
 [ext_resource type="Script" uid="uid://drgh8kesodenq" path="res://player/states/stealth/hidden.gd" id="26_6cubt"]
 [ext_resource type="Script" uid="uid://bor6fmkbfb1ue" path="res://player/states/combat/damaged.gd" id="27_jtavh"]
-[ext_resource type="Script" uid="uid://dbswix2d0x5ax" path="res://player/states/combat/execution.gd" id="27_qy68n"]
+[ext_resource type="Script" uid="uid://dbswix2d0x5ax" path="res://player/states/combat/takedown.gd" id="27_qy68n"]
 [ext_resource type="Script" uid="uid://j17gfswk52rv" path="res://player/states/combat/red_fist/cross.gd" id="28_cross"]
 [ext_resource type="Script" uid="uid://doxhiv2mvhwea" path="res://player/states/combat/red_fist/hook.gd" id="29_hook"]
 [ext_resource type="Script" uid="uid://dmavmjafscag2" path="res://player/states/combat/red_fist/uppercut.gd" id="30_upper"]
@@ -199,7 +199,7 @@ script = ExtResource("25_svsgi")
 [node name="Hidden" type="Node" parent="StateMachine" unique_id=382051220]
 script = ExtResource("26_6cubt")
 
-[node name="Execution" type="Node" parent="StateMachine" unique_id=533347304]
+[node name="Takedown" type="Node" parent="StateMachine" unique_id=533347304]
 script = ExtResource("27_qy68n")
 
 [node name="Damaged" type="Node" parent="StateMachine" unique_id=1420396978]

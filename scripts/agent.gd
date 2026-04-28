@@ -877,19 +877,19 @@ func receive_parry() -> void:
 	sprite.play("airtime")
 
 
-# ========== EXECUTION ==========
+# ========== TAKEDOWN ==========
 
-func receive_execution(attacker: Node2D) -> void:
+func receive_takedown(attacker: Node2D) -> void:
 	if state == AgentState.DEAD or state == AgentState.KO:
 		return
-	last_hit_quality = "execution"
-	_ko_type = "execution"
+	last_hit_quality = "takedown"
+	_ko_type = "takedown"
 	_apply_kick_push(attacker)
 	_enter_state(AgentState.KO)
 	sprite.play("ko_floor")
 
 	if DebugOverlay.show_debug_text:
-		print("[Agent] EXECUTION from %s" % attacker.name)
+		print("[Agent] TAKEDOWN from %s" % attacker.name)
 
 
 func _trigger_maestro_flash() -> void:

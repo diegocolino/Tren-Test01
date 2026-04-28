@@ -11,7 +11,7 @@ const default_collision_height: float = 200.0
 var control_enabled: bool = true
 var is_crouched: bool = false
 var is_hidden: bool = false
-var is_finisher: bool = false
+var is_takedown: bool = false
 var current_attack_type: String = "none"
 var current_hit_type: String = "none"
 var _air_jumps_left: int = 0
@@ -32,7 +32,7 @@ var is_attacking: bool:
 	get:
 		if not state_machine:
 			return false
-		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"FrontalKick", &"Execution"]
+		return state_machine.current_state_name in [&"Jab", &"Cross", &"Hook", &"Uppercut", &"FrontalKick", &"Takedown"]
 
 ## Stubs — PunchCharging/PunchCharged eliminados en V1.1.
 ## Se mantienen para compatibilidad con agent.gd y debug_hud.gd.
@@ -118,8 +118,8 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 	if not is_attacking:
 		return
 	if body.is_in_group("agent"):
-		if is_finisher and body.has_method("receive_execution"):
-			body.receive_execution(self)
+		if is_takedown and body.has_method("receive_takedown"):
+			body.receive_takedown(self)
 		elif body.has_method("receive_hit_from"):
 			body.receive_hit_from(self, current_hit_type)
 			if current_attack_type == "punch":
@@ -376,7 +376,7 @@ func reset_state() -> void:
 	_parry_window_timer = 999.0
 	_punch_hitbox_active_frames = 0
 	_kick_hitbox_active_frames = 0
-	is_finisher = false
+	is_takedown = false
 	_air_jumps_left = 0
 	reset_w_chain()
 	_sensible_target = null

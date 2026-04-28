@@ -38,9 +38,9 @@ func physics_update(delta: float) -> StringName:
 		if Input.is_action_just_pressed("crouch"):
 			return _decide_uncrouched_state()
 
-	# Q desde Hidden → Execution
+	# Q desde Hidden → Takedown
 	if Input.is_action_just_pressed("attack_kick"):
-		return &"Execution"
+		return &"Takedown"
 
 	# W desde Hidden → unhide + Jab (o siguiente del chain)
 	if Input.is_action_just_pressed("attack_punch"):

@@ -44,7 +44,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_finisher = false
+	kive.is_takedown = false
 	kive.current_attack_type = "none"
 	kive.q_context = ""
 

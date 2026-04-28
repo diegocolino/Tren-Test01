@@ -1,5 +1,5 @@
-## Ejecucion desde Hidden. Usa receive_execution en lugar de receive_hit_from.
-class_name Execution extends State
+## Takedown desde Hidden. Usa receive_takedown en lugar de receive_hit_from.
+class_name Takedown extends State
 
 var kive: Kive
 var stats: KiveStats
@@ -17,8 +17,8 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive.sprite.modulate.a = 1.0
 	kive._update_collision_shape()
 
-	# Setup de execution
-	kive.is_finisher = true
+	# Setup de takedown
+	kive.is_takedown = true
 	kive.current_attack_type = "kick"
 
 	phase = "anticipation"
@@ -27,7 +27,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
-	kive.is_finisher = false
+	kive.is_takedown = false
 	kive.current_attack_type = "none"
 
 
