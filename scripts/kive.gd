@@ -157,6 +157,26 @@ func _on_dive_hitbox_body_entered(body: Node2D) -> void:
 	deactivate_dive_hitbox()
 
 
+# ========== DASH TARGETING ==========
+
+func find_closest_agent_in_direction(direction: float) -> Node2D:
+	var closest: Node2D = null
+	var closest_dist: float = INF
+	for agent: Node in get_tree().get_nodes_in_group("agent"):
+		if not is_instance_valid(agent):
+			continue
+		if agent.has_method("is_dash_target") and not agent.is_dash_target():
+			continue
+		var dx: float = agent.global_position.x - global_position.x
+		if sign(dx) != sign(direction):
+			continue
+		var dist: float = global_position.distance_to(agent.global_position)
+		if dist < closest_dist:
+			closest_dist = dist
+			closest = agent
+	return closest
+
+
 # ========== W CHAIN ==========
 
 func is_chain_active() -> bool:

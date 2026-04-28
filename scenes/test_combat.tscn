@@ -36,7 +36,7 @@ color = Color(0.3, 0.3, 0.35, 1)
 position = Vector2(600, 680)
 
 [node name="AgentDummy" type="CharacterBody2D" parent="." unique_id=499199927 groups=["agent"]]
-position = Vector2(1300, 744)
+position = Vector2(1304, 744)
 collision_layer = 4
 collision_mask = 8
 script = ExtResource("2_dummy")
@@ -46,6 +46,8 @@ dive_ground_knockback_vertical = 1600.0
 dive_ground_knockback_horizontal = 400.0
 dive_air_knockback_horizontal = 1600.0
 dive_air_knockback_vertical = 400.0
+airtime_push_horizontal = 400.0
+airtime_push_vertical = 800.0
 facing_right = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentDummy" unique_id=657019883]
@@ -68,6 +70,45 @@ position = Vector2(0, -64)
 shape = SubResource("dummy_hurtbox_shape")
 
 [node name="DebugLabel" type="Label" parent="AgentDummy" unique_id=133985967]
+offset_left = -100.0
+offset_top = -260.0
+offset_right = 100.0
+offset_bottom = -235.0
+horizontal_alignment = 1
+
+[node name="AgentDummy2" type="CharacterBody2D" parent="." unique_id=285197136 groups=["agent"]]
+position = Vector2(1900, 744)
+collision_layer = 4
+collision_mask = 8
+script = ExtResource("2_dummy")
+kick_push_distance = 400.0
+kick_push_duration = 0.4
+dive_ground_knockback_vertical = 1600.0
+dive_ground_knockback_horizontal = 400.0
+dive_air_knockback_horizontal = 1600.0
+dive_air_knockback_vertical = 400.0
+facing_right = false
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentDummy2" unique_id=75158230]
+position = Vector2(0, -90)
+sprite_frames = ExtResource("3_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AgentDummy2" unique_id=560819026]
+position = Vector2(0, -64)
+shape = SubResource("dummy_body_shape")
+
+[node name="Hurtbox" type="Area2D" parent="AgentDummy2" unique_id=52186845]
+z_index = 5
+collision_layer = 4
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AgentDummy2/Hurtbox" unique_id=1339843378]
+position = Vector2(0, -64)
+shape = SubResource("dummy_hurtbox_shape")
+
+[node name="DebugLabel" type="Label" parent="AgentDummy2" unique_id=1498291448]
 offset_left = -100.0
 offset_top = -260.0
 offset_right = 100.0

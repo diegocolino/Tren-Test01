@@ -356,6 +356,10 @@ func get_position_tier_of(other: Node2D) -> String:
 	return _get_position_tier(other)
 
 
+func is_dash_target() -> bool:
+	return state != DummyState.DEAD
+
+
 # ========== ANIMATION SEQUENCES ==========
 
 func _play_anim_chain(chain: Array[String]) -> void:

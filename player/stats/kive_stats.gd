@@ -74,3 +74,5 @@ class_name KiveStats extends Resource
 @export var dash_duration: float = 0.133
 @export var dash_distance_neutral: float = 280.0
 @export var dash_recovery: float = 0.083
+@export var dash_target_range: float = 600.0
+@export var dash_target_offset: float = 80.0
