@@ -1,6 +1,6 @@
-## FlaiPure — default state. Flai operating as universal assistant.
-## Reads alarm data from FlaiAlarm and computes Kive's status.
-class_name FlaiPure extends FlaiState
+## FlaiKilima — default state. Flai operating as Kilima's universal assistant.
+## The humanity-as-protocol (lore §5.1). Reads alarm data and computes status.
+class_name FlaiKilima extends FlaiState
 
 const DANGEROUS_KILL_THRESHOLD: int = 3
 

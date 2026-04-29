@@ -14,7 +14,7 @@ var _states: Dictionary = {}  # StringName -> FlaiState
 
 # Maps Mode enum to state node names.
 const MODE_TO_STATE: Dictionary = {
-	Mode.FLAI: &"FlaiPure",
+	Mode.FLAI: &"FlaiKilima",
 	Mode.LEN_FLAI: &"LenFlaiState",
 	Mode.LEN_SOUL: &"LenSoulState",
 	Mode.LEN_ETHER: &"LenEtherState",
@@ -23,7 +23,7 @@ const MODE_TO_STATE: Dictionary = {
 
 func _ready() -> void:
 	var state_defs: Array[Dictionary] = [
-		{"name": "FlaiPure", "script": FlaiPure},
+		{"name": "FlaiKilima", "script": FlaiKilima},
 		{"name": "LenFlaiState", "script": LenFlaiState},
 		{"name": "LenSoulState", "script": LenSoulState},
 		{"name": "LenEtherState", "script": LenEtherState},
@@ -35,7 +35,7 @@ func _ready() -> void:
 		add_child(state)
 		_states[StringName(def["name"])] = state
 
-	_transition_to(&"FlaiPure")
+	_transition_to(&"FlaiKilima")
 
 
 func _process(delta: float) -> void:
@@ -47,12 +47,12 @@ func set_mode(mode: Mode) -> void:
 	if mode == current_mode:
 		return
 	current_mode = mode
-	var target: StringName = MODE_TO_STATE.get(mode, &"FlaiPure")
+	var target: StringName = MODE_TO_STATE.get(mode, &"FlaiKilima")
 	_transition_to(target)
 
 
-func is_flai_pure() -> bool:
-	return _current_state is FlaiPure
+func is_flai_kilima() -> bool:
+	return _current_state is FlaiKilima
 
 
 func _transition_to(target: StringName, msg: Dictionary = {}) -> void:
