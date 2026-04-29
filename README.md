@@ -10,6 +10,7 @@ Proyecto en desarrollo. Primer prototipo del Vagón 1.
 - **Movimiento V1** ✅ (Idle, Walk, Run, Jump, AirJump, Dive)
 - **Sigilo V1** ✅ (Crouch, Hidden, Takedown)
 - **Combate V1.3** ✅ (W chain + Q + cross-cancels + kill selectiva + aéreo + Dive-attack + Dash cinematico + finishers E+W/E+Q + multi-target)
+- **Len-Flai V0.1** ✅ (HUD de Flai funcional con datos reales)
 - **Detección centralizada** 📋 planeada
 - **Vagón 2 (Yeri)** 📋 planeado
 
@@ -39,7 +40,10 @@ Configurables desde el menú de pausa (ESC). Defaults:
 - Q — kick
 - F1–F4 — debug overlay
 
-## Tag de referencia
+## Tags de referencia
 
-`refactor-complete` — punto en el que el refactor de Kive a state machine
-quedó cerrado. Volver aquí si algo se rompe en commits futuros.
+- `refactor-complete` — punto en el que el refactor de Kive a state machine
+  quedó cerrado. Volver aquí si algo se rompe en commits futuros.
+- `combat-v1.3` — combate cinemático cerrado (cap. V1.3 del roadmap).
+- `lenflai-v0.1` — HUD funcional de Flai con datos reales. Sin Len todavía.
+- Sistema Flai: vive en `scripts/flai/`. Singleton de alarma: `FlaiAlarm`.
