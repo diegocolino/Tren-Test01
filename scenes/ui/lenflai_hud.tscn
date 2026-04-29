@@ -1,6 +1,5 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" uid="uid://kott6h156hnq" path="res://assets/Flai-HUD_Sprite.png" id="1_flai_sprite"]
 [ext_resource type="Script" path="res://scripts/flai/lenflai_hud.gd" id="2_hud_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
@@ -35,12 +34,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="FlaiSprite" type="TextureRect" parent="HUDContainer/HBox"]
+[node name="SpriteAnchor" type="Control" parent="HUDContainer/HBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(64, 64)
-texture = ExtResource("1_flai_sprite")
-expand_mode = 1
-stretch_mode = 5
+
+[node name="FlaiSprite" type="AnimatedSprite2D" parent="HUDContainer/HBox/SpriteAnchor"]
+position = Vector2(32, 32)
+scale = Vector2(0.25, 0.25)
 
 [node name="DataLabels" type="VBoxContainer" parent="HUDContainer/HBox"]
 layout_mode = 2
