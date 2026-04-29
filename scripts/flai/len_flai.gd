@@ -20,6 +20,10 @@ var _thresholds_triggered: Array[bool] = [false, false, false]
 var _prev_alarm: int = 0
 var _auto_return_timer: float = -1.0
 
+# Len-soul safety timer — TUNABLE
+const LEN_SOUL_MAX_DURATION: float = 8.0  # TUNABLE
+var _len_soul_timer: float = -1.0
+
 # State machine internals.
 var _current_state: FlaiState
 var _states: Dictionary = {}  # StringName -> FlaiState
@@ -32,9 +36,14 @@ const MODE_TO_STATE: Dictionary = {
 	Mode.LEN_ETHER: &"LenEtherState",
 }
 
-# Signal for HUD to know a trigger fired (HUD drives the animation).
+# Signals for HUD (HUD drives visual transitions).
 signal trigger_len_flai(duration: float, threshold_alarm: int)
 signal trigger_return_flai()
+signal trigger_len_soul()
+signal trigger_exit_len_soul()
+
+# World overlay reference — registered by WorldOverlay._ready().
+var _world_overlay: Node = null
 
 
 func _ready() -> void:
@@ -58,8 +67,35 @@ func _process(delta: float) -> void:
 	_update_universal_data()
 	_check_alarm_thresholds()
 	_tick_auto_return(delta)
+	_tick_len_soul_timer(delta)
 	if _current_state:
 		_current_state.update(delta)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event is InputEventKey or not event.pressed:
+		return
+	if event.keycode == KEY_L:
+		_handle_len_soul_input()
+
+
+func _handle_len_soul_input() -> void:
+	if current_mode == Mode.LEN_SOUL:
+		# Toggle off
+		_len_soul_timer = -1.0
+		if DebugOverlay.show_debug_text:
+			print("[LenFlai] L pressed — exiting LenSoul")
+		trigger_exit_len_soul.emit()
+		return
+
+	if current_mode in [Mode.FLAI, Mode.LEN_FLAI]:
+		# Cancel any active Len-flai trigger
+		cancel_auto_return()
+		if DebugOverlay.show_debug_text:
+			print("[LenFlai] L pressed — entering LenSoul (from=%s)" % Mode.keys()[current_mode])
+		_len_soul_timer = LEN_SOUL_MAX_DURATION
+		trigger_len_soul.emit()
+		return
 
 
 func _update_universal_data() -> void:
@@ -87,20 +123,23 @@ func _check_alarm_thresholds() -> void:
 			var duration: float = ALARM_THRESHOLDS[i]["duration"]
 			if DebugOverlay.show_debug_text:
 				print("[FlaiSM] threshold reached | alarm=%d | duration=%ss" % [threshold, duration])
-			_fire_len_flai_trigger(duration, threshold)
+			# LenSoul has absolute priority — consume threshold silently
+			if current_mode == Mode.LEN_SOUL:
+				if DebugOverlay.show_debug_text:
+					print("[FlaiSM] threshold consumed silently — LenSoul active")
+			else:
+				_fire_len_flai_trigger(duration, threshold)
 	_prev_alarm = alarm
 
 
 func _fire_len_flai_trigger(duration: float, threshold_alarm: int) -> void:
 	if current_mode == Mode.LEN_FLAI and _auto_return_timer > 0:
-		# Already in triggered Len-flai — refresh timer
 		_auto_return_timer = duration
 		if DebugOverlay.show_debug_text:
 			print("[FlaiSM] trigger refresh | duration=%ss" % duration)
 		return
 
 	if current_mode != Mode.FLAI:
-		# Don't interrupt non-Flai modes
 		return
 
 	_auto_return_timer = duration
@@ -119,12 +158,21 @@ func _tick_auto_return(delta: float) -> void:
 			trigger_return_flai.emit()
 
 
+func _tick_len_soul_timer(delta: float) -> void:
+	if _len_soul_timer <= 0:
+		return
+	_len_soul_timer -= delta
+	if _len_soul_timer <= 0:
+		_len_soul_timer = -1.0
+		if current_mode == Mode.LEN_SOUL:
+			if DebugOverlay.show_debug_text:
+				print("[LenFlai] LenSoul auto-exit (8s safety)")
+			trigger_exit_len_soul.emit()
+
+
 func cancel_auto_return() -> void:
 	_auto_return_timer = -1.0
 
-
-# World overlay reference — registered by WorldOverlay._ready().
-var _world_overlay: Node = null
 
 func register_world_overlay(overlay: Node) -> void:
 	_world_overlay = overlay

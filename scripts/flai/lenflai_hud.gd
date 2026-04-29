@@ -42,6 +42,8 @@ func _ready() -> void:
 	flai_sprite.animation_finished.connect(_on_animation_finished)
 	LenFlai.trigger_len_flai.connect(_on_trigger_len_flai)
 	LenFlai.trigger_return_flai.connect(_on_trigger_return_flai)
+	LenFlai.trigger_len_soul.connect(_on_trigger_len_soul)
+	LenFlai.trigger_exit_len_soul.connect(_on_trigger_exit_len_soul)
 	dialog_label.modulate.a = 0.0
 	white_flash.modulate.a = 0.0
 
@@ -59,6 +61,10 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event.keycode == KEY_F:
+		if LenFlai.current_mode == LenFlai.Mode.LEN_SOUL:
+			if DebugOverlay.show_debug_text:
+				print("[LenFlai] F ignored — LenSoul active")
+			return
 		if _transitioning:
 			if DebugOverlay.show_debug_text:
 				print("[FlaiSM] toggle ignored — transition in progress")
@@ -86,6 +92,20 @@ func _on_trigger_return_flai() -> void:
 		return
 	if LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
 		_start_transition_to_flai()
+
+
+func _on_trigger_len_soul() -> void:
+	if _transitioning:
+		if DebugOverlay.show_debug_text:
+			print("[LenFlai] L ignored — transition in progress")
+		return
+	trigger_len_soul_visual()
+
+
+func _on_trigger_exit_len_soul() -> void:
+	if _transitioning:
+		return
+	exit_len_soul_visual()
 
 
 # ========== Flai ↔ Len-flai transitions ==========
@@ -165,12 +185,14 @@ func _swap_to_len_soul() -> void:
 	flai_sprite.play(&"len_soul_idle")
 	_tween_sprite(LEN_SOUL_SCALE, LEN_SOUL_POS)
 	_tween_labels(0.0)
+	LenFlai.set_mode(LenFlai.Mode.LEN_SOUL)
 
 
 func _swap_from_len_soul() -> void:
 	flai_sprite.play(&"flai_idle")
 	_tween_sprite(FLAI_SCALE, FLAI_POS)
 	_tween_labels(1.0)
+	LenFlai.set_mode(LenFlai.Mode.FLAI)
 
 
 # ========== Shared visual helpers ==========
