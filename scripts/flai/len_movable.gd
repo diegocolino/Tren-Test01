@@ -58,6 +58,8 @@ func _end_drag() -> void:
 		print("[LenMovable] drag END | label=%s | new_pos=%s" % [movable_label, str(global_position)])
 
 
+# Edge case: Len-soul exit mid-drag — object dropped at current position.
+# Covered by _force_drop() connected to trigger_exit_len_soul signal in _ready().
 func _force_drop() -> void:
 	if _dragging:
 		_end_drag()

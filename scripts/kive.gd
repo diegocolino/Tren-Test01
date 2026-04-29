@@ -439,6 +439,7 @@ func _on_len_soul_enter() -> void:
 func _on_len_soul_exit() -> void:
 	if state_machine and state_machine.current_state_name == &"LenSoulPassive":
 		var passive: LenSoulPassive = state_machine.current_state as LenSoulPassive
+		passive._exiting_normally = true
 		state_machine.transition_to(passive.get_restore_state())
 
 

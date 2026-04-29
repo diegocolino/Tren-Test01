@@ -6,6 +6,7 @@ class_name LenSoulPassive extends State
 var kive: Kive
 var stats: KiveStats
 var _state_to_restore: StringName = &"Idle"
+var _exiting_normally: bool = false
 
 
 func enter(prev_state: StringName, _msg: Dictionary = {}) -> void:
@@ -18,6 +19,17 @@ func enter(prev_state: StringName, _msg: Dictionary = {}) -> void:
 
 
 func exit() -> void:
+	if not _exiting_normally:
+		# Forced exit (damage/respawn) — LenFlai didn't initiate the exit.
+		# Clean up world state directly. Do NOT emit trigger_exit_len_soul
+		# to avoid infinite recursion with _on_len_soul_exit.
+		if DebugOverlay.show_debug_text:
+			print("[LenFlai] edge case: Kive died during LenSoul — forcing visual exit")
+		LenFlai._len_soul_timer = -1.0
+		LenFlai.world_overlay_fade_out()
+		LenFlai.set_len_movables_highlight(false)
+		LenFlai.set_mode(LenFlai.Mode.FLAI)
+	_exiting_normally = false
 	if DebugOverlay.show_debug_text:
 		print("[LenSoulPassive] exit | returning to=%s" % _state_to_restore)
 

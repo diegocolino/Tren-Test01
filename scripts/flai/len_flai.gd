@@ -123,7 +123,9 @@ func _check_alarm_thresholds() -> void:
 			var duration: float = ALARM_THRESHOLDS[i]["duration"]
 			if DebugOverlay.show_debug_text:
 				print("[FlaiSM] threshold reached | alarm=%d | duration=%ss" % [threshold, duration])
-			# LenSoul has absolute priority — consume threshold silently
+			# Simplificacion intencional (V0.3 sub-paso 3.3): los umbrales de alarm
+			# que se cruzan durante LenSoul se consumen silenciosamente.
+			# El jugador no nota el Len-flai que "se perdio" — narrativamente aceptable.
 			if current_mode == Mode.LEN_SOUL:
 				if DebugOverlay.show_debug_text:
 					print("[FlaiSM] threshold consumed silently — LenSoul active")
