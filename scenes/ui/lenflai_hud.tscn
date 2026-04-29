@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Texture2D" uid="uid://kott6h156hnq" path="res://assets/Flai-HUD_Sprite.png" id="1_flai_sprite"]
+[ext_resource type="Script" path="res://scripts/flai/lenflai_hud.gd" id="2_hud_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.05, 0.08, 0.12, 0.7)
@@ -15,6 +16,7 @@ content_margin_bottom = 8.0
 
 [node name="LenFlaiHUD" type="CanvasLayer"]
 layer = 10
+script = ExtResource("2_hud_script")
 
 [node name="HUDContainer" type="MarginContainer" parent="."]
 anchors_preset = 0
