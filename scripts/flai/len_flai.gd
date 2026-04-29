@@ -170,6 +170,14 @@ func _tick_len_soul_timer(delta: float) -> void:
 			trigger_exit_len_soul.emit()
 
 
+func force_len_soul(duration: float) -> void:
+	cancel_auto_return()
+	_len_soul_timer = duration
+	if DebugOverlay.show_debug_text:
+		print("[LenFlai] force_len_soul | duration=%.1fs" % duration)
+	trigger_len_soul.emit()
+
+
 func cancel_auto_return() -> void:
 	_auto_return_timer = -1.0
 

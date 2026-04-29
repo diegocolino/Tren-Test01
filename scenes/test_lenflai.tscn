@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://byk05mha1lvki" path="res://scenes/Kive.tscn" id="1_kive"]
 [ext_resource type="PackedScene" path="res://scenes/ui/lenflai_hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/world_overlay.tscn" id="6_overlay"]
+[ext_resource type="PackedScene" path="res://scenes/objects/len_soul_tutorial_trigger.tscn" id="7_tutorial"]
 [ext_resource type="Script" uid="uid://drb0lcffc3ax0" path="res://scripts/agent_dummy.gd" id="2_dummy"]
 [ext_resource type="SpriteFrames" uid="uid://bi8g0p5hji37x" path="res://resources/agent_frames.tres" id="3_frames"]
 
@@ -73,6 +74,9 @@ offset_top = -260.0
 offset_right = 100.0
 offset_bottom = -235.0
 horizontal_alignment = 1
+
+[node name="LenSoulTutorialTrigger" parent="." instance=ExtResource("7_tutorial")]
+position = Vector2(900, 680)
 
 [node name="WorldOverlay" parent="." instance=ExtResource("6_overlay")]
 
