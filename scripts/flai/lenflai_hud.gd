@@ -5,18 +5,28 @@ extends CanvasLayer
 @onready var agents_down_label: Label = $HUDContainer/HBox/DataLabels/AgentsDownLabel
 @onready var data_labels: VBoxContainer = $HUDContainer/HBox/DataLabels
 @onready var flai_sprite: AnimatedSprite2D = $HUDContainer/HBox/SpriteAnchor/FlaiSprite
+@onready var dialog_label: Label = $DialogLabel
 
 var _flai_tex: Texture2D = preload("res://assets/Flai-HUD_Sprite.png")
 var _len_flai_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Sprite.png")
 var _transition_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Transition_Sprite.png")
 
 var _transitioning: bool = false
+var _pending_threshold: int = -1  # -1 = manual/none, >0 = alarm threshold that triggered
 
 const FLAI_SCALE: float = 0.4
 const LEN_FLAI_SCALE: float = 0.7
 const FLAI_POS := Vector2(51, 51)
 const LEN_FLAI_POS := Vector2(90, 90)
 const TRANSITION_DURATION: float = 0.5
+const DIALOG_FADE_DURATION: float = 0.3  # TUNABLE
+
+# TODO: replace with dialog system when available (V1.X+)
+const DIALOG_BY_THRESHOLD: Dictionary = {
+	3: "deberías llevar cuidado, esto no va a salir bien",
+	6: "esto se está yendo de las manos",
+	9: "para. por favor.",
+}
 
 
 func _ready() -> void:
@@ -27,6 +37,7 @@ func _ready() -> void:
 	flai_sprite.animation_finished.connect(_on_animation_finished)
 	LenFlai.trigger_len_flai.connect(_on_trigger_len_flai)
 	LenFlai.trigger_return_flai.connect(_on_trigger_return_flai)
+	dialog_label.modulate.a = 0.0
 
 
 func _process(_delta: float) -> void:
@@ -48,17 +59,19 @@ func _input(event: InputEvent) -> void:
 			return
 		if LenFlai.is_flai_kilima():
 			LenFlai.cancel_auto_return()
+			_pending_threshold = -1  # manual — no dialog
 			_start_transition_to_len_flai()
 		elif LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
 			LenFlai.cancel_auto_return()
 			_start_transition_to_flai()
 
 
-func _on_trigger_len_flai(_duration: float) -> void:
+func _on_trigger_len_flai(_duration: float, threshold_alarm: int) -> void:
 	if _transitioning:
 		if DebugOverlay.show_debug_text:
 			print("[FlaiSM] trigger ignored — transition in progress")
 		return
+	_pending_threshold = threshold_alarm
 	_start_transition_to_len_flai()
 
 
@@ -78,6 +91,7 @@ func _start_transition_to_len_flai() -> void:
 
 func _start_transition_to_flai() -> void:
 	_transitioning = true
+	_fade_dialog_out()
 	flai_sprite.play(&"transition_to_flai")
 	_tween_sprite(FLAI_SCALE, FLAI_POS)
 	_tween_labels(1.0)
@@ -89,10 +103,36 @@ func _on_animation_finished() -> void:
 			flai_sprite.play(&"len_flai_idle")
 			LenFlai.set_mode(LenFlai.Mode.LEN_FLAI)
 			_transitioning = false
+			_show_dialog_if_triggered()
 		&"transition_to_flai":
 			flai_sprite.play(&"flai_idle")
 			LenFlai.set_mode(LenFlai.Mode.FLAI)
 			_transitioning = false
+
+
+func _show_dialog_if_triggered() -> void:
+	if _pending_threshold < 0:
+		return
+	var text: String = DIALOG_BY_THRESHOLD.get(_pending_threshold, "")
+	if text.is_empty():
+		_pending_threshold = -1
+		return
+	dialog_label.text = text
+	var tween: Tween = create_tween()
+	tween.tween_property(dialog_label, "modulate:a", 1.0, DIALOG_FADE_DURATION)
+	if DebugOverlay.show_debug_text:
+		print("[LenFlaiState] dialogo activado | trigger=threshold_%d | text=\"%s\"" % [_pending_threshold, text])
+	_pending_threshold = -1
+
+
+func _fade_dialog_out() -> void:
+	if dialog_label.modulate.a <= 0.0:
+		return
+	var tween: Tween = create_tween()
+	tween.tween_property(dialog_label, "modulate:a", 0.0, DIALOG_FADE_DURATION)
+	tween.tween_callback(func() -> void: dialog_label.text = "")
+	if DebugOverlay.show_debug_text:
+		print("[LenFlaiState] dialogo desactivado")
 
 
 func _tween_sprite(target_scale: float, target_pos: Vector2) -> void:

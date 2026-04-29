@@ -33,7 +33,7 @@ const MODE_TO_STATE: Dictionary = {
 }
 
 # Signal for HUD to know a trigger fired (HUD drives the animation).
-signal trigger_len_flai(duration: float)
+signal trigger_len_flai(duration: float, threshold_alarm: int)
 signal trigger_return_flai()
 
 
@@ -87,11 +87,11 @@ func _check_alarm_thresholds() -> void:
 			var duration: float = ALARM_THRESHOLDS[i]["duration"]
 			if DebugOverlay.show_debug_text:
 				print("[FlaiSM] threshold reached | alarm=%d | duration=%ss" % [threshold, duration])
-			_fire_len_flai_trigger(duration)
+			_fire_len_flai_trigger(duration, threshold)
 	_prev_alarm = alarm
 
 
-func _fire_len_flai_trigger(duration: float) -> void:
+func _fire_len_flai_trigger(duration: float, threshold_alarm: int) -> void:
 	if current_mode == Mode.LEN_FLAI and _auto_return_timer > 0:
 		# Already in triggered Len-flai — refresh timer
 		_auto_return_timer = duration
@@ -104,7 +104,7 @@ func _fire_len_flai_trigger(duration: float) -> void:
 		return
 
 	_auto_return_timer = duration
-	trigger_len_flai.emit(duration)
+	trigger_len_flai.emit(duration, threshold_alarm)
 
 
 func _tick_auto_return(delta: float) -> void:

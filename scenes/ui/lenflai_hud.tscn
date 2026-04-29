@@ -1,13 +1,12 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://uyxqlg6ayd20"]
 
-[ext_resource type="Script" path="res://scripts/flai/lenflai_hud.gd" id="2_hud_script"]
+[ext_resource type="Script" uid="uid://cbs7bofmq6odm" path="res://scripts/flai/lenflai_hud.gd" id="2_hud_script"]
 
-[node name="LenFlaiHUD" type="CanvasLayer"]
+[node name="LenFlaiHUD" type="CanvasLayer" unique_id=420319300]
 layer = 10
 script = ExtResource("2_hud_script")
 
-[node name="HUDContainer" type="MarginContainer" parent="."]
-anchors_preset = 0
+[node name="HUDContainer" type="MarginContainer" parent="." unique_id=826654104]
 offset_right = 280.0
 offset_bottom = 120.0
 theme_override_constants/margin_left = 16
@@ -15,37 +14,45 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="HBox" type="HBoxContainer" parent="HUDContainer"]
+[node name="HBox" type="HBoxContainer" parent="HUDContainer" unique_id=1877800068]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="SpriteAnchor" type="Control" parent="HUDContainer/HBox"]
-layout_mode = 2
+[node name="SpriteAnchor" type="Control" parent="HUDContainer/HBox" unique_id=1332488307]
 custom_minimum_size = Vector2(102, 102)
+layout_mode = 2
 
-[node name="FlaiSprite" type="AnimatedSprite2D" parent="HUDContainer/HBox/SpriteAnchor"]
+[node name="FlaiSprite" type="AnimatedSprite2D" parent="HUDContainer/HBox/SpriteAnchor" unique_id=201202669]
 position = Vector2(51, 51)
 scale = Vector2(0.4, 0.4)
 
-[node name="DataLabels" type="VBoxContainer" parent="HUDContainer/HBox"]
+[node name="DataLabels" type="VBoxContainer" parent="HUDContainer/HBox" unique_id=1152048342]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 2
+alignment = 1
 
-[node name="AlarmLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]
+[node name="AlarmLabel" type="Label" parent="HUDContainer/HBox/DataLabels" unique_id=1352635776]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 14
 text = "ALARM: 0"
 
-[node name="StatusLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]
+[node name="StatusLabel" type="Label" parent="HUDContainer/HBox/DataLabels" unique_id=1911012422]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 14
 text = "STATUS: TRACKED"
 
-[node name="AgentsDownLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]
+[node name="AgentsDownLabel" type="Label" parent="HUDContainer/HBox/DataLabels" unique_id=1541202370]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 14
 text = "AGENTS DOWN: 0"
+
+[node name="DialogLabel" type="Label" parent="." unique_id=1394166360]
+offset_left = 192.0
+offset_top = 88.0
+offset_right = 576.0
+offset_bottom = 128.0
+theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 0.9)
+theme_override_font_sizes/font_size = 16
