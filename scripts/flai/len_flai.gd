@@ -10,6 +10,16 @@ var agents_down: int = 0
 
 const DANGEROUS_KILL_THRESHOLD: int = 3
 
+# Alarm threshold triggers — TUNABLE
+const ALARM_THRESHOLDS: Array[Dictionary] = [
+	{"alarm": 3, "duration": 2.0},  # TUNABLE
+	{"alarm": 6, "duration": 3.0},  # TUNABLE
+	{"alarm": 9, "duration": 4.0},  # TUNABLE
+]
+var _thresholds_triggered: Array[bool] = [false, false, false]
+var _prev_alarm: int = 0
+var _auto_return_timer: float = -1.0
+
 # State machine internals.
 var _current_state: FlaiState
 var _states: Dictionary = {}  # StringName -> FlaiState
@@ -21,6 +31,10 @@ const MODE_TO_STATE: Dictionary = {
 	Mode.LEN_SOUL: &"LenSoulState",
 	Mode.LEN_ETHER: &"LenEtherState",
 }
+
+# Signal for HUD to know a trigger fired (HUD drives the animation).
+signal trigger_len_flai(duration: float)
+signal trigger_return_flai()
 
 
 func _ready() -> void:
@@ -42,6 +56,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_universal_data()
+	_check_alarm_thresholds()
+	_tick_auto_return(delta)
 	if _current_state:
 		_current_state.update(delta)
 
@@ -58,6 +74,53 @@ func _update_universal_data() -> void:
 		if DebugOverlay.show_debug_text:
 			print("[LenFlai] status: %s \u2192 %s" % [current_status, new_status])
 		current_status = new_status
+
+
+func _check_alarm_thresholds() -> void:
+	var alarm: int = FlaiAlarm.current_alarm_level
+	for i: int in range(ALARM_THRESHOLDS.size()):
+		if _thresholds_triggered[i]:
+			continue
+		var threshold: int = ALARM_THRESHOLDS[i]["alarm"]
+		if _prev_alarm < threshold and alarm >= threshold:
+			_thresholds_triggered[i] = true
+			var duration: float = ALARM_THRESHOLDS[i]["duration"]
+			if DebugOverlay.show_debug_text:
+				print("[FlaiSM] threshold reached | alarm=%d | duration=%ss" % [threshold, duration])
+			_fire_len_flai_trigger(duration)
+	_prev_alarm = alarm
+
+
+func _fire_len_flai_trigger(duration: float) -> void:
+	if current_mode == Mode.LEN_FLAI and _auto_return_timer > 0:
+		# Already in triggered Len-flai — refresh timer
+		_auto_return_timer = duration
+		if DebugOverlay.show_debug_text:
+			print("[FlaiSM] trigger refresh | duration=%ss" % duration)
+		return
+
+	if current_mode != Mode.FLAI:
+		# Don't interrupt non-Flai modes
+		return
+
+	_auto_return_timer = duration
+	trigger_len_flai.emit(duration)
+
+
+func _tick_auto_return(delta: float) -> void:
+	if _auto_return_timer <= 0:
+		return
+	_auto_return_timer -= delta
+	if _auto_return_timer <= 0:
+		_auto_return_timer = -1.0
+		if current_mode == Mode.LEN_FLAI:
+			if DebugOverlay.show_debug_text:
+				print("[FlaiSM] auto-return to FlaiKilima")
+			trigger_return_flai.emit()
+
+
+func cancel_auto_return() -> void:
+	_auto_return_timer = -1.0
 
 
 func set_mode(mode: Mode) -> void:
@@ -88,4 +151,4 @@ func _transition_to(target: StringName, msg: Dictionary = {}) -> void:
 	_current_state.enter(old_name, msg)
 
 	if DebugOverlay.show_debug_text:
-		print("[FlaiSM] %s → %s" % [old_name, target])
+		print("[FlaiSM] %s \u2192 %s" % [old_name, target])

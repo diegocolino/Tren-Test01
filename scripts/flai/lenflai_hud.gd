@@ -25,6 +25,8 @@ func _ready() -> void:
 	flai_sprite.position = FLAI_POS
 	flai_sprite.play(&"flai_idle")
 	flai_sprite.animation_finished.connect(_on_animation_finished)
+	LenFlai.trigger_len_flai.connect(_on_trigger_len_flai)
+	LenFlai.trigger_return_flai.connect(_on_trigger_return_flai)
 
 
 func _process(_delta: float) -> void:
@@ -45,15 +47,40 @@ func _input(event: InputEvent) -> void:
 				print("[FlaiSM] toggle ignored — transition in progress")
 			return
 		if LenFlai.is_flai_kilima():
-			_transitioning = true
-			flai_sprite.play(&"transition_to_len_flai")
-			_tween_sprite(LEN_FLAI_SCALE, LEN_FLAI_POS)
-			_tween_labels(0.0)
+			LenFlai.cancel_auto_return()
+			_start_transition_to_len_flai()
 		elif LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
-			_transitioning = true
-			flai_sprite.play(&"transition_to_flai")
-			_tween_sprite(FLAI_SCALE, FLAI_POS)
-			_tween_labels(1.0)
+			LenFlai.cancel_auto_return()
+			_start_transition_to_flai()
+
+
+func _on_trigger_len_flai(_duration: float) -> void:
+	if _transitioning:
+		if DebugOverlay.show_debug_text:
+			print("[FlaiSM] trigger ignored — transition in progress")
+		return
+	_start_transition_to_len_flai()
+
+
+func _on_trigger_return_flai() -> void:
+	if _transitioning:
+		return
+	if LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
+		_start_transition_to_flai()
+
+
+func _start_transition_to_len_flai() -> void:
+	_transitioning = true
+	flai_sprite.play(&"transition_to_len_flai")
+	_tween_sprite(LEN_FLAI_SCALE, LEN_FLAI_POS)
+	_tween_labels(0.0)
+
+
+func _start_transition_to_flai() -> void:
+	_transitioning = true
+	flai_sprite.play(&"transition_to_flai")
+	_tween_sprite(FLAI_SCALE, FLAI_POS)
+	_tween_labels(1.0)
 
 
 func _on_animation_finished() -> void:
@@ -83,26 +110,22 @@ func _build_sprite_frames() -> void:
 	var sf := SpriteFrames.new()
 	sf.remove_animation(&"default")
 
-	# flai_idle — 1 frame, loop
 	sf.add_animation(&"flai_idle")
 	sf.set_animation_loop(&"flai_idle", true)
 	sf.set_animation_speed(&"flai_idle", 1.0)
 	sf.add_frame(&"flai_idle", _flai_tex)
 
-	# len_flai_idle — 1 frame, loop
 	sf.add_animation(&"len_flai_idle")
 	sf.set_animation_loop(&"len_flai_idle", true)
 	sf.set_animation_speed(&"len_flai_idle", 1.0)
 	sf.add_frame(&"len_flai_idle", _len_flai_tex)
 
-	# transition_to_len_flai — 5 frames from sheet, order 4→0 (Flai→Len), no loop
 	sf.add_animation(&"transition_to_len_flai")
 	sf.set_animation_loop(&"transition_to_len_flai", false)
 	sf.set_animation_speed(&"transition_to_len_flai", 10.0)
 	for i: int in range(4, -1, -1):
 		sf.add_frame(&"transition_to_len_flai", _make_atlas_frame(i))
 
-	# transition_to_flai — 5 frames from sheet, order 0→4 (Len→Flai), no loop
 	sf.add_animation(&"transition_to_flai")
 	sf.set_animation_loop(&"transition_to_flai", false)
 	sf.set_animation_speed(&"transition_to_flai", 10.0)

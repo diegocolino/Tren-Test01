@@ -38,3 +38,7 @@ func _input(event: InputEvent) -> void:
 			FlaiAlarm.register_kill()
 			if show_debug_text:
 				print("[DEBUG] Manual register_kill | total=%d" % FlaiAlarm.kill_count)
+		elif event.keycode == KEY_J:
+			FlaiAlarm.current_alarm_level += 1
+			if show_debug_text:
+				print("[DEBUG] Manual alarm increment | alarm=%d" % FlaiAlarm.current_alarm_level)
