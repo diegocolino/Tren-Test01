@@ -13,6 +13,7 @@ Proyecto en desarrollo. Primer prototipo del Vagón 1.
 - **Len-Flai V0.1** ✅ (HUD de Flai funcional con datos reales)
 - **Len-Flai V0.2** ✅ (Len-flai con triggers de alarm + diálogo contextual + transición animada)
 - **Len-Flai V0.3** ✅ (Len-soul con hotkey L + mundo en grises + time scale + Kive bloqueado)
+- **Len-Flai V0.4** ✅ (LenMovable: highlight + cursor + click-drag + edge cases)
 - **Detección centralizada** 📋 planeada
 - **Vagón 2 (Yeri)** 📋 planeado
 
@@ -50,4 +51,5 @@ Configurables desde el menú de pausa (ESC). Defaults:
 - `lenflai-v0.1` — HUD funcional de Flai con datos reales. Sin Len todavía.
 - `lenflai-v0.2` — Len-flai funcional con triggers de alarm (3/6/9), diálogo contextual, transición animada.
 - `lenflai-v0.3` — Len-soul funcional. Hotkey L, mundo en grises, time scale 0.3, Kive en LenSoulPassive.
+- `lenflai-v0.4` — LenMovable: highlight en Len-soul, cursor placeholder, click-drag, edge cases.
 - Sistema Flai: vive en `scripts/flai/`. Singleton de alarma: `FlaiAlarm`.
