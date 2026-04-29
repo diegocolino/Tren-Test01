@@ -34,3 +34,7 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_R:
 			for agent: Node in get_tree().get_nodes_in_group("agent"):
 				agent.reset_to_patrol()
+		elif event.keycode == KEY_K:
+			FlaiAlarm.register_kill()
+			if show_debug_text:
+				print("[DEBUG] Manual register_kill | total=%d" % FlaiAlarm.kill_count)
