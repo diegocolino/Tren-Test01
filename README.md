@@ -10,7 +10,9 @@ Proyecto en desarrollo. Primer prototipo del Vagón 1.
 - **Movimiento V1** ✅ (Idle, Walk, Run, Jump, AirJump, Dive)
 - **Sigilo V1** ✅ (Crouch, Hidden, Takedown)
 - **Combate V1.3** ✅ (W chain + Q + cross-cancels + kill selectiva + aéreo + Dive-attack + Dash cinematico + finishers E+W/E+Q + multi-target)
-- **Len-Flai V0.2** ✅ (Len-flai con triggers por alarm + transición animada + diálogo contextual)
+- **Len-Flai V0.1** ✅ (HUD de Flai funcional con datos reales)
+- **Len-Flai V0.2** ✅ (Len-flai con triggers de alarm + diálogo contextual + transición animada)
+- **Len-Flai V0.3** ✅ (Len-soul con hotkey L + mundo en grises + time scale + Kive bloqueado)
 - **Detección centralizada** 📋 planeada
 - **Vagón 2 (Yeri)** 📋 planeado
 
@@ -46,5 +48,6 @@ Configurables desde el menú de pausa (ESC). Defaults:
   quedó cerrado. Volver aquí si algo se rompe en commits futuros.
 - `combat-v1.3` — combate cinemático cerrado (cap. V1.3 del roadmap).
 - `lenflai-v0.1` — HUD funcional de Flai con datos reales. Sin Len todavía.
-- `lenflai-v0.2` — Len-flai con state machine, transición animada, triggers por alarm, diálogo contextual.
+- `lenflai-v0.2` — Len-flai funcional con triggers de alarm (3/6/9), diálogo contextual, transición animada.
+- `lenflai-v0.3` — Len-soul funcional. Hotkey L, mundo en grises, time scale 0.3, Kive en LenSoulPassive.
 - Sistema Flai: vive en `scripts/flai/`. Singleton de alarma: `FlaiAlarm`.
