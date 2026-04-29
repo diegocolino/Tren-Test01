@@ -191,6 +191,12 @@ func world_overlay_fade_in() -> void:
 		_world_overlay.fade_in()
 
 
+func set_len_movables_highlight(active: bool) -> void:
+	for obj: Node in get_tree().get_nodes_in_group("len_movable"):
+		if obj.has_method("set_highlight"):
+			obj.set_highlight(active)
+
+
 func world_overlay_fade_out() -> void:
 	if _world_overlay and _world_overlay.has_method("fade_out"):
 		_world_overlay.fade_out()

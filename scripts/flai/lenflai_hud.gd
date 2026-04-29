@@ -186,12 +186,14 @@ func _swap_to_len_soul() -> void:
 	_tween_sprite(LEN_SOUL_SCALE, LEN_SOUL_POS)
 	_tween_labels(0.0)
 	LenFlai.set_mode(LenFlai.Mode.LEN_SOUL)
+	LenFlai.set_len_movables_highlight(true)
 
 
 func _swap_from_len_soul() -> void:
 	flai_sprite.play(&"flai_idle")
 	_tween_sprite(FLAI_SCALE, FLAI_POS)
 	_tween_labels(1.0)
+	LenFlai.set_len_movables_highlight(false)
 	LenFlai.set_mode(LenFlai.Mode.FLAI)
 
 

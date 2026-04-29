@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/flai/len_movable.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="movable_shape"]
+size = Vector2(80, 80)
+
+[node name="LenMovable" type="RigidBody2D"]
+collision_layer = 8
+collision_mask = 8
+script = ExtResource("1_script")
+
+[node name="Visual" type="ColorRect" parent="."]
+offset_left = -40.0
+offset_top = -40.0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.545, 0.271, 0.075, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("movable_shape")
