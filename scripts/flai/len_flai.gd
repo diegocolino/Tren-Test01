@@ -1,42 +1,74 @@
 extends Node
 
-# NOTA: enum simple en V0.1. Refactor a state machine en V0.2 cuando
-# aparezca la primera transición real (Flai↔Len-flai).
 enum Mode { FLAI, LEN_FLAI, LEN_SOUL, LEN_ETHER }
 var current_mode: Mode = Mode.FLAI
 
-const DANGEROUS_KILL_THRESHOLD: int = 3
-
+# Public data — written by the active state, read by the HUD.
 var current_alarm_level: int = 0
 var current_status: String = "TRACKED"
 var agents_down: int = 0
 
-var _prev_status: String = ""
+# State machine internals.
+var _current_state: FlaiState
+var _states: Dictionary = {}  # StringName -> FlaiState
+
+# Maps Mode enum to state node names.
+const MODE_TO_STATE: Dictionary = {
+	Mode.FLAI: &"FlaiPure",
+	Mode.LEN_FLAI: &"LenFlaiState",
+	Mode.LEN_SOUL: &"LenSoulState",
+	Mode.LEN_ETHER: &"LenEtherState",
+}
 
 
-func _process(_delta: float) -> void:
-	current_alarm_level = FlaiAlarm.current_alarm_level
-	agents_down = FlaiAlarm.kill_count
+func _ready() -> void:
+	var state_defs: Array[Dictionary] = [
+		{"name": "FlaiPure", "script": FlaiPure},
+		{"name": "LenFlaiState", "script": LenFlaiState},
+		{"name": "LenSoulState", "script": LenSoulState},
+		{"name": "LenEtherState", "script": LenEtherState},
+	]
+	for def: Dictionary in state_defs:
+		var state: FlaiState = def["script"].new()
+		state.name = def["name"]
+		state.len_flai = self
+		add_child(state)
+		_states[StringName(def["name"])] = state
 
-	if FlaiAlarm.kill_count >= DANGEROUS_KILL_THRESHOLD:
-		current_status = "ARMED \u00b7 DANGEROUS"
-	else:
-		current_status = "TRACKED"
+	_transition_to(&"FlaiPure")
 
-	if current_status != _prev_status:
-		if DebugOverlay.show_debug_text:
-			print("[LenFlai] status: %s → %s" % [_prev_status, current_status])
-		_prev_status = current_status
+
+func _process(delta: float) -> void:
+	if _current_state:
+		_current_state.update(delta)
 
 
 func set_mode(mode: Mode) -> void:
 	if mode == current_mode:
 		return
-	var old_mode: Mode = current_mode
 	current_mode = mode
-	if DebugOverlay.show_debug_text:
-		print("[LenFlai] mode: %s → %s" % [Mode.keys()[old_mode], Mode.keys()[mode]])
+	var target: StringName = MODE_TO_STATE.get(mode, &"FlaiPure")
+	_transition_to(target)
 
 
 func is_flai_pure() -> bool:
-	return current_mode == Mode.FLAI
+	return _current_state is FlaiPure
+
+
+func _transition_to(target: StringName, msg: Dictionary = {}) -> void:
+	if not _states.has(target):
+		push_error("[FlaiSM] State not found: %s" % target)
+		return
+
+	var old_name: StringName = &""
+	if _current_state:
+		old_name = StringName(_current_state.name)
+		if old_name == target:
+			return
+		_current_state.exit()
+
+	_current_state = _states[target]
+	_current_state.enter(old_name, msg)
+
+	if DebugOverlay.show_debug_text:
+		print("[FlaiSM] %s → %s" % [old_name, target])
