@@ -25,12 +25,17 @@ func _process(_delta: float) -> void:
 
 	if current_status != _prev_status:
 		if DebugOverlay.show_debug_text:
-			print("[LenFlai] status changed: %s → %s" % [_prev_status, current_status])
+			print("[LenFlai] status: %s → %s" % [_prev_status, current_status])
 		_prev_status = current_status
 
 
 func set_mode(mode: Mode) -> void:
+	if mode == current_mode:
+		return
+	var old_mode: Mode = current_mode
 	current_mode = mode
+	if DebugOverlay.show_debug_text:
+		print("[LenFlai] mode: %s → %s" % [Mode.keys()[old_mode], Mode.keys()[mode]])
 
 
 func is_flai_pure() -> bool:
