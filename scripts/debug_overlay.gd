@@ -28,7 +28,7 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_F4:
 			slow_motion = not slow_motion
 			Engine.time_scale = 0.25 if slow_motion else 1.0
-		elif event.keycode == KEY_F:
+		elif event.keycode == KEY_P:
 			freeze = not freeze
 			get_tree().paused = freeze
 		elif event.keycode == KEY_R:

@@ -3,10 +3,12 @@ extends Node
 enum Mode { FLAI, LEN_FLAI, LEN_SOUL, LEN_ETHER }
 var current_mode: Mode = Mode.FLAI
 
-# Public data — written by the active state, read by the HUD.
+# Public data — updated every frame, read by the HUD. Universal across all modes.
 var current_alarm_level: int = 0
 var current_status: String = "TRACKED"
 var agents_down: int = 0
+
+const DANGEROUS_KILL_THRESHOLD: int = 3
 
 # State machine internals.
 var _current_state: FlaiState
@@ -39,8 +41,23 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_universal_data()
 	if _current_state:
 		_current_state.update(delta)
+
+
+func _update_universal_data() -> void:
+	current_alarm_level = FlaiAlarm.current_alarm_level
+	agents_down = FlaiAlarm.kill_count
+
+	var new_status: String = "TRACKED"
+	if FlaiAlarm.kill_count >= DANGEROUS_KILL_THRESHOLD:
+		new_status = "ARMED \u00b7 DANGEROUS"
+
+	if new_status != current_status:
+		if DebugOverlay.show_debug_text:
+			print("[LenFlai] status: %s \u2192 %s" % [current_status, new_status])
+		current_status = new_status
 
 
 func set_mode(mode: Mode) -> void:

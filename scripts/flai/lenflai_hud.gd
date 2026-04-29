@@ -9,16 +9,50 @@ var _flai_tex: Texture2D = preload("res://assets/Flai-HUD_Sprite.png")
 var _len_flai_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Sprite.png")
 var _transition_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Transition_Sprite.png")
 
+var _transitioning: bool = false
+
 
 func _ready() -> void:
 	_build_sprite_frames()
 	flai_sprite.play(&"flai_idle")
+	flai_sprite.animation_finished.connect(_on_animation_finished)
 
 
 func _process(_delta: float) -> void:
 	alarm_label.text = "ALARM: %d" % LenFlai.current_alarm_level
 	status_label.text = "STATUS: %s" % LenFlai.current_status
 	agents_down_label.text = "AGENTS DOWN: %d" % LenFlai.agents_down
+
+
+func _input(event: InputEvent) -> void:
+	if not event is InputEventKey or not event.pressed:
+		return
+	if not DebugOverlay.god_mode:
+		return
+
+	if event.keycode == KEY_F:
+		if _transitioning:
+			if DebugOverlay.show_debug_text:
+				print("[FlaiSM] toggle ignored — transition in progress")
+			return
+		if LenFlai.is_flai_kilima():
+			_transitioning = true
+			flai_sprite.play(&"transition_to_len_flai")
+		elif LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
+			_transitioning = true
+			flai_sprite.play(&"transition_to_flai")
+
+
+func _on_animation_finished() -> void:
+	match flai_sprite.animation:
+		&"transition_to_len_flai":
+			flai_sprite.play(&"len_flai_idle")
+			LenFlai.set_mode(LenFlai.Mode.LEN_FLAI)
+			_transitioning = false
+		&"transition_to_flai":
+			flai_sprite.play(&"flai_idle")
+			LenFlai.set_mode(LenFlai.Mode.FLAI)
+			_transitioning = false
 
 
 func _build_sprite_frames() -> void:
