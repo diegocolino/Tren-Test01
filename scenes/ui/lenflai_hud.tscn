@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" uid="uid://kott6h156hnq" path="res://assets/Flai-HUD_Sprite.png" id="1_flai_sprite"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.05, 0.08, 0.12, 0.7)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+
+[node name="LenFlaiHUD" type="CanvasLayer"]
+layer = 10
+
+[node name="HUDContainer" type="MarginContainer" parent="."]
+anchors_preset = 0
+offset_right = 280.0
+offset_bottom = 120.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="PanelBG" type="Panel" parent="HUDContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+
+[node name="HBox" type="HBoxContainer" parent="HUDContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FlaiSprite" type="TextureRect" parent="HUDContainer/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+texture = ExtResource("1_flai_sprite")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DataLabels" type="VBoxContainer" parent="HUDContainer/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AlarmLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 1)
+text = "ALARM: 0"
+
+[node name="StatusLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 1)
+text = "STATUS: TRACKED"
+
+[node name="AgentsDownLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.66, 0.9, 0.94, 1)
+text = "AGENTS DOWN: 0"
