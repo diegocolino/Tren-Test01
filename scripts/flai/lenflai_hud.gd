@@ -6,20 +6,25 @@ extends CanvasLayer
 @onready var data_labels: VBoxContainer = $HUDContainer/HBox/DataLabels
 @onready var flai_sprite: AnimatedSprite2D = $HUDContainer/HBox/SpriteAnchor/FlaiSprite
 @onready var dialog_label: Label = $DialogLabel
+@onready var white_flash: ColorRect = $WhiteFlash
 
 var _flai_tex: Texture2D = preload("res://assets/Flai-HUD_Sprite.png")
 var _len_flai_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Sprite.png")
+var _len_soul_tex: Texture2D = preload("res://assets/Len-Soul-HUD_Sprite.png")
 var _transition_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Transition_Sprite.png")
 
 var _transitioning: bool = false
-var _pending_threshold: int = -1  # -1 = manual/none, >0 = alarm threshold that triggered
+var _pending_threshold: int = -1
 
 const FLAI_SCALE: float = 0.4
 const LEN_FLAI_SCALE: float = 0.7
+const LEN_SOUL_SCALE: float = 0.9  # TUNABLE
 const FLAI_POS := Vector2(51, 51)
 const LEN_FLAI_POS := Vector2(90, 90)
+const LEN_SOUL_POS := Vector2(115, 115)  # TUNABLE — same growth vector as 2.5
 const TRANSITION_DURATION: float = 0.5
 const DIALOG_FADE_DURATION: float = 0.3  # TUNABLE
+const LEN_SOUL_FLASH_HALF: float = 0.15  # TUNABLE — half of the white flash
 
 # TODO: replace with dialog system when available (V1.X+)
 const DIALOG_BY_THRESHOLD: Dictionary = {
@@ -38,6 +43,7 @@ func _ready() -> void:
 	LenFlai.trigger_len_flai.connect(_on_trigger_len_flai)
 	LenFlai.trigger_return_flai.connect(_on_trigger_return_flai)
 	dialog_label.modulate.a = 0.0
+	white_flash.modulate.a = 0.0
 
 
 func _process(_delta: float) -> void:
@@ -59,7 +65,7 @@ func _input(event: InputEvent) -> void:
 			return
 		if LenFlai.is_flai_kilima():
 			LenFlai.cancel_auto_return()
-			_pending_threshold = -1  # manual — no dialog
+			_pending_threshold = -1
 			_start_transition_to_len_flai()
 		elif LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
 			LenFlai.cancel_auto_return()
@@ -81,6 +87,8 @@ func _on_trigger_return_flai() -> void:
 	if LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
 		_start_transition_to_flai()
 
+
+# ========== Flai ↔ Len-flai transitions ==========
 
 func _start_transition_to_len_flai() -> void:
 	_transitioning = true
@@ -109,6 +117,59 @@ func _on_animation_finished() -> void:
 			LenFlai.set_mode(LenFlai.Mode.FLAI)
 			_transitioning = false
 
+
+# ========== Len-soul visual transitions ==========
+
+func trigger_len_soul_visual() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	_fade_dialog_out()
+
+	var tween: Tween = create_tween()
+	# Flash in
+	tween.tween_property(white_flash, "modulate:a", 1.0, LEN_SOUL_FLASH_HALF)
+	# At peak: swap sprite + start scale tween
+	tween.tween_callback(_swap_to_len_soul)
+	# Flash out
+	tween.tween_property(white_flash, "modulate:a", 0.0, LEN_SOUL_FLASH_HALF)
+	tween.tween_callback(func() -> void: _transitioning = false)
+
+	if DebugOverlay.show_debug_text:
+		print("[LenFlai] visual transition: → LenSoul")
+
+
+func exit_len_soul_visual() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+
+	var tween: Tween = create_tween()
+	# Flash in
+	tween.tween_property(white_flash, "modulate:a", 1.0, LEN_SOUL_FLASH_HALF)
+	# At peak: swap sprite back to Flai + start scale tween
+	tween.tween_callback(_swap_from_len_soul)
+	# Flash out
+	tween.tween_property(white_flash, "modulate:a", 0.0, LEN_SOUL_FLASH_HALF)
+	tween.tween_callback(func() -> void: _transitioning = false)
+
+	if DebugOverlay.show_debug_text:
+		print("[LenFlai] visual transition: LenSoul → FlaiKilima")
+
+
+func _swap_to_len_soul() -> void:
+	flai_sprite.play(&"len_soul_idle")
+	_tween_sprite(LEN_SOUL_SCALE, LEN_SOUL_POS)
+	_tween_labels(0.0)
+
+
+func _swap_from_len_soul() -> void:
+	flai_sprite.play(&"flai_idle")
+	_tween_sprite(FLAI_SCALE, FLAI_POS)
+	_tween_labels(1.0)
+
+
+# ========== Shared visual helpers ==========
 
 func _show_dialog_if_triggered() -> void:
 	if _pending_threshold < 0:
@@ -146,6 +207,8 @@ func _tween_labels(target_alpha: float) -> void:
 	tween.tween_property(data_labels, "modulate:a", target_alpha, TRANSITION_DURATION * 0.5)
 
 
+# ========== SpriteFrames setup ==========
+
 func _build_sprite_frames() -> void:
 	var sf := SpriteFrames.new()
 	sf.remove_animation(&"default")
@@ -159,6 +222,11 @@ func _build_sprite_frames() -> void:
 	sf.set_animation_loop(&"len_flai_idle", true)
 	sf.set_animation_speed(&"len_flai_idle", 1.0)
 	sf.add_frame(&"len_flai_idle", _len_flai_tex)
+
+	sf.add_animation(&"len_soul_idle")
+	sf.set_animation_loop(&"len_soul_idle", true)
+	sf.set_animation_speed(&"len_soul_idle", 1.0)
+	sf.add_frame(&"len_soul_idle", _len_soul_tex)
 
 	sf.add_animation(&"transition_to_len_flai")
 	sf.set_animation_loop(&"transition_to_len_flai", false)
