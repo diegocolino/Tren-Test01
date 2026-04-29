@@ -44,7 +44,7 @@ func _process(_delta: float) -> void:
 			info += "  parry_window=%s\n" % str(kive.is_parry_window_active())
 		if kive.has_node("AnimatedSprite2D"):
 			info += "  anim=%s frame=%d\n" % [kive.sprite.animation, kive.sprite.frame]
-		info += "FLAI: kill %d | ko %d | alarm %d" % [Flai.kill_count, Flai.ko_count, Flai.current_alarm_level]
+		info += "FLAI: kill %d | ko %d | alarm %d" % [FlaiAlarm.kill_count, FlaiAlarm.ko_count, FlaiAlarm.current_alarm_level]
 		kive_label.text = info
 	else:
 		kive_label.text = "KIVE: no ref"

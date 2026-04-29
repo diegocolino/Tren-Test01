@@ -1,8 +1,8 @@
 extends Node
 
-## Flai — the train's AI. Awareness system data slots.
-## No game logic in V1.1. Connections come in V1.5 (alarm system A)
-## and V2 (system B persistent + narrative reactions).
+## FlaiAlarm — alarm subsystem of Flai (the train's AI).
+## Tracks kill/ko counts and current alarm level.
+## Part of the scripts/flai/ namespace. Full Flai system lives alongside.
 
 var kill_count: int = 0
 var ko_count: int = 0
