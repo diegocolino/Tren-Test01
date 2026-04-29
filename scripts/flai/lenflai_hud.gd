@@ -129,11 +129,13 @@ func trigger_len_soul_visual() -> void:
 	var tween: Tween = create_tween()
 	# Flash in
 	tween.tween_property(white_flash, "modulate:a", 1.0, LEN_SOUL_FLASH_HALF)
-	# At peak: swap sprite + start scale tween
+	# At peak: swap sprite + start scale tween + world overlay
 	tween.tween_callback(_swap_to_len_soul)
 	# Flash out
 	tween.tween_property(white_flash, "modulate:a", 0.0, LEN_SOUL_FLASH_HALF)
 	tween.tween_callback(func() -> void: _transitioning = false)
+
+	LenFlai.world_overlay_fade_in()
 
 	if DebugOverlay.show_debug_text:
 		print("[LenFlai] visual transition: → LenSoul")
@@ -147,11 +149,13 @@ func exit_len_soul_visual() -> void:
 	var tween: Tween = create_tween()
 	# Flash in
 	tween.tween_property(white_flash, "modulate:a", 1.0, LEN_SOUL_FLASH_HALF)
-	# At peak: swap sprite back to Flai + start scale tween
+	# At peak: swap sprite back to Flai + start scale tween + world overlay
 	tween.tween_callback(_swap_from_len_soul)
 	# Flash out
 	tween.tween_property(white_flash, "modulate:a", 0.0, LEN_SOUL_FLASH_HALF)
 	tween.tween_callback(func() -> void: _transitioning = false)
+
+	LenFlai.world_overlay_fade_out()
 
 	if DebugOverlay.show_debug_text:
 		print("[LenFlai] visual transition: LenSoul → FlaiKilima")

@@ -123,6 +123,23 @@ func cancel_auto_return() -> void:
 	_auto_return_timer = -1.0
 
 
+# World overlay reference — registered by WorldOverlay._ready().
+var _world_overlay: Node = null
+
+func register_world_overlay(overlay: Node) -> void:
+	_world_overlay = overlay
+
+
+func world_overlay_fade_in() -> void:
+	if _world_overlay and _world_overlay.has_method("fade_in"):
+		_world_overlay.fade_in()
+
+
+func world_overlay_fade_out() -> void:
+	if _world_overlay and _world_overlay.has_method("fade_out"):
+		_world_overlay.fade_out()
+
+
 func set_mode(mode: Mode) -> void:
 	if mode == current_mode:
 		return

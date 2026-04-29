@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://resources/shaders/grayscale.gdshader" id="1_shader"]
+[ext_resource type="Script" path="res://scripts/flai/world_overlay.gd" id="2_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gray"]
+shader = ExtResource("1_shader")
+shader_parameter/intensity = 0.0
+
+[node name="WorldOverlay" type="CanvasLayer"]
+layer = 5
+script = ExtResource("2_script")
+
+[node name="GrayscaleRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_gray")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
