@@ -2,17 +2,6 @@
 
 [ext_resource type="Script" path="res://scripts/flai/lenflai_hud.gd" id="2_hud_script"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
-bg_color = Color(0.05, 0.08, 0.12, 0.7)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-
 [node name="LenFlaiHUD" type="CanvasLayer"]
 layer = 10
 script = ExtResource("2_hud_script")
@@ -26,24 +15,21 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="PanelBG" type="Panel" parent="HUDContainer"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
-
 [node name="HBox" type="HBoxContainer" parent="HUDContainer"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="SpriteAnchor" type="Control" parent="HUDContainer/HBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(102, 102)
 
 [node name="FlaiSprite" type="AnimatedSprite2D" parent="HUDContainer/HBox/SpriteAnchor"]
-position = Vector2(32, 32)
-scale = Vector2(0.25, 0.25)
+position = Vector2(51, 51)
+scale = Vector2(0.4, 0.4)
 
 [node name="DataLabels" type="VBoxContainer" parent="HUDContainer/HBox"]
 layout_mode = 2
+alignment = 1
 theme_override_constants/separation = 2
 
 [node name="AlarmLabel" type="Label" parent="HUDContainer/HBox/DataLabels"]

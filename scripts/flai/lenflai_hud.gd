@@ -3,6 +3,7 @@ extends CanvasLayer
 @onready var alarm_label: Label = $HUDContainer/HBox/DataLabels/AlarmLabel
 @onready var status_label: Label = $HUDContainer/HBox/DataLabels/StatusLabel
 @onready var agents_down_label: Label = $HUDContainer/HBox/DataLabels/AgentsDownLabel
+@onready var data_labels: VBoxContainer = $HUDContainer/HBox/DataLabels
 @onready var flai_sprite: AnimatedSprite2D = $HUDContainer/HBox/SpriteAnchor/FlaiSprite
 
 var _flai_tex: Texture2D = preload("res://assets/Flai-HUD_Sprite.png")
@@ -11,9 +12,17 @@ var _transition_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Transition_S
 
 var _transitioning: bool = false
 
+const FLAI_SCALE: float = 0.4
+const LEN_FLAI_SCALE: float = 0.7
+const FLAI_POS := Vector2(51, 51)
+const LEN_FLAI_POS := Vector2(90, 90)
+const TRANSITION_DURATION: float = 0.5
+
 
 func _ready() -> void:
 	_build_sprite_frames()
+	flai_sprite.scale = Vector2(FLAI_SCALE, FLAI_SCALE)
+	flai_sprite.position = FLAI_POS
 	flai_sprite.play(&"flai_idle")
 	flai_sprite.animation_finished.connect(_on_animation_finished)
 
@@ -38,9 +47,13 @@ func _input(event: InputEvent) -> void:
 		if LenFlai.is_flai_kilima():
 			_transitioning = true
 			flai_sprite.play(&"transition_to_len_flai")
+			_tween_sprite(LEN_FLAI_SCALE, LEN_FLAI_POS)
+			_tween_labels(0.0)
 		elif LenFlai.current_mode == LenFlai.Mode.LEN_FLAI:
 			_transitioning = true
 			flai_sprite.play(&"transition_to_flai")
+			_tween_sprite(FLAI_SCALE, FLAI_POS)
+			_tween_labels(1.0)
 
 
 func _on_animation_finished() -> void:
@@ -53,6 +66,17 @@ func _on_animation_finished() -> void:
 			flai_sprite.play(&"flai_idle")
 			LenFlai.set_mode(LenFlai.Mode.FLAI)
 			_transitioning = false
+
+
+func _tween_sprite(target_scale: float, target_pos: Vector2) -> void:
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(flai_sprite, "scale", Vector2(target_scale, target_scale), TRANSITION_DURATION)
+	tween.tween_property(flai_sprite, "position", target_pos, TRANSITION_DURATION)
+
+
+func _tween_labels(target_alpha: float) -> void:
+	var tween: Tween = create_tween()
+	tween.tween_property(data_labels, "modulate:a", target_alpha, TRANSITION_DURATION * 0.5)
 
 
 func _build_sprite_frames() -> void:
