@@ -27,6 +27,7 @@ GameManager="*res://scripts/game_manager.gd"
 DebugOverlay="*res://scripts/debug_overlay.gd"
 PauseMenu="*res://scripts/pause_menu.gd"
 FlaiAlarm="*res://scripts/flai/flai_alarm.gd"
+LenFlai="*res://scripts/flai/len_flai.gd"
 
 [display]
 
