@@ -30,6 +30,7 @@
 [ext_resource type="Script" uid="uid://dmavmjafscag2" path="res://player/states/combat/red_fist/uppercut.gd" id="30_upper"]
 [ext_resource type="Script" path="res://player/states/movement/dash.gd" id="31_dash"]
 [ext_resource type="Script" path="res://player/states/movement/dash_offensive.gd" id="32_dashoff"]
+[ext_resource type="Script" path="res://player/states/len_soul_passive.gd" id="33_lensoul"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(80, 200)
@@ -204,3 +205,6 @@ script = ExtResource("27_qy68n")
 
 [node name="Damaged" type="Node" parent="StateMachine" unique_id=1420396978]
 script = ExtResource("27_jtavh")
+
+[node name="LenSoulPassive" type="Node" parent="StateMachine"]
+script = ExtResource("33_lensoul")

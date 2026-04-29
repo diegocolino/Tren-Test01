@@ -82,6 +82,8 @@ func _ready() -> void:
 		zone.body_entered.connect(_on_hide_zone_entered)
 		zone.body_exited.connect(_on_hide_zone_exited)
 	assert(stats != null, "[Kive] Falta asignar KiveStats al nodo Kive")
+	LenFlai.trigger_len_soul.connect(_on_len_soul_enter)
+	LenFlai.trigger_exit_len_soul.connect(_on_len_soul_exit)
 
 
 func _on_animation_finished() -> void:
@@ -427,6 +429,17 @@ func _on_hide_zone_entered(body: Node2D) -> void:
 func _on_hide_zone_exited(body: Node2D) -> void:
 	if body == self:
 		_nearby_hide_zones -= 1
+
+
+func _on_len_soul_enter() -> void:
+	if state_machine:
+		state_machine.transition_to(&"LenSoulPassive")
+
+
+func _on_len_soul_exit() -> void:
+	if state_machine and state_machine.current_state_name == &"LenSoulPassive":
+		var passive: LenSoulPassive = state_machine.current_state as LenSoulPassive
+		state_machine.transition_to(passive.get_restore_state())
 
 
 # ========== DEBUG ==========
