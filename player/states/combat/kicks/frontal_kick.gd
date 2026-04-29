@@ -12,8 +12,7 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	stats = kive.stats
 
 	kive.q_context = kive.get_q_context_from_chain()
-	if kive.is_chain_active():
-		kive._w_chain_timer = 0.0  # preserve chain during FrontalKick
+	kive._w_chain_timer = 0.0  # always preserve chain during FrontalKick
 	kive.current_attack_type = "kick"
 	if not kive.is_in_air:
 		kive.velocity.x = 0

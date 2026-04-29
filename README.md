@@ -8,8 +8,8 @@ Proyecto en desarrollo. Primer prototipo del Vagón 1.
 ## Estado actual
 
 - **Movimiento V1** ✅ (Idle, Walk, Run, Jump, AirJump, Dive)
-- **Sigilo V1** ✅ (Crouch, Hidden, Execution)
-- **Combate V1.2** ✅ (W chain + Q standalone + Q-en-contexto + cross-cancels + kill selectiva + Q=KO landing + cuerpos empujables)
+- **Sigilo V1** ✅ (Crouch, Hidden, Takedown)
+- **Combate V1.3** ✅ (W chain + Q + cross-cancels + kill selectiva + aéreo + Dive-attack + Dash cinematico + finishers E+W/E+Q + multi-target)
 - **Detección centralizada** 📋 planeada
 - **Vagón 2 (Yeri)** 📋 planeado
 
@@ -34,6 +34,7 @@ Configurables desde el menú de pausa (ESC). Defaults:
 - Shift izquierdo — andar (lento, sigilo)
 - Shift derecho — dive
 - S/C — agacharse
+- E — dash
 - W — punch (mantener para cargar)
 - Q — kick
 - F1–F4 — debug overlay

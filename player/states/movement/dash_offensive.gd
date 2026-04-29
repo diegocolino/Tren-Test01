@@ -18,6 +18,10 @@ func enter(_prev: StringName, _msg: Dictionary = {}) -> void:
 	kive = owner_node as Kive
 	stats = kive.stats
 
+	kive._w_chain_timer = 0.0
+	if DebugOverlay.show_debug_text:
+		print("[DashOffensive] chain timer reset on enter (step=%d)" % kive.w_chain_step)
+
 	var neutral_speed: float = stats.dash_distance_neutral / stats.dash_duration
 
 	# Priority: magnetic > target
@@ -131,6 +135,7 @@ func physics_update(delta: float) -> StringName:
 				kive.move_and_slide()
 				# Finisher
 				if kive._pending_finisher == "w":
+					kive._w_chain_timer = 0.0  # ensure chain alive at snap
 					var next_state: StringName = kive.get_w_chain_next()
 					if next_state == &"":
 						next_state = &"Jab"
