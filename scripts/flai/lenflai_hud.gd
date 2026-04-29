@@ -15,6 +15,7 @@ var _transition_tex: Texture2D = preload("res://assets/Len-Flai-HUD_Transition_S
 
 var _transitioning: bool = false
 var _pending_threshold: int = -1
+var _cursor_tex: ImageTexture = null
 
 const FLAI_SCALE: float = 0.4
 const LEN_FLAI_SCALE: float = 0.7
@@ -187,6 +188,7 @@ func _swap_to_len_soul() -> void:
 	_tween_labels(0.0)
 	LenFlai.set_mode(LenFlai.Mode.LEN_SOUL)
 	LenFlai.set_len_movables_highlight(true)
+	_set_len_soul_cursor(true)
 
 
 func _swap_from_len_soul() -> void:
@@ -194,7 +196,31 @@ func _swap_from_len_soul() -> void:
 	_tween_sprite(FLAI_SCALE, FLAI_POS)
 	_tween_labels(1.0)
 	LenFlai.set_len_movables_highlight(false)
+	_set_len_soul_cursor(false)
 	LenFlai.set_mode(LenFlai.Mode.FLAI)
+
+
+func _set_len_soul_cursor(active: bool) -> void:
+	if active:
+		if not _cursor_tex:
+			_cursor_tex = _create_cursor_texture()
+		Input.set_custom_mouse_cursor(_cursor_tex, Input.CURSOR_ARROW, Vector2(16, 16))
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		Input.set_custom_mouse_cursor(null)
+
+
+static func _create_cursor_texture() -> ImageTexture:
+	var img: Image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	var center := Vector2(16, 16)
+	for x: int in range(32):
+		for y: int in range(32):
+			var dist: float = Vector2(x, y).distance_to(center)
+			if dist <= 14:
+				img.set_pixel(x, y, Color.WHITE)
+			else:
+				img.set_pixel(x, y, Color.TRANSPARENT)
+	return ImageTexture.create_from_image(img)
 
 
 # ========== Shared visual helpers ==========
