@@ -41,6 +41,7 @@ signal trigger_len_flai(duration: float, threshold_alarm: int)
 signal trigger_return_flai()
 signal trigger_len_soul()
 signal trigger_exit_len_soul()
+signal force_exit_len_soul_visual()
 
 # World overlay reference — registered by WorldOverlay._ready().
 var _world_overlay: Node = null

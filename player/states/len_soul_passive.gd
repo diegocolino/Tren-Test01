@@ -29,6 +29,7 @@ func exit() -> void:
 		LenFlai.world_overlay_fade_out()
 		LenFlai.set_len_movables_highlight(false)
 		LenFlai.set_mode(LenFlai.Mode.FLAI)
+		LenFlai.force_exit_len_soul_visual.emit()
 	_exiting_normally = false
 	if DebugOverlay.show_debug_text:
 		print("[LenSoulPassive] exit | returning to=%s" % _state_to_restore)

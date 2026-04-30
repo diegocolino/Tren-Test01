@@ -22,6 +22,10 @@
 [ext_resource type="AudioStream" uid="uid://bbpbjbtc51qdt" path="res://audio/music/kive_4_bass+guitarstrum+guitarriff+guitarsolo_d#.wav" id="20_1gjma"]
 [ext_resource type="PackedScene" uid="uid://ttbtb7hsot3t" path="res://scenes/AlarmLight.tscn" id="20_alarm"]
 [ext_resource type="PackedScene" path="res://scenes/HideZone.tscn" id="21_hidezone"]
+[ext_resource type="PackedScene" path="res://scenes/ui/world_overlay.tscn" id="22_overlay"]
+[ext_resource type="PackedScene" path="res://scenes/ui/lenflai_hud.tscn" id="23_hud"]
+[ext_resource type="PackedScene" path="res://scenes/objects/len_soul_tutorial_trigger.tscn" id="24_tutorial"]
+[ext_resource type="PackedScene" path="res://scenes/objects/len_movable.tscn" id="25_movable"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7c2j4"]
 shader = ExtResource("2_5ovka")
@@ -316,3 +320,13 @@ volume_db = -80.0
 [node name="Layer4" type="AudioStreamPlayer" parent="KiveMusic" unique_id=1862081370]
 stream = ExtResource("20_1gjma")
 volume_db = -80.0
+
+[node name="WorldOverlay" parent="." instance=ExtResource("22_overlay")]
+
+[node name="LenFlaiHUD" parent="." instance=ExtResource("23_hud")]
+
+[node name="LenSoulTutorialTrigger" parent="." instance=ExtResource("24_tutorial")]
+position = Vector2(900, 680)
+
+[node name="LenMovableChair" parent="." instance=ExtResource("25_movable")]
+position = Vector2(1100, 760)

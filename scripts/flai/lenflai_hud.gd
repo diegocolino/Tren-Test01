@@ -49,6 +49,7 @@ func _ready() -> void:
 	LenFlai.trigger_return_flai.connect(_on_trigger_return_flai)
 	LenFlai.trigger_len_soul.connect(_on_trigger_len_soul)
 	LenFlai.trigger_exit_len_soul.connect(_on_trigger_exit_len_soul)
+	LenFlai.force_exit_len_soul_visual.connect(_on_force_exit_len_soul_visual)
 	dialog_label.modulate.a = 0.0
 	white_flash.modulate.a = 0.0
 
@@ -111,6 +112,19 @@ func _on_trigger_exit_len_soul() -> void:
 	if _transitioning:
 		return
 	exit_len_soul_visual()
+
+
+func _on_force_exit_len_soul_visual() -> void:
+	_transitioning = false
+	flai_sprite.play(&"flai_idle")
+	flai_sprite.scale = Vector2(FLAI_SCALE, FLAI_SCALE)
+	flai_sprite.position = FLAI_POS
+	data_labels.modulate.a = 1.0
+	white_flash.modulate.a = 0.0
+	_set_len_soul_cursor(false)
+	_fade_dialog_out()
+	if DebugOverlay.show_debug_text:
+		print("[LenFlai] force reset HUD — edge case (damage during LenSoul)")
 
 
 # ========== Flai ↔ Len-flai transitions ==========
