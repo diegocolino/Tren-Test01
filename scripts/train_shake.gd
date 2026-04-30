@@ -20,6 +20,20 @@ const ZOOM_MAX: float = 3.0
 const ZOOM_SMOOTH: float = 5.0
 const DRAG_SENSITIVITY: float = 1.5
 
+# Impact shake (discrete, time_scale independent)
+var _impact_offset: Vector2 = Vector2.ZERO
+
+
+func shake(duration: float, intensity: float) -> void:
+	var start_ms: int = Time.get_ticks_msec()
+	while (Time.get_ticks_msec() - start_ms) / 1000.0 < duration:
+		_impact_offset = Vector2(
+			randf_range(-intensity, intensity),
+			randf_range(-intensity, intensity)
+		)
+		await get_tree().process_frame
+	_impact_offset = Vector2.ZERO
+
 
 func _process(delta: float) -> void:
 	if DebugOverlay.god_mode:
@@ -42,16 +56,16 @@ func _process(delta: float) -> void:
 	_process_shake(delta)
 
 
-func _process_shake(delta: float) -> void:
+func _process_shake(_delta: float) -> void:
 	if not shake_enabled:
-		offset = Vector2.ZERO
+		offset = _impact_offset
 		return
 
 	var time: float = Time.get_ticks_msec() / 1000.0
 	var offset_y: float = sin(time * shake_frequency * TAU) * shake_amplitude_y
 	# Frecuencia X multiplicada por 0.7 para desfase orgánico
 	var offset_x: float = sin(time * shake_frequency * TAU * 0.7) * shake_amplitude_x
-	offset = Vector2(offset_x, offset_y)
+	offset = Vector2(offset_x, offset_y) + _impact_offset
 
 
 func _detach_camera() -> void:

@@ -2,10 +2,17 @@
 
 [ext_resource type="Shader" path="res://resources/shaders/grayscale.gdshader" id="1_shader"]
 [ext_resource type="Script" path="res://scripts/flai/world_overlay.gd" id="2_script"]
+[ext_resource type="Shader" path="res://resources/shaders/vignette.gdshader" id="3_vignette"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gray"]
 shader = ExtResource("1_shader")
 shader_parameter/intensity = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = ExtResource("3_vignette")
+shader_parameter/vignette_intensity = 0.0
+shader_parameter/vignette_softness = 0.5
+shader_parameter/vignette_color = Color(0, 0, 0, 1)
 
 [node name="WorldOverlay" type="CanvasLayer"]
 layer = 5
@@ -13,6 +20,14 @@ script = ExtResource("2_script")
 
 [node name="GrayscaleRect" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_gray")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VignetteRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_vignette")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

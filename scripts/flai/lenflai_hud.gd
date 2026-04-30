@@ -26,6 +26,10 @@ const LEN_SOUL_POS := Vector2(115, 115)  # TUNABLE — same growth vector as 2.5
 const TRANSITION_DURATION: float = 0.5
 const DIALOG_FADE_DURATION: float = 0.3  # TUNABLE
 const LEN_SOUL_FLASH_HALF: float = 0.15  # TUNABLE — half of the white flash
+const SHAKE_ENTER_DURATION: float = 0.25  # TUNABLE
+const SHAKE_ENTER_INTENSITY: float = 8.0  # TUNABLE — px
+const SHAKE_EXIT_DURATION: float = 0.4  # TUNABLE
+const SHAKE_EXIT_INTENSITY: float = 3.0  # TUNABLE — px
 
 # TODO: replace with dialog system when available (V1.X+)
 const DIALOG_BY_THRESHOLD: Dictionary = {
@@ -157,6 +161,7 @@ func trigger_len_soul_visual() -> void:
 	tween.tween_callback(func() -> void: _transitioning = false)
 
 	LenFlai.world_overlay_fade_in()
+	_camera_shake(SHAKE_ENTER_DURATION, SHAKE_ENTER_INTENSITY)
 
 	if DebugOverlay.show_debug_text:
 		print("[LenFlai] visual transition: → LenSoul")
@@ -177,6 +182,7 @@ func exit_len_soul_visual() -> void:
 	tween.tween_callback(func() -> void: _transitioning = false)
 
 	LenFlai.world_overlay_fade_out()
+	_camera_shake(SHAKE_EXIT_DURATION, SHAKE_EXIT_INTENSITY)
 
 	if DebugOverlay.show_debug_text:
 		print("[LenFlai] visual transition: LenSoul → FlaiKilima")
@@ -259,6 +265,14 @@ func _tween_sprite(target_scale: float, target_pos: Vector2) -> void:
 func _tween_labels(target_alpha: float) -> void:
 	var tween: Tween = create_tween()
 	tween.tween_property(data_labels, "modulate:a", target_alpha, TRANSITION_DURATION * 0.5)
+
+
+func _camera_shake(duration: float, intensity: float) -> void:
+	var kive: Node = get_tree().get_first_node_in_group("player")
+	if kive:
+		var cam: Node = kive.get_node_or_null("Camera2D")
+		if cam and cam.has_method("shake"):
+			cam.shake(duration, intensity)
 
 
 # ========== SpriteFrames setup ==========
